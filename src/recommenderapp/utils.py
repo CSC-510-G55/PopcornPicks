@@ -19,7 +19,7 @@ from flask import jsonify
 from bson.objectid import ObjectId
 import json
 import pandas as pd
-
+import os
 
 def create_colored_tags(genres):
     """
@@ -241,12 +241,47 @@ def submit_review(client, user, movie, score, review):
     """
     Utility function for creating a dictionary for submitting a review
     """
-    client.PopcornPicksDB.reviews.insert_one({
-        "user_id": ObjectId(user[1]),
-        "movie": movie,
-        "score": score,
-        "review": review
-    })
+    try:
+        db = client.PopcornPicksDB
+        
+        movie_doc = db.movies.find_one({"name": movie})
+        
+        if not movie_doc:
+            csv_path = os.path.join(os.path.dirname(__file__), '../../data/movies.csv')
+            df = pd.read_csv(csv_path)
+            print(df.head())
+            movie_row = df[df['title'] == movie]
+            print(movie, movie_row)
+
+            if movie_row.empty:
+                raise Exception("Movie not found in CSV")
+            
+            # Convert movieId to a standard Python int
+            movie_doc = {
+                "_id": int(movie_row.iloc[0]['movieId']),  # Cast to int here
+                "name": movie,
+                "imdb_id": movie_row.iloc[0]['imdb_id'],
+            }
+            
+            # Insert movie into movies collection
+            db.movies.insert_one(movie_doc)
+        
+        if not movie_doc:
+            raise Exception("Movie not found in database or CSV")
+        
+        review_doc = {
+            "user_id": ObjectId(user[1]),
+            "movie_id": movie_doc["_id"],
+            "score": score,
+            "review": review,
+        }
+        
+        db.ratings.insert_one(review_doc)
+        
+    except Exception as e:
+        print(f"Error submitting review: {str(e)}")
+        raise
+
 
 
 def get_wall_posts(client):
