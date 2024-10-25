@@ -256,14 +256,12 @@ def submit_review(client, user, movie, score, review):
             if movie_row.empty:
                 raise Exception("Movie not found in CSV")
             
-            # Convert movieId to a standard Python int
             movie_doc = {
-                "_id": int(movie_row.iloc[0]['movieId']),  # Cast to int here
+                "_id": int(movie_row.iloc[0]['movieId']),
                 "name": movie,
                 "imdb_id": movie_row.iloc[0]['imdb_id'],
             }
             
-            # Insert movie into movies collection
             db.movies.insert_one(movie_doc)
         
         if not movie_doc:
@@ -274,6 +272,7 @@ def submit_review(client, user, movie, score, review):
             "movie_id": movie_doc["_id"],
             "score": score,
             "review": review,
+            "time": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
         }
         
         db.ratings.insert_one(review_doc)
@@ -286,11 +285,37 @@ def submit_review(client, user, movie, score, review):
 
 def get_wall_posts(client):
     """
-    Utility function for creating getting wall posts from the db
+    Utility function to get wall posts from the MongoDB database, 
+    joining data from Users, Ratings, and Movies collections.
     """
-    posts = list(client.PopcornPicksDB.reviews.find().sort("_id", -1))
-    print("posts", posts)
-    return json.dumps(posts, default=str)
+    db = client.PopcornPicksDB
+
+    posts = list(db.ratings.aggregate([
+        {
+            "$lookup": {
+                "from": "movies",
+                "localField": "movie_id",
+                "foreignField": "_id",
+                "as": "movie_info"
+            }
+        },
+
+        { "$unwind": "$movie_info" },
+        {
+            "$project": {
+                "_id": 0,
+                "name": "$movie_info.name",
+                "imdb_id": "$movie_info.imdb_id",
+                "review": "$review",
+                "score": "$score",
+                "time": "$time"
+            }
+        },
+        { "$sort": { "time": -1 } },
+        { "$limit": 50 }
+    ]))
+    print(posts)
+    return jsonify(posts)
 
 
 def get_recent_movies(client, user_id):
@@ -299,24 +324,17 @@ def get_recent_movies(client, user_id):
     """
     try:
         db = client.PopcornPicksDB
-        # Get recent ratings for the user
         pipeline = [
-            # Match ratings for the specific user
             {"$match": {"user_id": str(user_id)}},
-            # Sort by time descending
             {"$sort": {"time": -1}},
-            # Limit to 5 most recent
             {"$limit": 5},
-            # Join with movies collection
             {"$lookup": {
                 "from": "movies",
                 "localField": "movie_id",
                 "foreignField": "_id",
                 "as": "movie"
             }},
-            # Unwind movie array
             {"$unwind": "$movie"},
-            # Project final format
             {"$project": {
                 "_id": 0,
                 "name": "$movie.name",
@@ -347,35 +365,27 @@ def get_recent_friend_movies(client, username):
     try:
         db = client.PopcornPicksDB
         
-        # First get the user and their friends list
         user = db.users.find_one({"username": username})
         if not user:
             return jsonify([])
             
-        friends = user.get("friends", [])[1]  # Get friends array from user document
+        friends = user.get("friends", [])[1]
         if not friends:
             return jsonify([])
             
-        # Get recent ratings from all friends using aggregation pipeline
         pipeline = [
-            # Match ratings from friends
             {"$match": {
                 "user_id": {"$in": friends}
             }},
-            # Sort by time descending
             {"$sort": {"time": -1}},
-            # Limit to 5 most recent
             {"$limit": 5},
-            # Join with movies collection
             {"$lookup": {
                 "from": "movies",
                 "localField": "movie_id",
                 "foreignField": "_id",
                 "as": "movie"
             }},
-            # Unwind movie array
             {"$unwind": "$movie"},
-            # Project final format
             {"$project": {
                 "_id": 0,
                 "name": "$movie.name",
