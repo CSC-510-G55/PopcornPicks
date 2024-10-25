@@ -272,6 +272,19 @@ def success():
     """
     return render_template("success.html")
 
+def setup_mongodb_indexes():
+    try:
+        client.db.users.create_index([("username", 1)], unique=True)
+        client.db.users.create_index([("email", 1)], unique=True)
+        client.db.movies.create_index([("imdb_id", 1)], unique=True)
+        client.db.movies.create_index([("name", 1)])
+        client.db.ratings.create_index([("user_id", 1), ("time", -1)])
+        client.db.ratings.create_index([("movie_id", 1)])
+        
+        print("Indexes created successfully")
+    except Exception as e:
+        print(f"Error creating indexes: {str(e)}")
 
 if __name__ == "__main__":
+    setup_mongodb_indexes()
     app.run(port=5001)
