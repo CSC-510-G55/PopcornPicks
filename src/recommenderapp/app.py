@@ -14,6 +14,7 @@ from flask import Flask, jsonify, render_template, request, g
 from flask_cors import CORS
 import mysql.connector
 from pymongo import MongoClient
+from bson.objectid import ObjectId
 from dotenv import load_dotenv
 from utils import (
     beautify_feedback_data,
@@ -212,7 +213,11 @@ def recent_movies():
     """
     Gets the recent movies of the active user
     """
-    return get_recent_movies(g.db, user[1])
+    movies = list(client.PopcornPicksDB.reviews.find(
+        {"user_id": ObjectId(user[1])},
+        {"movie": 1, "_id": 0}
+    ).sort("_id", -1))
+    return json.dumps(movies)
 
 
 @app.route("/getRecentFriendMovies", methods=["POST"])
