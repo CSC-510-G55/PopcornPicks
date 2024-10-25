@@ -158,19 +158,16 @@ def signout():
     user[1] = None
     return request.data
 
-
 @app.route("/log", methods=["POST"])
 def login():
-    """
-    Handles logging in the active user
-    """
+    """Handles user login."""
     data = json.loads(request.data)
-    resp = login_to_account(g.db, data["username"], data["password"])
-    if resp is None:
-        return 400
+    resp = login_to_account(client, data["username"], data["password"])
+
+    if not resp:
+        return "Invalid credentials", 400
     user[1] = resp
     return request.data
-
 
 @app.route("/friend", methods=["POST"])
 def friend():

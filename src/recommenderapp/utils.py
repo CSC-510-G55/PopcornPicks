@@ -230,21 +230,19 @@ def add_friend(db, username, user_id):
     db.commit()
 
 
-def login_to_account(db, username, password):
+def login_to_account(client, username, password):
     """
     Utility function for logging in to an account
     """
-    executor = db.cursor()
-    executor.execute(
-        "SELECT IdUsers, username, password FROM Users WHERE username = %s;",
-        [username],
-    )
-    result = executor.fetchall()
-    new_pass = password.encode("utf-8")
-    actual_pass = (result[0][2]).encode("utf-8")
-    if len(result) == 0 or not bcrypt.checkpw(new_pass, actual_pass):
+    try:
+        db = client.PopcornPicksDB
+        user = db.users.find_one({"username": username})
+        if user and bcrypt.checkpw(password.encode('utf-8'), user["password"]):
+            return str(user["_id"])
         return None
-    return result[0][0]
+    except Exception as e:
+        print(f"Error logging in: {str(e)}")
+        return None
 
 
 def submit_review(db, user, movie, score, review):
