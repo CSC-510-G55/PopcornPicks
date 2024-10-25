@@ -13,6 +13,7 @@ import os
 from flask import Flask, jsonify, render_template, request, g
 from flask_cors import CORS
 import mysql.connector
+from pymongo import MongoClient
 from dotenv import load_dotenv
 from utils import (
     beautify_feedback_data,
@@ -41,6 +42,14 @@ app.secret_key = "secret key"
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 user = {1: None}
 
+from pymongo.mongo_client import MongoClient
+uri = "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net/?retryWrites=true&w=majority&appName=PopCorn"
+client = MongoClient(uri)
+try:
+    client.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
 
 @app.route("/")
 def login_page():
@@ -137,7 +146,7 @@ def create_acc():
     Handles creating a new account
     """
     data = json.loads(request.data)
-    create_account(g.db, data["email"], data["username"], data["password"])
+    create_account(client, data["email"], data["username"], data["password"])
     return request.data
 
 
@@ -260,29 +269,6 @@ def success():
     Renders the success page.
     """
     return render_template("success.html")
-
-
-@app.before_request
-def before_request():
-    """
-    Opens the db connection.
-    """
-    load_dotenv()
-    g.db = mysql.connector.connect(
-        user="root",
-        password='svrsvrsvr',
-        host="127.0.0.1",
-        database="PopcornPicksDB",
-    )
-
-
-@app.after_request
-def after_request(response):
-    """
-    Closes the db connection.
-    """
-    g.db.close()
-    return response
 
 
 if __name__ == "__main__":

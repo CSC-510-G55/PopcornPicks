@@ -193,18 +193,23 @@ def send_email_to_user(recipient_email, categorized_data):
         server.quit()
 
 
-def create_account(db, email, username, password):
-    """
-    Utility function for creating an account
-    """
-    executor = db.cursor()
-    new_pass = password.encode("utf-8")
-    h = bcrypt.hashpw(new_pass, bcrypt.gensalt())
-    executor.execute(
-        "INSERT INTO Users(username, email, password) VALUES (%s, %s, %s);",
-        (username, email, h),
-    )
-    db.commit()
+def create_account(client, email, username, password):
+    """Utility function for creating an account"""
+    try:
+        db = client.PopcornPicksDB
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        user_data = {
+            "username": username,
+            "email": email,
+            "password": hashed_password,
+            "friends": [],
+            "created_at": datetime.datetime.utcnow()
+        }
+        db.users.insert_one(user_data)
+        return True
+    except Exception as e:
+        print(f"Error creating account: {str(e)}")
+        return False
 
 
 def add_friend(db, username, user_id):
