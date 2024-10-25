@@ -16,7 +16,8 @@ from smtplib import SMTPException
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from flask import jsonify
-
+from bson.objectid import ObjectId
+import json
 import pandas as pd
 
 
@@ -212,23 +213,14 @@ def create_account(client, email, username, password):
         return False
 
 
-def add_friend(db, username, user_id):
+def add_friend(client, user, username):
     """
     Utility function for adding a friend
     """
-    executor = db.cursor()
-    executor.execute("SELECT idUsers FROM Users WHERE username = %s;", [username])
-    friend_id = executor.fetchall()[0][0]
-    executor.execute(
-        "INSERT INTO Friends(idUsers, idFriend) VALUES (%s, %s);",
-        (int(user_id), int(friend_id)),
+    client.PopcornPicksDB.users.update_one(
+        {"_id": ObjectId(user[1])},
+        {"$addToSet": {"friends": username}}
     )
-    executor.execute(
-        "INSERT INTO Friends(idUsers, idFriend) VALUES (%s, %s);",
-        (int(friend_id), int(user_id)),
-    )
-    db.commit()
-
 
 def login_to_account(client, username, password):
     """
@@ -245,106 +237,128 @@ def login_to_account(client, username, password):
         return None
 
 
-def submit_review(db, user, movie, score, review):
+def submit_review(client, user, movie, score, review):
     """
     Utility function for creating a dictionary for submitting a review
     """
-    executor = db.cursor()
-    executor.execute("SELECT idMovies FROM Movies WHERE name = %s", [movie])
-    movie_id = executor.fetchall()[0][0]
-    d = datetime.datetime.utcnow()
-    timestamp = d.strftime("%Y-%m-%d %H:%M:%S")
-    executor.execute(
-        "INSERT INTO Ratings(user_id, movie_id, score, review, time) \
-                        VALUES (%s, %s, %s, %s, %s);",
-        (int(user), int(movie_id), int(score), str(review), timestamp),
-    )
-    db.commit()
+    client.PopcornPicksDB.reviews.insert_one({
+        "user_id": ObjectId(user[1]),
+        "movie": movie,
+        "score": score,
+        "review": review
+    })
 
 
-def get_wall_posts(db):
+def get_wall_posts(client):
     """
     Utility function for creating getting wall posts from the db
     """
-    executor = db.cursor()
-    executor.execute(
-        "SELECT name, imdb_id, review, score, username, time FROM Users JOIN \
-                     (SELECT name, imdb_id, review, score, user_id, time FROM Ratings\
-                          JOIN Movies on Ratings.movie_id = Movies.idMovies) AS moviereview \
-                            ON Users.idUsers = moviereview.user_id ORDER BY time limit 50"
-    )
-    rows = [x[0] for x in executor.description]
-    result = executor.fetchall()
-    json_data = []
-    for r in result:
-        json_data.append(dict(zip(rows, r)))
-    return jsonify(json_data)
+    posts = list(client.PopcornPicksDB.reviews.find().sort("_id", -1))
+    print("posts", posts)
+    return json.dumps(posts, default=str)
 
 
-def get_recent_movies(db, user):
+def get_recent_movies(client, user_id):
     """
     Utility function for getting recent movies reviewed by a user
     """
-    executor = db.cursor()
-    executor.execute(
-        "SELECT name, score FROM Ratings AS r JOIN \
-    Movies AS m ON m.idMovies = r.movie_id \
-    WHERE user_id = %s \
-    ORDER BY time DESC \
-    LIMIT 5;",
-        [int(user)],
-    )
-    rows = [x[0] for x in executor.description]
-    result = executor.fetchall()
-    json_data = []
-    for r in result:
-        json_data.append(dict(zip(rows, r)))
-    return jsonify(json_data)
+    try:
+        db = client.PopcornPicksDB
+        # Get recent ratings for the user
+        pipeline = [
+            # Match ratings for the specific user
+            {"$match": {"user_id": str(user_id)}},
+            # Sort by time descending
+            {"$sort": {"time": -1}},
+            # Limit to 5 most recent
+            {"$limit": 5},
+            # Join with movies collection
+            {"$lookup": {
+                "from": "movies",
+                "localField": "movie_id",
+                "foreignField": "_id",
+                "as": "movie"
+            }},
+            # Unwind movie array
+            {"$unwind": "$movie"},
+            # Project final format
+            {"$project": {
+                "_id": 0,
+                "name": "$movie.name",
+                "score": "$score"
+            }}
+        ]
+        
+        results = list(db.ratings.aggregate(pipeline))
+        return jsonify(results)
+        
+    except Exception as e:
+        print(f"Error getting recent movies: {str(e)}")
+        return jsonify([])
 
 
-def get_username(db, user):
+def get_username(client, user):
     """
     Utility function for getting the current users username
     """
-    executor = db.cursor()
-    executor.execute("SELECT username FROM Users WHERE idUsers = %s;", [int(user)])
-    result = executor.fetchall()
-    return jsonify(result[0][0])
+    user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user[1])})
+    return user_data["username"] if user_data else ""
 
 
-def get_recent_friend_movies(db, user):
+def get_recent_friend_movies(client, username):
     """
-    Utility function for getting a certain friends recent movies
+    Utility function for getting recent movies from user's friends
     """
-    executor = db.cursor()
-    executor.execute("SELECT idUsers FROM Users WHERE username = %s;", [str(user)])
-    result = executor.fetchall()
-    user_id = result[0][0]
-    executor.execute(
-        "SELECT name, score FROM Ratings AS r JOIN \
-    Movies AS m ON m.idMovies = r.movie_id \
-    WHERE user_id = %s \
-    ORDER BY time DESC \
-    LIMIT 5;",
-        [int(user_id)],
-    )
-    rows = [x[0] for x in executor.description]
-    result = executor.fetchall()
-    json_data = []
-    for r in result:
-        json_data.append(dict(zip(rows, r)))
-    return jsonify(json_data)
+    try:
+        db = client.PopcornPicksDB
+        
+        # First get the user and their friends list
+        user = db.users.find_one({"username": username})
+        if not user:
+            return jsonify([])
+            
+        friends = user.get("friends", [])[1]  # Get friends array from user document
+        if not friends:
+            return jsonify([])
+            
+        # Get recent ratings from all friends using aggregation pipeline
+        pipeline = [
+            # Match ratings from friends
+            {"$match": {
+                "user_id": {"$in": friends}
+            }},
+            # Sort by time descending
+            {"$sort": {"time": -1}},
+            # Limit to 5 most recent
+            {"$limit": 5},
+            # Join with movies collection
+            {"$lookup": {
+                "from": "movies",
+                "localField": "movie_id",
+                "foreignField": "_id",
+                "as": "movie"
+            }},
+            # Unwind movie array
+            {"$unwind": "$movie"},
+            # Project final format
+            {"$project": {
+                "_id": 0,
+                "name": "$movie.name",
+                "score": "$score"
+            }}
+        ]
+        
+        results = list(db.ratings.aggregate(pipeline))
+        return jsonify(results)
+        
+    except Exception as e:
+        print(f"Error getting friend movies: {str(e)}")
+        return jsonify([])
 
 
-def get_friends(db, user):
+def get_friends(client, user):
     """
     Utility function for getting the current users friends
     """
-    executor = db.cursor()
-    executor.execute(
-        "SELECT username FROM Users AS u \
-                     JOIN Friends AS f ON u.idUsers = f.idFriend WHERE f.idUsers = %s;",
-        [int(user)],
-    )
-    result = executor.fetchall()
-    return jsonify(result)
+    user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user[1])})
+    return json.dumps(user_data.get("friends", []))

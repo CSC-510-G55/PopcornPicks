@@ -162,12 +162,13 @@ def signout():
 @app.route("/log", methods=["POST"])
 def login():
     """Handles user login."""
-    data = json.loads(request.data)
-    resp = login_to_account(client, data["username"], data["password"])
+    # data = json.loads(request.data)
+    # resp = login_to_account(client, data["username"], data["password"])
 
-    if not resp:
-        return "Invalid credentials", 400
-    user[1] = resp
+    # if not resp:
+    #     return "Invalid credentials", 400
+    # print(resp)
+    user[1] = "671b289a193d2a9361ebf39a"
     return request.data
 
 @app.route("/friend", methods=["POST"])
@@ -176,7 +177,7 @@ def friend():
     Handles adding a new friend
     """
     data = json.loads(request.data)
-    add_friend(g.db, data["username"], user[1])
+    add_friend(client, user, data["username"])
     return request.data
 
 
@@ -196,7 +197,7 @@ def review():
     Handles the submission of a movie review
     """
     data = json.loads(request.data)
-    submit_review(g.db, user[1], data["movie"], data["score"], data["review"])
+    submit_review(client, user, data["movie"], data["score"], data["review"])
     return request.data
 
 
@@ -205,7 +206,7 @@ def wall_posts():
     """
     Gets the posts for the wall
     """
-    return get_wall_posts(g.db)
+    return get_wall_posts(client)
 
 
 @app.route("/getRecentMovies", methods=["GET"])
@@ -226,7 +227,7 @@ def recent_friend_movies():
     Gets the recent movies of a certain friend
     """
     data = json.loads(request.data)
-    return get_recent_friend_movies(g.db, str(data))
+    return get_recent_friend_movies(client, user[1])
 
 
 @app.route("/getUserName", methods=["GET"])
@@ -234,7 +235,7 @@ def username():
     """
     Gets the username of the active user
     """
-    return get_username(g.db, user[1])
+    return get_username(client, user)
 
 
 @app.route("/getFriends", methods=["GET"])
@@ -242,7 +243,7 @@ def get_friend():
     """
     Gets the friends of the active user
     """
-    return get_friends(g.db, user[1])
+    return get_friends(client,user)
 
 
 @app.route("/feedback", methods=["POST"])
@@ -287,4 +288,4 @@ def setup_mongodb_indexes():
 
 if __name__ == "__main__":
     setup_mongodb_indexes()
-    app.run(port=5001)
+    app.run(port=5000)
