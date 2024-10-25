@@ -10,7 +10,7 @@ $(document).ready(function () {
 			source: function (request, response) {
 				$.ajax({
 					type: "POST",
-					url: "http://localhost:5000/search",
+					url: "http://127.0.0.1:5001/search",
 					dataType: "json",
 					cache: false,
 					data: {
