@@ -21,24 +21,24 @@ $("#backToLanding").click(function () {
 });
 
 
-posts = []
+var posts = [];
 
-function loadPosts(){
-
-    return new Promise(function(resolve, reject){
+function loadPosts() {
+    return new Promise(function(resolve, reject) {
         $.ajax({
             type: 'GET',
             url: '/getWallData',
             contentType: "application/json;charset=UTF-8",
             success: function(response) {
-                console.log(response)
-                resolve(response)
+                posts = response;
+                console.log(posts);
+                resolve(posts); // Resolve with posts instead of response
             },
             error: function(error) {
                 reject(error);
             }
-            });
         });
+    });
 }
 
 function fetchMovieData(imdbID){
@@ -64,7 +64,10 @@ function fetchMovieData(imdbID){
 async function renderPosts() {
     const postContainer = $('#post-container');
 
-    posts.forEach(post => buildPost(post, postContainer));
+    for (const post of posts) {
+        console.log(post);
+        await buildPost(post, postContainer);
+    }
 }
 
 async function buildPost(post, postContainer){

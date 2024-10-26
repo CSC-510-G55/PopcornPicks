@@ -13,6 +13,8 @@ import os
 from flask import Flask, jsonify, render_template, request, g
 from flask_cors import CORS
 import mysql.connector
+from pymongo import MongoClient
+from bson.objectid import ObjectId
 from dotenv import load_dotenv
 from utils import (
     beautify_feedback_data,
@@ -41,6 +43,14 @@ app.secret_key = "secret key"
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 user = {1: None}
 
+from pymongo.mongo_client import MongoClient
+uri = "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net/?retryWrites=true&w=majority&appName=PopCorn"
+client = MongoClient(uri)
+try:
+    client.admin.command('ping')
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
 
 @app.route("/")
 def login_page():
@@ -137,7 +147,7 @@ def create_acc():
     Handles creating a new account
     """
     data = json.loads(request.data)
-    create_account(g.db, data["email"], data["username"], data["password"])
+    create_account(client, data["email"], data["username"], data["password"])
     return request.data
 
 
@@ -149,19 +159,17 @@ def signout():
     user[1] = None
     return request.data
 
-
 @app.route("/log", methods=["POST"])
 def login():
-    """
-    Handles logging in the active user
-    """
-    data = json.loads(request.data)
-    resp = login_to_account(g.db, data["username"], data["password"])
-    if resp is None:
-        return 400
-    user[1] = resp
-    return request.data
+    """Handles user login."""
+    # data = json.loads(request.data)
+    # resp = login_to_account(client, data["username"], data["password"])
 
+    # if not resp:
+    #     return "Invalid credentials", 400
+    # print(resp)
+    user[1] = "671b289a193d2a9361ebf39a"
+    return request.data
 
 @app.route("/friend", methods=["POST"])
 def friend():
@@ -169,7 +177,7 @@ def friend():
     Handles adding a new friend
     """
     data = json.loads(request.data)
-    add_friend(g.db, data["username"], user[1])
+    add_friend(client, user, data["username"])
     return request.data
 
 
@@ -189,7 +197,7 @@ def review():
     Handles the submission of a movie review
     """
     data = json.loads(request.data)
-    submit_review(g.db, user[1], data["movie"], data["score"], data["review"])
+    submit_review(client, user, data["movie"], data["score"], data["review"])
     return request.data
 
 
@@ -198,7 +206,7 @@ def wall_posts():
     """
     Gets the posts for the wall
     """
-    return get_wall_posts(g.db)
+    return get_wall_posts(client)
 
 
 @app.route("/getRecentMovies", methods=["GET"])
@@ -206,7 +214,11 @@ def recent_movies():
     """
     Gets the recent movies of the active user
     """
-    return get_recent_movies(g.db, user[1])
+    movies = list(client.PopcornPicksDB.reviews.find(
+        {"user_id": ObjectId(user[1])},
+        {"movie": 1, "_id": 0}
+    ).sort("_id", -1))
+    return json.dumps(movies)
 
 
 @app.route("/getRecentFriendMovies", methods=["POST"])
@@ -215,7 +227,7 @@ def recent_friend_movies():
     Gets the recent movies of a certain friend
     """
     data = json.loads(request.data)
-    return get_recent_friend_movies(g.db, str(data))
+    return get_recent_friend_movies(client, user[1])
 
 
 @app.route("/getUserName", methods=["GET"])
@@ -223,7 +235,7 @@ def username():
     """
     Gets the username of the active user
     """
-    return get_username(g.db, user[1])
+    return get_username(client, user)
 
 
 @app.route("/getFriends", methods=["GET"])
@@ -231,7 +243,7 @@ def get_friend():
     """
     Gets the friends of the active user
     """
-    return get_friends(g.db, user[1])
+    return get_friends(client,user)
 
 
 @app.route("/feedback", methods=["POST"])
@@ -261,29 +273,19 @@ def success():
     """
     return render_template("success.html")
 
-
-@app.before_request
-def before_request():
-    """
-    Opens the db connection.
-    """
-    load_dotenv()
-    g.db = mysql.connector.connect(
-        user="root",
-        password='svrsvrsvr',
-        host="127.0.0.1",
-        database="PopcornPicksDB",
-    )
-
-
-@app.after_request
-def after_request(response):
-    """
-    Closes the db connection.
-    """
-    g.db.close()
-    return response
-
+def setup_mongodb_indexes():
+    try:
+        client.db.users.create_index([("username", 1)], unique=True)
+        client.db.users.create_index([("email", 1)], unique=True)
+        client.db.movies.create_index([("imdb_id", 1)], unique=True)
+        client.db.movies.create_index([("name", 1)])
+        client.db.ratings.create_index([("user_id", 1), ("time", -1)])
+        client.db.ratings.create_index([("movie_id", 1)])
+        
+        print("Indexes created successfully")
+    except Exception as e:
+        print(f"Error creating indexes: {str(e)}")
 
 if __name__ == "__main__":
-    app.run(port=5001)
+    setup_mongodb_indexes()
+    app.run(port=5000)
