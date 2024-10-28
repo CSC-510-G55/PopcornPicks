@@ -317,6 +317,42 @@ def get_wall_posts(client):
     print(posts)
     return jsonify(posts)
 
+def get_user_ratings(client):
+    """
+    Utility function to get wall posts from the MongoDB database, 
+    joining data from Users, Ratings, and Movies collections.
+    """
+    db = client.PopcornPicksDB
+
+    posts = list(db.ratings.aggregate([
+        {
+            "$lookup": {
+                "from": "movies",
+                "localField": "movie_id",
+                "foreignField": "_id",
+                "as": "movie_info"
+            }
+        },
+
+        { "$unwind": "$movie_info" },
+        {
+            "$project": {
+                "_id": 0,
+                "user_id": "$user_id",
+                "name": "$movie_info.name",
+                "imdb_id": "$movie_info.imdb_id",
+                "movie_id": "$movie_id",
+                "review": "$review",
+                "score": "$score",
+                "time": "$time"
+            }
+        },
+        { "$sort": { "time": -1 } },
+        { "$limit": 50 }
+    ]))
+    print(posts)
+    return posts
+
 
 def get_recent_movies(client, user_id):
     """
@@ -407,3 +443,22 @@ def get_friends(client, user):
     """
     user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user[1])})
     return json.dumps(user_data.get("friends", []))
+
+def get_user_history(client, user_id):
+    """
+    Retrieves the current user's movie ratings from the database for recommendation.
+    """
+    try:
+        db = client.PopcornPicksDB
+        user_history = []
+
+        user_ratings = db.ratings.find({"user_id": ObjectId(user_id)})
+        
+        for rating in user_ratings:
+            user_history.append((rating["movie_id"], rating["score"]))
+
+        return user_history
+
+    except Exception as e:
+        print(f"Error retrieving user history: {str(e)}")
+        raise

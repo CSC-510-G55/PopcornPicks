@@ -10,7 +10,7 @@ This code is licensed under MIT license (see LICENSE for details)
 import json
 import sys
 import os
-from flask import Flask, jsonify, render_template, request, g
+from flask import Flask, jsonify, render_template, request, g, redirect, url_for
 from flask_cors import CORS
 import mysql.connector
 from pymongo import MongoClient
@@ -28,11 +28,13 @@ from utils import (
     add_friend,
     get_friends,
     get_recent_friend_movies,
+    get_user_history,
 )
 from search import Search
 
 sys.path.append("../../")
-from src.prediction_scripts.item_based import recommend_for_new_user
+from src.prediction_scripts.item_based import recommend_for_new_user,recommend_for_new_userr
+
 
 sys.path.remove("../../")
 
@@ -42,6 +44,7 @@ app.secret_key = "secret key"
 
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 user = {1: None}
+user[1] = "671b289a193d2a9361ebf39a" #Hardcoded user id for testing purposes
 
 from pymongo.mongo_client import MongoClient
 uri = "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net/?retryWrites=true&w=majority&appName=PopCorn"
@@ -57,6 +60,7 @@ def login_page():
     """
     Renders the login page.
     """
+    return redirect(url_for("landing_page"))
     return render_template("login.html")
 
 
@@ -117,13 +121,15 @@ def predict():
     """
     data = json.loads(request.data)
     data1 = data["movie_list"]
-    training_data = []
-    for movie in data1:
-        movie_with_rating = {"title": movie, "rating": 5.0}
-        if movie_with_rating not in training_data:
-            training_data.append(movie_with_rating)
-    recommendations, genres, imdb_id = recommend_for_new_user(training_data)
+
+    user_history = get_user_history(client, user[1])
+
+    user_rating = [{"title": movie, "rating": 10.0} for movie in data1]
+
+    recommendations, genres, imdb_id = recommend_for_new_user(user_rating, user_history, user[1], client)
+    #recommendations, genres, imdb_id = recommend_for_new_userr(user_rating, user_history, user[1], client)
     recommendations, genres, imdb_id = recommendations[:10], genres[:10], imdb_id[:10]
+
     resp = {"recommendations": recommendations, "genres": genres, "imdb_id": imdb_id}
     return resp
 
@@ -162,7 +168,7 @@ def signout():
 @app.route("/log", methods=["POST"])
 def login():
     """Handles user login."""
-    # data = json.loads(request.data)
+    data = json.loads(request.data)
     # resp = login_to_account(client, data["username"], data["password"])
 
     # if not resp:
