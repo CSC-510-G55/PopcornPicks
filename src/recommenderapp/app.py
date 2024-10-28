@@ -126,15 +126,11 @@ def predict():
     data = json.loads(request.data)
     data1 = data["movie_list"]
 
-    user_history = get_user_history(client, user[1])
-
     user_rating = [{"title": movie, "rating": 10.0} for movie in data1]
 
     recommendations, genres, imdb_id = recommend_for_new_user(
-        user_rating, user_history, user[1], client
+        user_rating, user[1], client
     )
-    # recommendations, genres, imdb_id = recommend_for_new_userr(user_rating, user_history, user[1], client)
-    # recommendations, genres, imdb_id = recommendations[:10], genres[:10], imdb_id[:10]
 
     resp = {"recommendations": recommendations, "genres": genres, "imdb_id": imdb_id}
     return resp
