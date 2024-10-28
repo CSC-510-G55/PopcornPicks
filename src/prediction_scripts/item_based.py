@@ -33,6 +33,8 @@ def recommend_for_new_user(user_rating, user_id, client):
     Generates a list of recommended movie titles for a new user using a hybrid approach:
     collaborative filtering based on user history combined with metadata matching with current selection.
     """
+    if not user_rating:
+        return [],None,None
     movies = pd.read_csv(os.path.join(project_dir, "data", "movies.csv"))
 
     all_ratings = get_user_ratings(client)
