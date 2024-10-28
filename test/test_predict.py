@@ -71,7 +71,15 @@ class Tests(unittest.TestCase):
         ts = [{"title": f"Movie {i}", "rating": 10.0} for i in range(500)]
         recommendations, _, _ = recommend_for_new_user(ts, user_id, client)
         self.assertTrue(len(recommendations) <= 10)
-
-
+    
+    def test_genre_diversity_in_recommendations(self):
+        ts = [
+            {"title": "Mortal Kombat (1995)", "rating": 8.0},
+            {"title": "Les Miserables (1995)", "rating": 7.0},
+            {"title": "Jurassic Park (1993)", "rating": 9.0}
+        ]
+        _, genres, _ = recommend_for_new_user(ts, user_id, client)
+        unique_genres = set(g for genre in genres for g in genre.split("|"))
+        self.assertTrue({"Action", "History", "Science Fiction"}.issubset(unique_genres))
 if __name__ == "__main__":
     unittest.main()
