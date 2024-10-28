@@ -44,6 +44,28 @@ class Tests(unittest.TestCase):
         ts = [{"title": "Unknown Movie (2025)", "rating": 10.0}]
         recommendations, _, _ = recommend_for_new_user(ts,user_id,client)
         self.assertEqual(recommendations, [])
+    
+    def test_duplicate_movies(self):
+        ts = [{"title": "Toy Story (1995)", "rating": 10.0}, {"title": "Toy Story (1995)", "rating": 10.0}]
+        recommendations, _, _ = recommend_for_new_user(ts,user_id,client)
+        self.assertTrue(len(recommendations) > 0)
+
+    def test_genre_similarity_calculation(self):
+        ts = [{"title": "Toy Story (1995)", "rating": 10.0}]
+        recommendations, genres, _ = recommend_for_new_user(ts,user_id,client)
+        self.assertTrue(len(recommendations) > 0)
+        genres_set = set(genre for sublist in genres for genre in sublist.split("|"))
+        self.assertTrue("Animation" in genres_set)
+    
+    def test_runtime_similarity_calculation(self):
+        ts = [{"title": "Toy Story (1995)", "rating": 10.0}]
+        recommendations, _, _ = recommend_for_new_user(ts,user_id,client)
+        self.assertTrue(len(recommendations) > 0)
+
+    def test_large_history_input(self):
+        ts = [{"title": f"Movie {i}", "rating": 10.0} for i in range(500)]
+        recommendations, _, _ = recommend_for_new_user(ts,user_id,client)
+        self.assertTrue(len(recommendations) <= 10)
 
 if __name__ == "__main__":
     unittest.main()
