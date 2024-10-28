@@ -74,6 +74,9 @@ def recommend_for_new_user(user_rating, user_id, client):
         movies["title"].isin([movie["title"] for movie in user_rating])
     ]
 
+    if selected_movies.empty:
+        return [],None,None
+    
     avg_genre_vector = selected_movies["genres"].str.get_dummies(sep="|").mean()
 
     enriched_movies_genres = enriched_movies["genres"].str.get_dummies(sep="|")
