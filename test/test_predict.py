@@ -17,6 +17,15 @@ from src.prediction_scripts.item_based import recommend_for_new_user
 # pylint: enable=wrong-import-position
 warnings.filterwarnings("ignore")
 
+from pymongo.mongo_client import MongoClient
+
+uri = "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net/?retryWrites=true&w=majority&appName=PopCorn"
+client = MongoClient(uri)
+try:
+    client.admin.command("ping")
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
 
 class Tests(unittest.TestCase):
     """
