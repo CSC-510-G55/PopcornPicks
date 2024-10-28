@@ -21,6 +21,7 @@ import json
 import pandas as pd
 import os
 
+
 def create_colored_tags(genres):
     """
     Utitilty function to create colored tags for different
@@ -198,13 +199,13 @@ def create_account(client, email, username, password):
     """Utility function for creating an account"""
     try:
         db = client.PopcornPicksDB
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
         user_data = {
             "username": username,
             "email": email,
             "password": hashed_password,
             "friends": [],
-            "created_at": datetime.datetime.utcnow()
+            "created_at": datetime.datetime.utcnow(),
         }
         db.users.insert_one(user_data)
         return True
@@ -218,9 +219,9 @@ def add_friend(client, user, username):
     Utility function for adding a friend
     """
     client.PopcornPicksDB.users.update_one(
-        {"_id": ObjectId(user[1])},
-        {"$addToSet": {"friends": username}}
+        {"_id": ObjectId(user[1])}, {"$addToSet": {"friends": username}}
     )
+
 
 def login_to_account(client, username, password):
     """
@@ -229,7 +230,7 @@ def login_to_account(client, username, password):
     try:
         db = client.PopcornPicksDB
         user = db.users.find_one({"username": username})
-        if user and bcrypt.checkpw(password.encode('utf-8'), user["password"]):
+        if user and bcrypt.checkpw(password.encode("utf-8"), user["password"]):
             return str(user["_id"])
         return None
     except Exception as e:
@@ -243,79 +244,121 @@ def submit_review(client, user, movie, score, review):
     """
     try:
         db = client.PopcornPicksDB
-        
+
         movie_doc = db.movies.find_one({"name": movie})
-        
+
         if not movie_doc:
-            csv_path = os.path.join(os.path.dirname(__file__), '../../data/movies.csv')
+            csv_path = os.path.join(os.path.dirname(__file__), "../../data/movies.csv")
             df = pd.read_csv(csv_path)
             print(df.head())
-            movie_row = df[df['title'] == movie]
+            movie_row = df[df["title"] == movie]
             print(movie, movie_row)
 
             if movie_row.empty:
                 raise Exception("Movie not found in CSV")
-            
+
             movie_doc = {
-                "_id": int(movie_row.iloc[0]['movieId']),
+                "_id": int(movie_row.iloc[0]["movieId"]),
                 "name": movie,
-                "imdb_id": movie_row.iloc[0]['imdb_id'],
+                "imdb_id": movie_row.iloc[0]["imdb_id"],
             }
-            
+
             db.movies.insert_one(movie_doc)
-        
+
         if not movie_doc:
             raise Exception("Movie not found in database or CSV")
-        
+
         review_doc = {
             "user_id": ObjectId(user[1]),
             "movie_id": movie_doc["_id"],
             "score": score,
             "review": review,
-            "time": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+            "time": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
         }
-        
+
         db.ratings.insert_one(review_doc)
-        
+
     except Exception as e:
         print(f"Error submitting review: {str(e)}")
         raise
 
 
-
 def get_wall_posts(client):
     """
-    Utility function to get wall posts from the MongoDB database, 
+    Utility function to get wall posts from the MongoDB database,
     joining data from Users, Ratings, and Movies collections.
     """
     db = client.PopcornPicksDB
 
-    posts = list(db.ratings.aggregate([
-        {
-            "$lookup": {
-                "from": "movies",
-                "localField": "movie_id",
-                "foreignField": "_id",
-                "as": "movie_info"
-            }
-        },
-
-        { "$unwind": "$movie_info" },
-        {
-            "$project": {
-                "_id": 0,
-                "name": "$movie_info.name",
-                "imdb_id": "$movie_info.imdb_id",
-                "review": "$review",
-                "score": "$score",
-                "time": "$time"
-            }
-        },
-        { "$sort": { "time": -1 } },
-        { "$limit": 50 }
-    ]))
+    posts = list(
+        db.ratings.aggregate(
+            [
+                {
+                    "$lookup": {
+                        "from": "movies",
+                        "localField": "movie_id",
+                        "foreignField": "_id",
+                        "as": "movie_info",
+                    }
+                },
+                {"$unwind": "$movie_info"},
+                {
+                    "$project": {
+                        "_id": 0,
+                        "name": "$movie_info.name",
+                        "imdb_id": "$movie_info.imdb_id",
+                        "review": "$review",
+                        "score": "$score",
+                        "time": "$time",
+                    }
+                },
+                {"$sort": {"time": -1}},
+                {"$limit": 50},
+            ]
+        )
+    )
     print(posts)
     return jsonify(posts)
+
+
+def get_user_ratings(client):
+    """
+    Utility function to get wall posts from the MongoDB database,
+    joining data from Users, Ratings, and Movies collections.
+    """
+    db = client.PopcornPicksDB
+
+    posts = list(
+        db.ratings.aggregate(
+            [
+                {
+                    "$lookup": {
+                        "from": "movies",
+                        "localField": "movie_id",
+                        "foreignField": "_id",
+                        "as": "movie_info",
+                    }
+                },
+                {"$unwind": "$movie_info"},
+                {
+                    "$project": {
+                        "_id": 0,
+                        "user_id": "$user_id",
+                        "name": "$movie_info.name",
+                        "imdb_id": "$movie_info.imdb_id",
+                        "movie_id": "$movie_id",
+                        "review": "$review",
+                        "score": "$score",
+                        "time": "$time",
+                    }
+                },
+                {"$sort": {"time": -1}},
+                {"$limit": 50},
+            ]
+        )
+    )
+    print(posts)
+    return posts
 
 
 def get_recent_movies(client, user_id):
@@ -328,23 +371,21 @@ def get_recent_movies(client, user_id):
             {"$match": {"user_id": str(user_id)}},
             {"$sort": {"time": -1}},
             {"$limit": 5},
-            {"$lookup": {
-                "from": "movies",
-                "localField": "movie_id",
-                "foreignField": "_id",
-                "as": "movie"
-            }},
+            {
+                "$lookup": {
+                    "from": "movies",
+                    "localField": "movie_id",
+                    "foreignField": "_id",
+                    "as": "movie",
+                }
+            },
             {"$unwind": "$movie"},
-            {"$project": {
-                "_id": 0,
-                "name": "$movie.name",
-                "score": "$score"
-            }}
+            {"$project": {"_id": 0, "name": "$movie.name", "score": "$score"}},
         ]
-        
+
         results = list(db.ratings.aggregate(pipeline))
         return jsonify(results)
-        
+
     except Exception as e:
         print(f"Error getting recent movies: {str(e)}")
         return jsonify([])
@@ -364,38 +405,34 @@ def get_recent_friend_movies(client, username):
     """
     try:
         db = client.PopcornPicksDB
-        
+
         user = db.users.find_one({"username": username})
         if not user:
             return jsonify([])
-            
+
         friends = user.get("friends", [])[1]
         if not friends:
             return jsonify([])
-            
+
         pipeline = [
-            {"$match": {
-                "user_id": {"$in": friends}
-            }},
+            {"$match": {"user_id": {"$in": friends}}},
             {"$sort": {"time": -1}},
             {"$limit": 5},
-            {"$lookup": {
-                "from": "movies",
-                "localField": "movie_id",
-                "foreignField": "_id",
-                "as": "movie"
-            }},
+            {
+                "$lookup": {
+                    "from": "movies",
+                    "localField": "movie_id",
+                    "foreignField": "_id",
+                    "as": "movie",
+                }
+            },
             {"$unwind": "$movie"},
-            {"$project": {
-                "_id": 0,
-                "name": "$movie.name",
-                "score": "$score"
-            }}
+            {"$project": {"_id": 0, "name": "$movie.name", "score": "$score"}},
         ]
-        
+
         results = list(db.ratings.aggregate(pipeline))
         return jsonify(results)
-        
+
     except Exception as e:
         print(f"Error getting friend movies: {str(e)}")
         return jsonify([])
@@ -407,3 +444,23 @@ def get_friends(client, user):
     """
     user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user[1])})
     return json.dumps(user_data.get("friends", []))
+
+
+def get_user_history(client, user_id):
+    """
+    Retrieves the current user's movie ratings from the database for recommendation.
+    """
+    try:
+        db = client.PopcornPicksDB
+        user_history = []
+
+        user_ratings = db.ratings.find({"user_id": ObjectId(user_id)})
+
+        for rating in user_ratings:
+            user_history.append((rating["movie_id"], rating["score"]))
+
+        return user_history
+
+    except Exception as e:
+        print(f"Error retrieving user history: {str(e)}")
+        raise

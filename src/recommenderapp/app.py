@@ -10,7 +10,7 @@ This code is licensed under MIT license (see LICENSE for details)
 import json
 import sys
 import os
-from flask import Flask, jsonify, render_template, request, g
+from flask import Flask, jsonify, render_template, request, g, redirect, url_for
 from flask_cors import CORS
 import mysql.connector
 from pymongo import MongoClient
@@ -28,11 +28,15 @@ from utils import (
     add_friend,
     get_friends,
     get_recent_friend_movies,
+    get_user_history,
 )
 from search import Search
 
 sys.path.append("../../")
-from src.prediction_scripts.item_based import recommend_for_new_user
+from src.prediction_scripts.item_based import (
+    recommend_for_new_user,
+)
+
 
 sys.path.remove("../../")
 
@@ -42,21 +46,25 @@ app.secret_key = "secret key"
 
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 user = {1: None}
+user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
 
 from pymongo.mongo_client import MongoClient
+
 uri = "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net/?retryWrites=true&w=majority&appName=PopCorn"
 client = MongoClient(uri)
 try:
-    client.admin.command('ping')
+    client.admin.command("ping")
     print("Pinged your deployment. You successfully connected to MongoDB!")
 except Exception as e:
     print(e)
+
 
 @app.route("/")
 def login_page():
     """
     Renders the login page.
     """
+    return redirect(url_for("landing_page"))
     return render_template("login.html")
 
 
@@ -117,13 +125,13 @@ def predict():
     """
     data = json.loads(request.data)
     data1 = data["movie_list"]
-    training_data = []
-    for movie in data1:
-        movie_with_rating = {"title": movie, "rating": 5.0}
-        if movie_with_rating not in training_data:
-            training_data.append(movie_with_rating)
-    recommendations, genres, imdb_id = recommend_for_new_user(training_data)
-    recommendations, genres, imdb_id = recommendations[:10], genres[:10], imdb_id[:10]
+
+    user_rating = [{"title": movie, "rating": 10.0} for movie in data1]
+
+    recommendations, genres, imdb_id = recommend_for_new_user(
+        user_rating, user[1], client
+    )
+
     resp = {"recommendations": recommendations, "genres": genres, "imdb_id": imdb_id}
     return resp
 
@@ -159,10 +167,11 @@ def signout():
     user[1] = None
     return request.data
 
+
 @app.route("/log", methods=["POST"])
 def login():
     """Handles user login."""
-    # data = json.loads(request.data)
+    data = json.loads(request.data)
     # resp = login_to_account(client, data["username"], data["password"])
 
     # if not resp:
@@ -170,6 +179,7 @@ def login():
     # print(resp)
     user[1] = "671b289a193d2a9361ebf39a"
     return request.data
+
 
 @app.route("/friend", methods=["POST"])
 def friend():
@@ -214,10 +224,11 @@ def recent_movies():
     """
     Gets the recent movies of the active user
     """
-    movies = list(client.PopcornPicksDB.reviews.find(
-        {"user_id": ObjectId(user[1])},
-        {"movie": 1, "_id": 0}
-    ).sort("_id", -1))
+    movies = list(
+        client.PopcornPicksDB.reviews.find(
+            {"user_id": ObjectId(user[1])}, {"movie": 1, "_id": 0}
+        ).sort("_id", -1)
+    )
     return json.dumps(movies)
 
 
@@ -243,7 +254,7 @@ def get_friend():
     """
     Gets the friends of the active user
     """
-    return get_friends(client,user)
+    return get_friends(client, user)
 
 
 @app.route("/feedback", methods=["POST"])
@@ -273,6 +284,7 @@ def success():
     """
     return render_template("success.html")
 
+
 def setup_mongodb_indexes():
     try:
         client.db.users.create_index([("username", 1)], unique=True)
@@ -281,10 +293,11 @@ def setup_mongodb_indexes():
         client.db.movies.create_index([("name", 1)])
         client.db.ratings.create_index([("user_id", 1), ("time", -1)])
         client.db.ratings.create_index([("movie_id", 1)])
-        
+
         print("Indexes created successfully")
     except Exception as e:
         print(f"Error creating indexes: {str(e)}")
+
 
 if __name__ == "__main__":
     setup_mongodb_indexes()

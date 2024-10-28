@@ -17,163 +17,69 @@ from src.prediction_scripts.item_based import recommend_for_new_user
 # pylint: enable=wrong-import-position
 warnings.filterwarnings("ignore")
 
+from pymongo.mongo_client import MongoClient
+
+uri = "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net/?retryWrites=true&w=majority&appName=PopCorn"
+client = MongoClient(uri)
+try:
+    client.admin.command("ping")
+    print("Pinged your deployment. You successfully connected to MongoDB!")
+except Exception as e:
+    print(e)
+
+user = {1: None}
+user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
+user_id = user[1]
+
 
 class Tests(unittest.TestCase):
     """
     Test cases for recommender system
     """
 
-    def test_toy_story(self):
-        """
-        Test case 1
-        """
+    def test_empty_input(self):
+        ts = []
+        recommendations, _, _ = recommend_for_new_user(ts, user_id, client)
+        self.assertEqual(recommendations, [])
+
+    def test_no_matching_movie(self):
+        ts = [{"title": "Unknown Movie (2025)", "rating": 10.0}]
+        recommendations, _, _ = recommend_for_new_user(ts, user_id, client)
+        self.assertEqual(recommendations, [])
+
+    def test_duplicate_movies(self):
         ts = [
-            {"title": "Toy Story (1995)", "rating": 5.0},
+            {"title": "Toy Story (1995)", "rating": 10.0},
+            {"title": "Toy Story (1995)", "rating": 10.0},
         ]
-        recommendations, _, _ = recommend_for_new_user(ts)
-        self.assertTrue("Space Jam (1996)" in recommendations)
+        recommendations, _, _ = recommend_for_new_user(ts, user_id, client)
+        self.assertTrue(len(recommendations) > 0)
 
-    def test_kunfu_panda(self):
-        """
-        Test case 2
-        """
+    def test_genre_similarity_calculation(self):
+        ts = [{"title": "Toy Story (1995)", "rating": 10.0}]
+        recommendations, genres, _ = recommend_for_new_user(ts, user_id, client)
+        self.assertTrue(len(recommendations) > 0)
+        genres_set = set(genre for sublist in genres for genre in sublist.split("|"))
+        self.assertTrue("Animation" in genres_set)
+
+    def test_runtime_similarity_calculation(self):
+        ts = [{"title": "Toy Story (1995)", "rating": 10.0}]
+        recommendations, _, _ = recommend_for_new_user(ts, user_id, client)
+        self.assertTrue(len(recommendations) > 0)
+
+    def test_large_history_input(self):
+        ts = [{"title": f"Movie {i}", "rating": 10.0} for i in range(500)]
+        recommendations, _, _ = recommend_for_new_user(ts, user_id, client)
+        self.assertTrue(len(recommendations) <= 10)
+    
+    def test_genre_diversity_in_recommendations(self):
         ts = [
-            {"title": "Kung Fu Panda (2008)", "rating": 5.0},
+            {"title": "Mortal Kombat (1995)", "rating": 8.0},
+            {"title": "Les Miserables (1995)", "rating": 7.0},
+            {"title": "Jurassic Park (1993)", "rating": 9.0}
         ]
-        recommendations, _, _ = recommend_for_new_user(ts)
-        self.assertTrue("Zootopia (2016)" in recommendations)
-
-    def test_hindi_movie(self):
-        """
-        Test case 3
-        """
-        ts = [
-            {"title": "Bachna Ae Haseeno (2008)", "rating": 5.0},
-        ]
-        recommendations, _, _ = recommend_for_new_user(ts)
-        self.assertTrue(("Zootopia (2016)" in recommendations) is False)
-
-    def test_iron_man(self):
-        """
-        Test case 4
-        """
-        ts = [
-            {"title": "Iron Man (2008)", "rating": 5.0},
-        ]
-        recommendations, _, _ = recommend_for_new_user(ts)
-        self.assertTrue(("Green Lantern: Emerald Knights (2011)" in recommendations))
-
-    def test_robo_cop(self):
-        """
-        Test case 5
-        """
-        ts = [
-            {"title": "RoboCop (1987)", "rating": 5.0},
-        ]
-        recommendations, _, _ = recommend_for_new_user(ts)
-        self.assertTrue(("Star Trek: First Contact (1996)" in recommendations))
-
-    def test_nolan(self):
-        """
-        Test case 6
-        """
-        ts = [
-            {"title": "Inception (2010)", "rating": 5.0},
-        ]
-        recommendations, _, _ = recommend_for_new_user(ts)
-        self.assertTrue(("Zenith (2010)" in recommendations))
-
-    def test_dc(self):
-        """
-        Test case 7
-        """
-        ts = [
-            {"title": "Man of Steel (2013)", "rating": 5.0},
-        ]
-        recommendations, _, _ = recommend_for_new_user(ts)
-        self.assertTrue(("Iceman (2014)" in recommendations))
-
-    def test_armageddon(self):
-        """
-        Test case 8
-        """
-        ts = [
-            {"title": "Armageddon (1998)", "rating": 5.0},
-        ]
-        recommendations, _, _ = recommend_for_new_user(ts)
-        self.assertTrue(("Planet of the Apes (2001)" in recommendations))
-
-    def test_lethal_weapon(self):
-        """
-        Test case 9
-        """
-        ts = [
-            {"title": "Lethal Weapon (1987)", "rating": 5.0},
-        ]
-        recommendations, _, _ = recommend_for_new_user(ts)
-        self.assertTrue(("The Machine Girl (2008)" in recommendations))
-
-    def test_dark_action(self):
-        """
-        Test case 10
-        """
-        ts = [
-            {"title": "Batman Returns (1992)", "rating": 5.0},
-        ]
-        recommendations, _, _ = recommend_for_new_user(ts)
-        self.assertTrue(("Masters of the Universe (1987)" in recommendations))
-
-    def test_dark(self):
-        """
-        Test case 11
-        """
-        ts = [
-            {"title": "Puppet Master (1989)", "rating": 5.0},
-        ]
-        recommendations, _, _ = recommend_for_new_user(ts)
-        self.assertTrue(("Rabies (2010)" in recommendations))
-
-    def test_horror_comedy(self):
-        """
-        Test case 12
-        """
-        ts = [
-            {"title": "Scary Movie (2000)", "rating": 5.0},
-        ]
-        recommendations, _, _ = recommend_for_new_user(ts)
-        self.assertTrue(("The Bélier Family (2014)" in recommendations))
-
-    def test_super_heroes(self):
-        """
-        Test case 13
-        """
-        ts = [
-            {"title": "Spider-Man (2002)", "rating": 5.0},
-        ]
-        recommendations, _, _ = recommend_for_new_user(ts)
-        self.assertTrue(("Masters of the Universe (1987)" in recommendations))
-
-    def test_cartoon(self):
-        """
-        Test case 14
-        """
-        ts = [
-            {"title": "Moana (2016)", "rating": 5.0},
-        ]
-        recommendations, _, _ = recommend_for_new_user(ts)
-        self.assertTrue(("Minions (2015)" in recommendations))
-
-    def test_multiple_movies(self):
-        """
-        Test case 15
-        """
-        ts = [
-            {"title": "Twilight Saga: New Moon, The (2009)", "rating": 5.0},
-            {"title": "Harry Potter and the Goblet of Fire (2005)", "rating": 5.0},
-        ]
-        recommendations, _, _ = recommend_for_new_user(ts)
-        self.assertTrue(("The Secret of Moonacre (2008)" in recommendations))
-
-
+        _, genres, _ = recommend_for_new_user(ts, user_id, client)
+        unique_genres = set(g for genre in genres for g in genre.split("|"))
+        self.assertTrue({"Action", "History", "Science Fiction"}.issubset(unique_genres))
 if __name__ == "__main__":
     unittest.main()

@@ -1,5 +1,5 @@
 """
-Copyright (c) 2023 Aditya Pai, Ananya Mantravadi, Rishi Singhal, Samarth Shetty
+Copyright (c) 2024 Srimadh Vasuki Rao, Manav Shah, Akul Devali
 This code is licensed under MIT license (see LICENSE for details)
 
 @author: PopcornPicks
@@ -7,61 +7,114 @@ This code is licensed under MIT license (see LICENSE for details)
 
 import os
 import pandas as pd
+from surprise import Dataset, Reader, SVD
+from surprise.model_selection import train_test_split
+import sys
+
+sys.path.append("../")
+from src.recommenderapp.utils import get_user_ratings
+
+sys.path.remove("../")
+import json
 
 app_dir = os.path.dirname(os.path.abspath(__file__))
 code_dir = os.path.dirname(app_dir)
 project_dir = os.path.dirname(code_dir)
 
 
-def recommend_for_new_user(user_rating):
+from surprise import Dataset, Reader, SVD
+import pandas as pd
+import numpy as np
+import os
+
+
+def recommend_for_new_user(user_rating, user_id, client):
     """
-    Generates a list of recommended movie titles for a new user based on their ratings.
+    Generates a list of recommended movie titles for a new user using a hybrid approach:
+    collaborative filtering based on user history combined with metadata matching with current selection.
     """
-    # ratings = pd.read_csv(os.path.join(project_dir, "data", "ratings.csv"))
+    if not user_rating:
+        return [], None, None
     movies = pd.read_csv(os.path.join(project_dir, "data", "movies.csv"))
-    user = pd.DataFrame(user_rating)
-    user_movie_id = movies[movies["title"].isin(user["title"])]
-    user_ratings = pd.merge(user_movie_id, user)
 
-    movies_genre_filled = movies.copy(deep=True)
-    copy_of_movies = movies.copy(deep=True)
+    all_ratings = get_user_ratings(client)
 
-    for index, row in copy_of_movies.iterrows():
-        copy_of_movies.at[index, "genres"] = row["genres"].split("|")
+    ratings = pd.DataFrame(all_ratings)
+    ratings["user_id"] = ratings["user_id"].astype(str)
+    ratings["movie_id"] = ratings["movie_id"].astype(str)
+    surprise_df = ratings[["user_id", "movie_id", "score"]].copy()
+    surprise_df.columns = ["user", "item", "rating"]
 
-    for index, row in copy_of_movies.iterrows():
-        for genre in row["genres"]:
-            movies_genre_filled.at[index, genre] = 1
+    surprise_df["user"] = surprise_df["user"].apply(
+        lambda x: int(x, 16) if pd.notnull(x) else None
+    )
+    surprise_df["item"] = surprise_df["item"].astype(str).astype(int)
 
-    movies_genre_filled = movies_genre_filled.fillna(0)
+    reader = Reader(rating_scale=(0, 10))
+    data = Dataset.load_from_df(surprise_df, reader)
+    trainset = data.build_full_trainset()
+    svd_model = SVD()
+    svd_model.fit(trainset)
 
-    user_genre = movies_genre_filled[
-        movies_genre_filled.movieId.isin(user_ratings.movieId)
+    user_rated_movies = ratings[ratings["user_id"] == user_id]["movie_id"].tolist()
+    all_movie_ids = movies["movieId"].unique()
+
+    recommendations = []
+    for movie_id in all_movie_ids:
+        if movie_id not in user_rated_movies:
+            pred = svd_model.predict(int(user_id, 16), movie_id)
+            recommendations.append((movie_id, pred.est))
+
+    recommendations_df = pd.DataFrame(
+        recommendations, columns=["movieId", "predicted_rating"]
+    )
+    enriched_movies = pd.merge(recommendations_df, movies, on="movieId")
+
+    selected_movies = movies[
+        movies["title"].isin([movie["title"] for movie in user_rating])
     ]
-    user_genre.drop(
-        ["movieId", "title", "genres", "imdb_id", "overview", "poster_path", "runtime"],
-        axis=1,
-        inplace=True,
-    )
-    user_profile = user_genre.T.dot(user_ratings.rating.to_numpy())
 
-    movies_genre_filled.set_index(movies_genre_filled.movieId)
-    movies_genre_filled.drop(
-        ["movieId", "title", "genres", "imdb_id", "overview", "poster_path", "runtime"],
-        axis=1,
-        inplace=True,
+    if selected_movies.empty:
+        return [], None, None
+
+    avg_genre_vector = selected_movies["genres"].str.get_dummies(sep="|").mean()
+
+    enriched_movies_genres = enriched_movies["genres"].str.get_dummies(sep="|")
+    enriched_movies_genres = enriched_movies_genres.reindex(
+        columns=avg_genre_vector.index, fill_value=0
     )
 
-    recommendations = (movies_genre_filled.dot(user_profile)) / user_profile.sum()
+    enriched_movies["genre_similarity"] = enriched_movies_genres.dot(avg_genre_vector)
 
-    join_movies_and_recommendations = movies.copy(deep=True)
-    join_movies_and_recommendations["recommended"] = recommendations
-    join_movies_and_recommendations.sort_values(
-        by="recommended", ascending=False, inplace=True
+    avg_runtime = selected_movies["runtime"].mean()
+
+    enriched_movies["runtime_similarity"] = (
+        1
+        - abs(enriched_movies["runtime"] - avg_runtime)
+        / enriched_movies["runtime"].max()
     )
+
+    if len(ratings[ratings["user_id"] == user_id]) < 10:
+        user_rating_weight = 1
+        collaborative_weight = 0
+        genre_weight = 0
+    else:
+        user_rating_weight = 0.5
+        collaborative_weight = 0.4
+        genre_weight = 0.1
+
+    enriched_movies["hybrid_score"] = (
+        user_rating_weight * enriched_movies["genre_similarity"]
+        + collaborative_weight * enriched_movies["predicted_rating"]
+        + genre_weight * enriched_movies["runtime_similarity"]
+    )
+
+    enriched_movies.sort_values(by="hybrid_score", ascending=False, inplace=True)
+
+    top_movies = enriched_movies.head(10)
 
     return (
-        list(join_movies_and_recommendations["title"][:201]),
-        list(join_movies_and_recommendations["genres"][:201]),
-        list(join_movies_and_recommendations["imdb_id"][:201]),
+        list(top_movies["title"]),
+        list(top_movies["genres"]),
+        list(top_movies["imdb_id"]),
     )
