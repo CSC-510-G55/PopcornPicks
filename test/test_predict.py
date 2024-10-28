@@ -39,6 +39,11 @@ class Tests(unittest.TestCase):
         ts = []
         recommendations, _, _ = recommend_for_new_user(ts,user_id,client)
         self.assertEqual(recommendations, [])
+    
+    def test_no_matching_movie(self):
+        ts = [{"title": "Unknown Movie (2025)", "rating": 10.0}]
+        recommendations, _, _ = recommend_for_new_user(ts,user_id,client)
+        self.assertEqual(recommendations, [])
 
 if __name__ == "__main__":
     unittest.main()
