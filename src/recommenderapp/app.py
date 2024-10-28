@@ -128,7 +128,7 @@ def predict():
 
     recommendations, genres, imdb_id = recommend_for_new_user(user_rating, user_history, user[1], client)
     #recommendations, genres, imdb_id = recommend_for_new_userr(user_rating, user_history, user[1], client)
-    recommendations, genres, imdb_id = recommendations[:10], genres[:10], imdb_id[:10]
+    #recommendations, genres, imdb_id = recommendations[:10], genres[:10], imdb_id[:10]
 
     resp = {"recommendations": recommendations, "genres": genres, "imdb_id": imdb_id}
     return resp

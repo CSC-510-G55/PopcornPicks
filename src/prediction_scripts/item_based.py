@@ -91,7 +91,7 @@ def recommend_for_new_user(user_rating, user_history, user_id, client):
     
     enriched_movies.sort_values(by="hybrid_score", ascending=False, inplace=True)
     
-    top_movies = enriched_movies.head(200)
+    top_movies = enriched_movies.head(10)
     
     return (
         list(top_movies["title"]),
