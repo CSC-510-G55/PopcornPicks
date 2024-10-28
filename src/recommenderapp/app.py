@@ -35,7 +35,6 @@ from search import Search
 sys.path.append("../../")
 from src.prediction_scripts.item_based import (
     recommend_for_new_user,
-    recommend_for_new_userr,
 )
 
 
