@@ -34,7 +34,7 @@ def recommend_for_new_user(user_rating, user_id, client):
     collaborative filtering based on user history combined with metadata matching with current selection.
     """
     if not user_rating:
-        return [],None,None
+        return [], None, None
     movies = pd.read_csv(os.path.join(project_dir, "data", "movies.csv"))
 
     all_ratings = get_user_ratings(client)
@@ -75,8 +75,8 @@ def recommend_for_new_user(user_rating, user_id, client):
     ]
 
     if selected_movies.empty:
-        return [],None,None
-    
+        return [], None, None
+
     avg_genre_vector = selected_movies["genres"].str.get_dummies(sep="|").mean()
 
     enriched_movies_genres = enriched_movies["genres"].str.get_dummies(sep="|")
