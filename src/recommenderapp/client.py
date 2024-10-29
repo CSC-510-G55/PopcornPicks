@@ -1,3 +1,9 @@
+"""
+Copyright (c) 2024 Srimadh Vasuki Rao, Manav Shah, Akul Devali
+This code is licensed under MIT license (see LICENSE for details)
+
+@author: PopcornPicks
+"""
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
 
