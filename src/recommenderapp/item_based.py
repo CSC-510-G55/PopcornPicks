@@ -18,9 +18,9 @@ project_dir = os.path.dirname(code_dir)
 
 def recommend_for_new_user(user_rating, user_id, client):
     """
-    Generates a list of recommended movie titles for a 
+    Generates a list of recommended movie titles for a
     new user using a hybrid approach:
-    collaborative filtering based on user history 
+    collaborative filtering based on user history
     combined with metadata matching with current selection.
     """
     if not user_rating:

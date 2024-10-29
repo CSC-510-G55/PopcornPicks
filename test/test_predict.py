@@ -30,6 +30,7 @@ user = {1: None}
 user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
 USER_ID = user[1]
 
+
 class Tests(unittest.TestCase):
     """
     Test cases for recommender system
@@ -85,7 +86,10 @@ class Tests(unittest.TestCase):
         ]
         _, genres, _ = recommend_for_new_user(ts, USER_ID, client)
         unique_genres = set(g for genre in genres for g in genre.split("|"))
-        self.assertTrue({"Action", "History", "Science Fiction"}.issubset(unique_genres))
+        self.assertTrue(
+            {"Action", "History", "Science Fiction"}.issubset(unique_genres)
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

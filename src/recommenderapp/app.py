@@ -12,8 +12,12 @@ import json
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
 from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError, \
-    OperationFailure, DuplicateKeyError
+from pymongo.errors import (
+    ConnectionFailure,
+    ServerSelectionTimeoutError,
+    OperationFailure,
+    DuplicateKeyError,
+)
 
 from bson.objectid import ObjectId
 from src.recommenderapp.utils import (
@@ -59,6 +63,7 @@ def login_page():
     Renders the login page.
     """
     return render_template("login.html")
+
 
 @app.route("/profile")
 def profile_page():
