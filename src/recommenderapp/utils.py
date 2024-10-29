@@ -467,26 +467,24 @@ def get_user_history(client, user_id):
         print(f"Error retrieving user history: {str(e)}")
         raise
 
-def fetch_streaming_link(imdb_id):
-    
-    if not imdb_id:
-        return jsonify({'error': 'Please provide imdb_id'}), 400
 
-    url = f'https://api.watchmode.com/v1/title/{imdb_id}/sources/'
-    api_key = 'fh04Ehayqo4Rdn7RJ0vaGttCD8QYbmWRgZsB4DYy'
-    
-    headers = {
-        'Authorization': f'Bearer {api_key}'
-    }
-    
-    params = {
-        'apiKey': api_key,
-        'regions': 'US'
-    }
+def fetch_streaming_link(imdb_id):
+    if not imdb_id:
+        return jsonify({"error": "Please provide imdb_id"}), 400
+
+    url = f"https://api.watchmode.com/v1/title/{imdb_id}/sources/"
+    api_key = "fh04Ehayqo4Rdn7RJ0vaGttCD8QYbmWRgZsB4DYy"
+
+    headers = {"Authorization": f"Bearer {api_key}"}
+
+    params = {"apiKey": api_key, "regions": "US"}
 
     response = requests.get(url, headers=headers, params=params)
 
-    sources = {item["name"]: {"platform": item["name"], "url": item["web_url"]} for item in response.json()}
+    sources = {
+        item["name"]: {"platform": item["name"], "url": item["web_url"]}
+        for item in response.json()
+    }
     res = sorted(sources.values(), key=lambda x: x["platform"])
 
     if res:  # Check if res is not empty

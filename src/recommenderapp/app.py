@@ -28,7 +28,7 @@ from utils import (
     get_friends,
     get_recent_friend_movies,
     get_user_history,
-    fetch_streaming_link
+    fetch_streaming_link,
 )
 from search import Search
 from flask import Flask, request, jsonify
@@ -137,10 +137,15 @@ def predict():
     web_url = []
     for element in imdb_id:
         web_url.append(fetch_streaming_link(element))
-        
-    resp = {"recommendations": recommendations, "genres": genres, "imdb_id": imdb_id, "web_url": new_list}
 
-    print(resp,  end="\n")
+    resp = {
+        "recommendations": recommendations,
+        "genres": genres,
+        "imdb_id": imdb_id,
+        "web_url": new_list,
+    }
+
+    print(resp, end="\n")
     return resp
 
 
