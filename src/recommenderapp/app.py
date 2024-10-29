@@ -4,25 +4,27 @@ This code is licensed under MIT license (see LICENSE for details)
 
 @author: PopcornPicks
 """
+
 # pylint: disable=wrong-import-position
 # pylint: disable=wrong-import-order
 # pylint: disable=import-error
 import json
-import sys
-import os
-from flask import Flask, jsonify, render_template, request, g, redirect, url_for
+from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
 from pymongo import MongoClient
+from pymongo.errors import (
+    OperationFailure,
+    DuplicateKeyError,
+)
 from bson.objectid import ObjectId
-from dotenv import load_dotenv
-from utils import (
+from src.recommenderapp.client import client
+from src.recommenderapp.utils import (
     beautify_feedback_data,
     send_email_to_user,
     create_account,
     login_to_account,
     submit_review,
     get_wall_posts,
-    get_recent_movies,
     get_username,
     add_friend,
     get_friends,
@@ -33,15 +35,12 @@ from utils import (
 from search import Search
 from flask import Flask, request, jsonify
 import requests
+)
+from src.recommenderapp.search import Search
 
-sys.path.append("../../")
-from src.prediction_scripts.item_based import (
+from src.recommenderapp.item_based import (
     recommend_for_new_user,
 )
-
-
-sys.path.remove("../../")
-
 
 app = Flask(__name__)
 app.secret_key = "secret key"
@@ -50,23 +49,12 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}})
 user = {1: None}
 user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
 
-from pymongo.mongo_client import MongoClient
-
-uri = "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net/?retryWrites=true&w=majority&appName=PopCorn"
-client = MongoClient(uri)
-try:
-    client.admin.command("ping")
-    print("Pinged your deployment. You successfully connected to MongoDB!")
-except Exception as e:
-    print(e)
-
 
 @app.route("/")
 def login_page():
     """
     Renders the login page.
     """
-    return redirect(url_for("landing_page"))
     return render_template("login.html")
 
 
@@ -185,12 +173,9 @@ def signout():
 def login():
     """Handles user login."""
     data = json.loads(request.data)
-    # resp = login_to_account(client, data["username"], data["password"])
-
-    # if not resp:
-    #     return "Invalid credentials", 400
-    # print(resp)
-    user[1] = "671b289a193d2a9361ebf39a"
+    resp = login_to_account(client, data["username"], data["password"])
+    if not resp:
+        return "Invalid credentials", 400
     return request.data
 
 
@@ -250,7 +235,6 @@ def recent_friend_movies():
     """
     Gets the recent movies of a certain friend
     """
-    data = json.loads(request.data)
     return get_recent_friend_movies(client, user[1])
 
 
@@ -299,6 +283,9 @@ def success():
 
 
 def setup_mongodb_indexes():
+    """
+    Sets up the MongoDB indexes.
+    """
     try:
         client.db.users.create_index([("username", 1)], unique=True)
         client.db.users.create_index([("email", 1)], unique=True)
@@ -308,8 +295,10 @@ def setup_mongodb_indexes():
         client.db.ratings.create_index([("movie_id", 1)])
 
         print("Indexes created successfully")
-    except Exception as e:
-        print(f"Error creating indexes: {str(e)}")
+    except DuplicateKeyError as e:
+        print(f"Duplicate key error: {str(e)}")
+    except OperationFailure as e:
+        print(f"Operation failed: {str(e)}")
 
 
 if __name__ == "__main__":
