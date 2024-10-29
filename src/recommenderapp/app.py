@@ -11,15 +11,13 @@ This code is licensed under MIT license (see LICENSE for details)
 import json
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
-from pymongo import MongoClient
 from pymongo.errors import (
-    ConnectionFailure,
-    ServerSelectionTimeoutError,
     OperationFailure,
     DuplicateKeyError,
 )
 
 from bson.objectid import ObjectId
+from src.recommenderapp.client import client
 from src.recommenderapp.utils import (
     beautify_feedback_data,
     send_email_to_user,
@@ -44,17 +42,6 @@ app.secret_key = "secret key"
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 user = {1: None}
 user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
-
-MONGO_URI = "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net"
-MONGO_OPTIONS = "/?retryWrites=true&w=majority&appName=PopCorn"
-MONGO_URI += MONGO_OPTIONS
-
-client = MongoClient(MONGO_URI)
-try:
-    client.admin.command("ping")
-    print("Pinged your deployment. You successfully connected to MongoDB!")
-except (ConnectionFailure, ServerSelectionTimeoutError) as mongo_e:
-    print(f"Could not connect to MongoDB: {mongo_e}")
 
 
 @app.route("/")
@@ -295,8 +282,6 @@ def setup_mongodb_indexes():
         print(f"Duplicate key error: {str(e)}")
     except OperationFailure as e:
         print(f"Operation failed: {str(e)}")
-    except Exception as e:
-        print(f"An unexpected error occurred: {str(e)}")
 
 
 if __name__ == "__main__":

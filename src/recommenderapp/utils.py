@@ -16,6 +16,8 @@ from smtplib import SMTPException
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from flask import jsonify
+from pymongo.errors import PyMongoError
+from bson.errors import InvalidId
 from bson.objectid import ObjectId
 import json
 import pandas as pd
@@ -209,7 +211,7 @@ def create_account(client, email, username, password):
         }
         db.users.insert_one(user_data)
         return True
-    except Exception as e:
+    except PyMongoError as e:
         print(f"Error creating account: {str(e)}")
         return False
 
@@ -233,7 +235,7 @@ def login_to_account(client, username, password):
         if user and bcrypt.checkpw(password.encode("utf-8"), user["password"]):
             return str(user["_id"])
         return None
-    except Exception as e:
+    except PyMongoError as e:
         print(f"Error logging in: {str(e)}")
         return None
 
@@ -255,7 +257,7 @@ def submit_review(client, user, movie, score, review):
             print(movie, movie_row)
 
             if movie_row.empty:
-                raise Exception("Movie not found in CSV")
+                raise PyMongoError("Movie not found in CSV")
 
             movie_doc = {
                 "_id": int(movie_row.iloc[0]["movieId"]),
@@ -266,7 +268,7 @@ def submit_review(client, user, movie, score, review):
             db.movies.insert_one(movie_doc)
 
         if not movie_doc:
-            raise Exception("Movie not found in database or CSV")
+            raise PyMongoError("Movie not found in database or CSV")
 
         review_doc = {
             "user_id": ObjectId(user[1]),
@@ -368,7 +370,7 @@ def get_recent_movies(client, user_id):
     try:
         db = client.PopcornPicksDB
         pipeline = [
-            {"$match": {"user_id": str(user_id)}},
+            {"$match": {"user_id": ObjectId(user_id)}},
             {"$sort": {"time": -1}},
             {"$limit": 5},
             {
@@ -386,8 +388,8 @@ def get_recent_movies(client, user_id):
         results = list(db.ratings.aggregate(pipeline))
         return jsonify(results)
 
-    except Exception as e:
-        print(f"Error getting recent movies: {str(e)}")
+    except PyMongoError as e:
+        print(f"Database error: {str(e)}")
         return jsonify([])
 
 
@@ -410,7 +412,7 @@ def get_recent_friend_movies(client, username):
         if not user:
             return jsonify([])
 
-        friends = user.get("friends", [])[1]
+        friends = user.get("friends", [])
         if not friends:
             return jsonify([])
 
@@ -433,8 +435,8 @@ def get_recent_friend_movies(client, username):
         results = list(db.ratings.aggregate(pipeline))
         return jsonify(results)
 
-    except Exception as e:
-        print(f"Error getting friend movies: {str(e)}")
+    except PyMongoError as e:
+        print(f"Database error: {str(e)}")
         return jsonify([])
 
 
@@ -461,6 +463,10 @@ def get_user_history(client, user_id):
 
         return user_history
 
-    except Exception as e:
-        print(f"Error retrieving user history: {str(e)}")
+    except InvalidId as e:
+        print(f"Invalid user ID format: {str(e)}")
+        raise
+
+    except PyMongoError as e:
+        print(f"Database error: {str(e)}")
         raise

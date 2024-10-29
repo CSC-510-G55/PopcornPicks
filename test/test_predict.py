@@ -8,23 +8,12 @@ This code is licensed under MIT license (see LICENSE for details)
 
 import unittest
 import warnings
-from pymongo.mongo_client import MongoClient
 
+from src.recommenderapp.client import client
 from src.recommenderapp.item_based import recommend_for_new_user
 
 warnings.filterwarnings("ignore")
 
-MONGO_URI = "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net"
-MONGO_OPTIONS = "/?retryWrites=true&w=majority&appName=PopCorn"
-MONGO_URI += MONGO_OPTIONS
-
-client = MongoClient(MONGO_URI)
-
-try:
-    client.admin.command("ping")
-    print("Pinged your deployment. You successfully connected to MongoDB!")
-except Exception as e:
-    print(e)
 
 user = {1: None}
 user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
