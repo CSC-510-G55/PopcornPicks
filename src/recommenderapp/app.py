@@ -12,7 +12,6 @@ import sys
 import os
 from flask import Flask, jsonify, render_template, request, g, redirect, url_for
 from flask_cors import CORS
-import mysql.connector
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
@@ -29,8 +28,11 @@ from utils import (
     get_friends,
     get_recent_friend_movies,
     get_user_history,
+    fetch_streaming_link
 )
 from search import Search
+from flask import Flask, request, jsonify
+import requests
 
 sys.path.append("../../")
 from src.prediction_scripts.item_based import (
@@ -132,7 +134,13 @@ def predict():
         user_rating, user[1], client
     )
 
-    resp = {"recommendations": recommendations, "genres": genres, "imdb_id": imdb_id}
+    web_url = []
+    for element in imdb_id:
+        web_url.append(fetch_streaming_link(element))
+        
+    resp = {"recommendations": recommendations, "genres": genres, "imdb_id": imdb_id, "web_url": new_list}
+
+    print(resp,  end="\n")
     return resp
 
 
