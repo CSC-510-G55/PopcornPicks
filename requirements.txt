@@ -22,9 +22,6 @@ joblib==1.4.2
 MarkupSafe==3.0.2
 mccabe==0.7.0
 mypy-extensions==1.0.0
-mysql==0.0.3
-mysql-connector-python==8.2.0
-mysqlclient==2.2.0
 numpy==1.25.2
 packaging==24.1
 pandas==2.1.0

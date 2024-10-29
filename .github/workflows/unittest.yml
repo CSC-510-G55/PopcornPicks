@@ -2,19 +2,14 @@ name: Unittest
 
 on:
   push:
-    branches: [main,workflows]
+    branches: [main, workflows]
   schedule:
     - cron: '00 23 * * *'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    services:
-      mongo:
-        image: mongo:latest
-        ports:
-          - 27017:27017
-        options: "--health-cmd='mongosh --eval \"db.runCommand({ ping: 1 })\"' --health-interval=10s --health-timeout=5s --health-retries=3"
+    
     strategy:
       matrix:
         python-version: ["3.11"]
@@ -34,9 +29,8 @@ jobs:
 
       - name: Set up MongoDB Client for Tests
         env:
-          MONGO_URI: "mongodb://localhost:27017"
+          MONGO_URI: "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net/?retryWrites=true&w=majority&appName=PopCorn"
         run: |
-          export MONGO_URI="mongodb://localhost:27017"
           python -c "
           import os
           from pymongo import MongoClient
@@ -44,13 +38,15 @@ jobs:
           client = MongoClient(uri)
           try:
               client.admin.command('ping')
-              print('Successfully connected to MongoDB!')
+              print('Successfully connected to MongoDB Atlas!')
+              client.close()
           except Exception as e:
               print('MongoDB connection failed:', e)
-                    "
+              exit(1)
+          "
 
       - name: Run Unit Tests
         env:
-          MONGO_URI: "mongodb://localhost:27017"
+          MONGO_URI: "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net/?retryWrites=true&w=majority&appName=PopCorn"
         run: |
           python -m unittest discover -s test -p "*.py"
