@@ -9,7 +9,7 @@ import os
 import pandas as pd
 from surprise import Dataset, Reader, SVD
 
-from utils import get_user_ratings
+from src.recommenderapp.utils import get_user_ratings
 
 app_dir = os.path.dirname(os.path.abspath(__file__))
 code_dir = os.path.dirname(app_dir)
@@ -18,8 +18,10 @@ project_dir = os.path.dirname(code_dir)
 
 def recommend_for_new_user(user_rating, user_id, client):
     """
-    Generates a list of recommended movie titles for a new user using a hybrid approach:
-    collaborative filtering based on user history combined with metadata matching with current selection.
+    Generates a list of recommended movie titles for a 
+    new user using a hybrid approach:
+    collaborative filtering based on user history 
+    combined with metadata matching with current selection.
     """
     if not user_rating:
         return [], None, None

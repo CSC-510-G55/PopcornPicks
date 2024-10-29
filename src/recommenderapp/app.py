@@ -9,27 +9,28 @@ This code is licensed under MIT license (see LICENSE for details)
 # pylint: disable=wrong-import-order
 # pylint: disable=import-error
 import json
-from flask import Flask, jsonify, render_template, request, redirect, url_for
+from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
 from pymongo import MongoClient
+from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError, \
+    OperationFailure, DuplicateKeyError
+
 from bson.objectid import ObjectId
-from utils import (
+from src.recommenderapp.utils import (
     beautify_feedback_data,
     send_email_to_user,
     create_account,
     login_to_account,
     submit_review,
     get_wall_posts,
-    get_recent_movies,
     get_username,
     add_friend,
     get_friends,
     get_recent_friend_movies,
-    get_user_history,
 )
-from search import Search
+from src.recommenderapp.search import Search
 
-from item_based import (
+from src.recommenderapp.item_based import (
     recommend_for_new_user,
 )
 
@@ -40,13 +41,16 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}})
 user = {1: None}
 user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
 
-MONGO_URI = """mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net/?retryWrites=true&w=majority&appName=PopCorn"""
+MONGO_URI = "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net"
+MONGO_OPTIONS = "/?retryWrites=true&w=majority&appName=PopCorn"
+MONGO_URI += MONGO_OPTIONS
+
 client = MongoClient(MONGO_URI)
 try:
     client.admin.command("ping")
     print("Pinged your deployment. You successfully connected to MongoDB!")
-except Exception as e:
-    print(e)
+except (ConnectionFailure, ServerSelectionTimeoutError) as mongo_e:
+    print(f"Could not connect to MongoDB: {mongo_e}")
 
 
 @app.route("/")
@@ -282,8 +286,12 @@ def setup_mongodb_indexes():
         client.db.ratings.create_index([("movie_id", 1)])
 
         print("Indexes created successfully")
+    except DuplicateKeyError as e:
+        print(f"Duplicate key error: {str(e)}")
+    except OperationFailure as e:
+        print(f"Operation failed: {str(e)}")
     except Exception as e:
-        print(f"Error creating indexes: {str(e)}")
+        print(f"An unexpected error occurred: {str(e)}")
 
 
 if __name__ == "__main__":
