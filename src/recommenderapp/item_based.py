@@ -4,28 +4,17 @@ This code is licensed under MIT license (see LICENSE for details)
 
 @author: PopcornPicks
 """
-
+import sys
 import os
+
 import pandas as pd
 from surprise import Dataset, Reader, SVD
-from surprise.model_selection import train_test_split
-import sys
 
-sys.path.append("../")
-from src.recommenderapp.utils import get_user_ratings
-
-sys.path.remove("../")
-import json
+from utils import get_user_ratings
 
 app_dir = os.path.dirname(os.path.abspath(__file__))
 code_dir = os.path.dirname(app_dir)
 project_dir = os.path.dirname(code_dir)
-
-
-from surprise import Dataset, Reader, SVD
-import pandas as pd
-import numpy as np
-import os
 
 
 def recommend_for_new_user(user_rating, user_id, client):

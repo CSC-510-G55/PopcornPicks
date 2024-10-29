@@ -9,11 +9,8 @@ This code is licensed under MIT license (see LICENSE for details)
 # pylint: disable=wrong-import-order
 # pylint: disable=import-error
 import json
-import sys
-import os
 from flask import Flask, jsonify, render_template, request, g, redirect, url_for
 from flask_cors import CORS
-import mysql.connector
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 from dotenv import load_dotenv
@@ -33,14 +30,9 @@ from utils import (
 )
 from search import Search
 
-sys.path.append("../../")
-from src.prediction_scripts.item_based import (
+from item_based import (
     recommend_for_new_user,
 )
-
-
-sys.path.remove("../../")
-
 
 app = Flask(__name__)
 app.secret_key = "secret key"
