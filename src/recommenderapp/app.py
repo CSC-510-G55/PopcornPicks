@@ -9,11 +9,10 @@ This code is licensed under MIT license (see LICENSE for details)
 # pylint: disable=wrong-import-order
 # pylint: disable=import-error
 import json
-from flask import Flask, jsonify, render_template, request, g, redirect, url_for
+from flask import Flask, jsonify, render_template, request, redirect, url_for
 from flask_cors import CORS
 from pymongo import MongoClient
 from bson.objectid import ObjectId
-from dotenv import load_dotenv
 from utils import (
     beautify_feedback_data,
     send_email_to_user,
@@ -41,10 +40,8 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}})
 user = {1: None}
 user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
 
-from pymongo.mongo_client import MongoClient
-
-uri = "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net/?retryWrites=true&w=majority&appName=PopCorn"
-client = MongoClient(uri)
+MONGO_URI = """mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net/?retryWrites=true&w=majority&appName=PopCorn"""
+client = MongoClient(MONGO_URI)
 try:
     client.admin.command("ping")
     print("Pinged your deployment. You successfully connected to MongoDB!")
@@ -57,9 +54,7 @@ def login_page():
     """
     Renders the login page.
     """
-    return redirect(url_for("landing_page"))
     return render_template("login.html")
-
 
 @app.route("/profile")
 def profile_page():
@@ -165,12 +160,9 @@ def signout():
 def login():
     """Handles user login."""
     data = json.loads(request.data)
-    # resp = login_to_account(client, data["username"], data["password"])
-
-    # if not resp:
-    #     return "Invalid credentials", 400
-    # print(resp)
-    user[1] = "671b289a193d2a9361ebf39a"
+    resp = login_to_account(client, data["username"], data["password"])
+    if not resp:
+        return "Invalid credentials", 400
     return request.data
 
 
@@ -230,7 +222,6 @@ def recent_friend_movies():
     """
     Gets the recent movies of a certain friend
     """
-    data = json.loads(request.data)
     return get_recent_friend_movies(client, user[1])
 
 
@@ -279,6 +270,9 @@ def success():
 
 
 def setup_mongodb_indexes():
+    """
+    Sets up the MongoDB indexes.
+    """
     try:
         client.db.users.create_index([("username", 1)], unique=True)
         client.db.users.create_index([("email", 1)], unique=True)
