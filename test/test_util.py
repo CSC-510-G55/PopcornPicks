@@ -17,6 +17,7 @@ import bcrypt
 import flask
 from dotenv import load_dotenv
 from pathlib import Path
+
 pass
 
 # import mysql.connector
