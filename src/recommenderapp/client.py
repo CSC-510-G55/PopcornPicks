@@ -4,6 +4,7 @@ This code is licensed under MIT license (see LICENSE for details)
 
 @author: PopcornPicks
 """
+
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
 
