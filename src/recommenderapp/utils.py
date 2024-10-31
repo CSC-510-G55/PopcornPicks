@@ -22,6 +22,7 @@ from bson.objectid import ObjectId
 import json
 import pandas as pd
 import os
+import requests
 
 app_dir = os.path.dirname(os.path.abspath(__file__))
 code_dir = os.path.dirname(app_dir)
@@ -514,5 +515,31 @@ def get_genre_count(client, user):
                 genre_count[genre] += 1
             else:
                 genre_count[genre] = 1
-    print(genre_count, end="\n")
     return genre_count
+  
+def fetch_streaming_link(imdb_id):
+    """
+    Fetches the streaming links of movies.
+    """
+    if not imdb_id:
+        return jsonify({"error": "Please provide imdb_id"}), 400
+
+    url = f"https://api.watchmode.com/v1/title/{imdb_id}/sources/"
+    api_key = "fh04Ehayqo4Rdn7RJ0vaGttCD8QYbmWRgZsB4DYy"
+
+    headers = {"Authorization": f"Bearer {api_key}"}
+
+    params = {"apiKey": api_key, "regions": "US"}
+
+    response = requests.get(url, headers=headers, params=params)
+
+    sources = {
+        item["name"]: {"platform": item["name"], "url": item["web_url"]}
+        for item in response.json()
+    }
+    res = sorted(sources.values(), key=lambda x: x["platform"])
+
+    if res:  # Check if res is not empty
+        return res[0]["url"]  # Returns the first URL
+    return None
+

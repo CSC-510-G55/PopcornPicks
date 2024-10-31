@@ -78,15 +78,21 @@ $(document).ready(function () {
 				var i = 0
 				var recommendations = response["recommendations"]
 				var imdbIds = response["imdb_id"]
+				var webUrls = response["web_url"]
 				for (var i = 0; i < recommendations.length; i++) {
 					var element = recommendations[i]
 					var imdbID = imdbIds[i]
+					var web_url = webUrls[i]
 					var diventry = $("<div/>")
 					var fieldset = $("<fieldset/>", { id: i }).css("border", "0")
 					var link = $("<a/>")
 						.text("IMDb🔗")
 						.css({ "text-decoration": "none" })
 						.attr("href", "https://www.imdb.com/title/" + imdbID)
+					var streaming_link = $("<a/>")
+						.text("   Stream Here!🍿")
+						.css({ "text-decoration": "none" })
+						.attr("href", web_url)
 					var li = $("<li/>").text(element)
 					var radios = $(`
                     <table class='table predictTable'>
@@ -112,6 +118,7 @@ $(document).ready(function () {
 
 					diventry.append(li)
 					diventry.append(link)
+					diventry.append(streaming_link)
 					diventry.append(radios)
 					fieldset.append(diventry)
 					ulList.append(fieldset)
