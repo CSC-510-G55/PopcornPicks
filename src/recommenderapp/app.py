@@ -170,6 +170,7 @@ def login():
     """Handles user login."""
     data = json.loads(request.data)
     resp = login_to_account(db, data["username"], data["password"])
+    user[1] = resp
     if not resp:
         return "Invalid credentials", 400
     return request.data
@@ -220,7 +221,7 @@ def recent_movies():
     Gets the recent movies of the active user
     """
     movies = list(
-        client.PopcornPicksDB.reviews.find(
+        client.PopcornPicksDB.ratings.find(
             {"user_id": ObjectId(user[1])}, {"movie": 1, "_id": 0}
         ).sort("_id", -1)
     )

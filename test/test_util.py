@@ -28,17 +28,14 @@ class TestUtils(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # Mock MongoDB client setup
         cls.client = client
         cls.db = client.testDB
 
-        # Sample movie data for testing
         cls.sample_movies = [
             {"_id": ObjectId(), "name": "Toy Story", "imdb_id": "tt0114709", "year": 1995},
             {"_id": ObjectId(), "name": "Interstellar", "imdb_id": "tt0816692", "year": 2014}
         ]
 
-        # Insert sample movies into mocked database
         cls.db.movies.insert_many(cls.sample_movies)
 
     def test_create_colored_tags(self):
@@ -140,7 +137,7 @@ class TestUtils(unittest.TestCase):
 
     def test_add_friend_and_get_friends(self):
         user_id_1 = login_to_account(self.client, username="testUserLogin1", password="password123")
-        
+        print(user_id_1)
         add_friend(self.client, [None, user_id_1], username="Friend1")
         
         friends_list = get_friends(self.client, [None, user_id_1])
