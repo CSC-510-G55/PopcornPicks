@@ -1,8 +1,18 @@
+"""
+Copyright (c) 2023 Aditya Pai, Ananya Mantravadi, Rishi Singhal, Samarth Shetty
+This code is licensed under MIT license (see LICENSE for details)
+
+@author: PopcornPicks
+
+Test suit for search feature
+"""
+
 import unittest
 import warnings
-from src.recommenderapp.client import client
-from bson import ObjectId
+
 from datetime import datetime
+
+from src.recommenderapp.client import client
 
 warnings.filterwarnings("ignore")
 
@@ -32,7 +42,8 @@ class TestMongoDB(unittest.TestCase):
 
     def setUp(self):
         """
-        Reset the state of the database before each test by clearing out the users, movies, and ratings collections.
+        Reset the state of the database before each test by
+        clearing out the users, movies, and ratings collections.
         Also, populate the movies collection with sample data.
         """
         self.db.users.delete_many({})
@@ -42,7 +53,9 @@ class TestMongoDB(unittest.TestCase):
 
     def test_user_creation(self):
         """
-        Test user creation in the database. Ensure that a user can be created and that duplicate usernames are not allowed.
+        Test user creation in the database.
+        Ensure that a user can be created and
+        that duplicate usernames are not allowed.
         """
         user = {
             "username": "svrao",
@@ -88,7 +101,8 @@ class TestMongoDB(unittest.TestCase):
 
     def test_friend_relationship(self):
         """
-        Test that users can add each other as friends and that the relationship is correctly stored in the database.
+        Test that users can add each other as friends and
+        that the relationship is correctly stored in the database.
         """
         user1 = self.db.users.insert_one(
             {
@@ -154,7 +168,8 @@ class TestMongoDB(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
         """
-        Clean up after all tests have run by deleting all documents from users, movies, and ratings collections.
+        Clean up after all tests have run by deleting all
+        documents from users, movies, and ratings collections.
         Drop the entire test database to ensure no leftover data.
         """
         cls.db.users.delete_many({})

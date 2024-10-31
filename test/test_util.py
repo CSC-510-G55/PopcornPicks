@@ -1,7 +1,19 @@
+"""
+Copyright (c) 2023 Aditya Pai, Ananya Mantravadi, Rishi Singhal, Samarth Shetty
+This code is licensed under MIT license (see LICENSE for details)
+
+@author: PopcornPicks
+
+Test suit for search feature
+"""
+
 import unittest
-from src.recommenderapp.client import client
-from bson import ObjectId
 from unittest.mock import patch, MagicMock
+
+import pandas as pd
+from bson import ObjectId
+
+from src.recommenderapp.client import client
 from src.recommenderapp.utils import (
     create_colored_tags,
     beautify_feedback_data,
@@ -13,16 +25,11 @@ from src.recommenderapp.utils import (
     get_wall_posts,
     get_recent_movies,
     get_username,
-    get_recent_friend_movies,
     add_friend,
     get_friends,
     get_user_history,
     fetch_streaming_link,
 )
-from pymongo import MongoClient
-from bson import ObjectId
-import pandas as pd
-import requests
 
 
 class TestUtils(unittest.TestCase):
@@ -36,6 +43,8 @@ class TestUtils(unittest.TestCase):
         Set up the test database and insert sample movie data before running the tests.
         This method is called once before any tests are executed.
         """
+        cls.movies_df = pd.read_csv("data/movies.csv")
+
         cls.client = client
         cls.db = client.testDB
 
@@ -58,19 +67,23 @@ class TestUtils(unittest.TestCase):
 
     def test_create_colored_tags(self):
         """
-        Test the function that generates HTML tags with specific colors for movie genres.
+        Test the function that generates HTML
+        tags with specific colors for movie genres.
         """
         genres = ["Musical", "Sci-Fi"]
         result = create_colored_tags(genres)
         expected_result = (
-            '<span style="background-color: #FF1493; color: #FFFFFF; padding: 5px; border-radius: 5px;">Musical</span> '
-            '<span style="background-color: #00CED1; color: #FFFFFF; padding: 5px; border-radius: 5px;">Sci-Fi</span>'
+            """<span style="background-color: #FF1493; color: #FFFFFF; p
+            adding: 5px; border-radius: 5px;">Musical</span>"""
+            """<span style="background-color: #00CED1; color: #FFFFFF; 
+            padding: 5px; border-radius: 5px;">Sci-Fi</span>"""
         )
         self.assertEqual(result, expected_result)
 
     def test_beautify_feedback_data(self):
         """
-        Test the function that organizes feedback data into categories such as 'Liked', 'Disliked', and 'Yet to Watch'.
+        Test the function that organizes feedback data
+        into categories such as 'Liked', 'Disliked', and 'Yet to Watch'.
         """
         data = {"Movie 1": "Yet to watch", "Movie 2": "Like", "Movie 3": "Dislike"}
         result = beautify_feedback_data(data)
@@ -83,7 +96,8 @@ class TestUtils(unittest.TestCase):
 
     def test_create_movie_genres(self):
         """
-        Test the function that creates a dictionary of movie titles and their associated genres from a DataFrame.
+        Test the function that creates a dictionary of movie titles
+        and their associated genres from a DataFrame.
         """
         data = [
             ["862", "Toy Story (1995)", "Animation|Comedy|Family"],
@@ -205,7 +219,7 @@ class TestUtils(unittest.TestCase):
             self.db, user=user_id, movie="Toy Story", score=5, review="Great movie!"
         )
 
-        recent_movies = get_recent_movies(self.db, user_id)
+        recent_movies = get_recent_movies(self.db, user_id, self.movies_df)
 
         self.assertGreater(len(recent_movies.json), 0)
 
