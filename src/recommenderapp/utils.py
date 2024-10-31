@@ -335,13 +335,11 @@ def get_wall_posts(client):
     return posts
 
 
-def get_user_ratings(client):
+def get_user_ratings(db):
     """
     Utility function to get wall posts from the MongoDB database,
     joining data from Users, Ratings, and Movies collections.
     """
-    db = client.PopcornPicksDB
-
     posts = list(
         db.ratings.aggregate(
             [

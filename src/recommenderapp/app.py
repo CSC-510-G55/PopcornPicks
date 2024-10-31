@@ -116,7 +116,7 @@ def predict():
     user_rating = [{"title": movie, "rating": 10.0} for movie in data1]
 
     recommendations, genres, imdb_id = recommend_for_new_user(
-        user_rating, user[1], client
+        user_rating, user[1], db
     )
 
     web_url = []
