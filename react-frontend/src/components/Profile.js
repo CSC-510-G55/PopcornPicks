@@ -112,7 +112,7 @@ const ProfilePage = () => {
                   <div className="friend-dropdown">
                     {friend.movies.map((movie, movieIndex) => (
                       <a key={movieIndex}>
-                        {movie.name}: {movie.score}/10 stars
+                        {movie.title}: {movie.score}/10 stars
                       </a>
                     ))}
                   </div>
