@@ -23,6 +23,15 @@ import json
 import pandas as pd
 import os
 
+app_dir = os.path.dirname(os.path.abspath(__file__))
+code_dir = os.path.dirname(app_dir)
+project_dir = os.path.dirname(code_dir)
+
+
+def load_movies():
+    """Load movies data from CSV."""
+    return pd.read_csv(os.path.join(project_dir, "data", "movies.csv"))
+
 
 def create_colored_tags(genres):
     """
@@ -470,3 +479,40 @@ def get_user_history(client, user_id):
     except PyMongoError as e:
         print(f"Database error: {str(e)}")
         raise
+
+
+def get_genre_count(client, user):
+    """
+    Utility function to get movies from the MongoDB database, and calculate the count of
+    genres of the movies which the user has watched.
+    """
+
+    db = client.PopcornPicksDB
+
+    results = db.ratings.find({"user_id": ObjectId(user[1])}, {"movie_id": 1, "_id": 0})
+
+    # Extract movie_ids from the results
+    movie_ids = [result["movie_id"] for result in results]
+
+    # Read the movies CSV file into a DataFrame
+    movies_df = load_movies()
+
+    # Filter rows where the movie_id is in the provided movie_ids list and get the 'genres' column
+    filtered_genres = movies_df[movies_df["movieId"].isin(movie_ids)]["genres"]
+
+    # Initialize an empty dictionary to store genre counts
+    genre_count = {}
+
+    # Loop through each row in the genres column
+    for genres in filtered_genres:
+        # Split by '|' and strip any whitespace around each genre
+        genre_list = [genre.strip() for genre in genres.split("|")]
+        print(genre_list, end="\n")
+        # Count each genre
+        for genre in genre_list:
+            if genre in genre_count:
+                genre_count[genre] += 1
+            else:
+                genre_count[genre] = 1
+    print(genre_count, end="\n")
+    return genre_count

@@ -29,6 +29,7 @@ from src.recommenderapp.utils import (
     add_friend,
     get_friends,
     get_recent_friend_movies,
+    get_genre_count,
 )
 from src.recommenderapp.search import Search
 
@@ -57,6 +58,8 @@ def profile_page():
     """
     Renders the login page.
     """
+    get_genre_count(client, user)
+
     if user[1] is not None:
         return render_template("profile.html")
     return render_template("login.html")
