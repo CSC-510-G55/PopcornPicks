@@ -19,10 +19,18 @@ from flask import jsonify
 from pymongo.errors import PyMongoError
 from bson.errors import InvalidId
 from bson.objectid import ObjectId
-import json
 import pandas as pd
 import os
 import requests
+
+app_dir = os.path.dirname(os.path.abspath(__file__))
+code_dir = os.path.dirname(app_dir)
+project_dir = os.path.dirname(code_dir)
+
+
+def load_movies():
+    """Load movies data from CSV."""
+    return pd.read_csv(os.path.join(project_dir, "data", "movies.csv"))
 
 
 def create_colored_tags(genres):
@@ -220,10 +228,14 @@ def add_friend(db, user, username):
     """
     Utility function for adding a friend
     """
-    db.users.update_one(
-        {"_id": ObjectId(user[1])}, {"$addToSet": {"friends": username}}
-    )
-    return True
+    try:
+        client.PopcornPicksDB.users.update_one(
+            {"_id": ObjectId(user[1])}, {"$addToSet": {"friends": username}}
+        )
+        return True
+    except PyMongoError as e:
+        print(f"Error adding friend: {str(e)}")
+        return False
 
 
 def login_to_account(db, username, password):
@@ -370,90 +382,86 @@ def get_user_ratings(db):
     return posts
 
 
-def get_recent_movies(client, user_id):
+def get_recent_movies(client, user_id, movies_df):
     """
-    Utility function for getting recent movies reviewed by a user
+    Gets the recent movies of the active user with their names and ratings.
     """
     try:
-        db = client.PopcornPicksDB
-        pipeline = [
-            {"$match": {"user_id": ObjectId(user_id)}},
-            {"$sort": {"time": -1}},
-            {"$limit": 5},
-            {
-                "$lookup": {
-                    "from": "movies",
-                    "localField": "movie_id",
-                    "foreignField": "_id",
-                    "as": "movie",
-                }
-            },
-            {"$unwind": "$movie"},
-            {"$project": {"_id": 0, "name": "$movie.name", "score": "$score"}},
+        user_id = ObjectId(user_id)
+        movies = list(
+            client.PopcornPicksDB.ratings.find({"user_id": user_id}).sort("_id", -1)
+        )
+        if not movies:
+            return jsonify([])
+        movie_data = [
+            {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
         ]
-
-        results = list(db.ratings.aggregate(pipeline))
-        return jsonify(results)
-
+        ratings_df = pd.DataFrame(movie_data)
+        merged_df = pd.merge(
+            ratings_df, movies_df, how="left", left_on="movie_id", right_on="movieId"
+        )
+        recent_movies_list = merged_df[["title", "score"]].to_dict(orient="records")
+        return jsonify(recent_movies_list)
     except PyMongoError as e:
-        print(f"Database error: {str(e)}")
-        return jsonify([])
+        print(f"Database error retrieving recent movies: {str(e)}")
+        return jsonify({"error": "Database error occurred"})
 
 
 def get_username(client, user):
     """
     Utility function for getting the current users username
     """
-    user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user[1])})
-    return user_data["username"] if user_data else ""
+    try:
+        user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user[1])})
+        return user_data["username"] if user_data else ""
+    except PyMongoError as e:
+        print(f"Database error retrieving username: {str(e)}")
+        return ""
 
 
-def get_recent_friend_movies(client, username):
+def get_recent_friend_movies(client, user_id, movies_df):
     """
-    Utility function for getting recent movies from user's friends
+    Utility function for getting recent movies from user's friends.
     """
     try:
-        db = client.PopcornPicksDB
-
-        user = db.users.find_one({"username": username})
-        if not user:
+        movies = list(
+            client.PopcornPicksDB.ratings.find({"user_id": user_id}).sort("_id", -1)
+        )
+        if not movies:
             return jsonify([])
-
-        friends = user.get("friends", [])
-        if not friends:
-            return jsonify([])
-
-        pipeline = [
-            {"$match": {"user_id": {"$in": friends}}},
-            {"$sort": {"time": -1}},
-            {"$limit": 5},
-            {
-                "$lookup": {
-                    "from": "movies",
-                    "localField": "movie_id",
-                    "foreignField": "_id",
-                    "as": "movie",
-                }
-            },
-            {"$unwind": "$movie"},
-            {"$project": {"_id": 0, "name": "$movie.name", "score": "$score"}},
+        movie_data = [
+            {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
         ]
-
-        results = list(db.ratings.aggregate(pipeline))
-        return jsonify(results)
-
+        ratings_df = pd.DataFrame(movie_data)
+        merged_df = pd.merge(
+            ratings_df, movies_df, how="left", left_on="movie_id", right_on="movieId"
+        )
+        recent_movies_list = merged_df[["title", "score"]].to_dict(orient="records")
+        return jsonify(recent_movies_list)
     except PyMongoError as e:
-        print(f"Database error: {str(e)}")
-        return jsonify([])
+        print(f"Database error retrieving friend movies: {str(e)}")
+        return jsonify({"error": "Database error occurred"})
 
 
-def get_friends(client, user):
+def get_friends(client, user_id):
     """
-    Utility function for getting the current users friends
+    Utility function to get a user's friends list with their user IDs and usernames.
     """
-    user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user[1])})
-    print(user_data)
-    return json.dumps(user_data.get("friends", []))
+    user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user_id)})
+
+    friend_usernames = user_data.get("friends", [])
+
+    friends_info = list(
+        client.PopcornPicksDB.users.find(
+            {"username": {"$in": friend_usernames}, "_id": {"$ne": ObjectId(user_id)}},
+            {"_id": 1, "username": 1},
+        )
+    )
+
+    return [
+        {"_id": str(friend["_id"]), "username": friend["username"]}
+        for friend in friends_info
+    ]
 
 
 def get_user_history(client, user_id):
@@ -480,6 +488,42 @@ def get_user_history(client, user_id):
         raise
 
 
+def get_genre_count(client, user):
+    """
+    Utility function to get movies from the MongoDB database, and calculate the count of
+    genres of the movies which the user has watched.
+    """
+
+    db = client.PopcornPicksDB
+
+    results = db.ratings.find({"user_id": ObjectId(user[1])}, {"movie_id": 1, "_id": 0})
+
+    # Extract movie_ids from the results
+    movie_ids = [result["movie_id"] for result in results]
+
+    # Read the movies CSV file into a DataFrame
+    movies_df = load_movies()
+
+    # Filter rows where the movie_id is in the provided movie_ids list and get the 'genres' column
+    filtered_genres = movies_df[movies_df["movieId"].isin(movie_ids)]["genres"]
+
+    # Initialize an empty dictionary to store genre counts
+    genre_count = {}
+
+    # Loop through each row in the genres column
+    for genres in filtered_genres:
+        # Split by '|' and strip any whitespace around each genre
+        genre_list = [genre.strip() for genre in genres.split("|")]
+        print(genre_list, end="\n")
+        # Count each genre
+        for genre in genre_list:
+            if genre in genre_count:
+                genre_count[genre] += 1
+            else:
+                genre_count[genre] = 1
+    return genre_count
+
+
 def fetch_streaming_link(imdb_id):
     """
     Fetches the streaming links of movies.
@@ -494,7 +538,7 @@ def fetch_streaming_link(imdb_id):
 
     params = {"apiKey": api_key, "regions": "US"}
 
-    response = requests.get(url, headers=headers, params=params)
+    response = requests.get(url, headers=headers, params=params, timeout=4)
 
     sources = {
         item["name"]: {"platform": item["name"], "url": item["web_url"]}
@@ -504,5 +548,4 @@ def fetch_streaming_link(imdb_id):
 
     if res:  # Check if res is not empty
         return res[0]["url"]  # Returns the first URL
-
     return None
