@@ -201,7 +201,7 @@ def review():
     Handles the submission of a movie review
     """
     data = json.loads(request.data)
-    submit_review(client, user, data["movie"], data["score"], data["review"])
+    submit_review(db, user, data["movie"], data["score"], data["review"])
     return request.data
 
 

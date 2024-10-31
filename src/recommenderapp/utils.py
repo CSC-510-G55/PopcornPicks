@@ -240,13 +240,11 @@ def login_to_account(db, username, password):
         return None
 
 
-def submit_review(client, user, movie, score, review):
+def submit_review(db, user, movie, score, review):
     """
     Utility function for creating a dictionary for submitting a review
     """
     try:
-        db = client.PopcornPicksDB
-
         movie_doc = db.movies.find_one({"name": movie})
 
         if not movie_doc:
