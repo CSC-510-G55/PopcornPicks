@@ -11,12 +11,12 @@ This code is licensed under MIT license (see LICENSE for details)
 import json
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
+from bson.objectid import ObjectId
 from pymongo.errors import (
     OperationFailure,
     DuplicateKeyError,
 )
 from src.recommenderapp.search import Search
-from bson.objectid import ObjectId
 from src.recommenderapp.client import client
 from src.recommenderapp.utils import (
     beautify_feedback_data,

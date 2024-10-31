@@ -516,7 +516,8 @@ def get_genre_count(client, user):
             else:
                 genre_count[genre] = 1
     return genre_count
-  
+
+
 def fetch_streaming_link(imdb_id):
     """
     Fetches the streaming links of movies.
@@ -531,7 +532,7 @@ def fetch_streaming_link(imdb_id):
 
     params = {"apiKey": api_key, "regions": "US"}
 
-    response = requests.get(url, headers=headers, params=params)
+    response = requests.get(url, headers=headers, params=params, timeout=4)
 
     sources = {
         item["name"]: {"platform": item["name"], "url": item["web_url"]}
@@ -542,4 +543,3 @@ def fetch_streaming_link(imdb_id):
     if res:  # Check if res is not empty
         return res[0]["url"]  # Returns the first URL
     return None
-
