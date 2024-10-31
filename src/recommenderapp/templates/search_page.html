@@ -142,7 +142,7 @@ This code is licensed under MIT license (see LICENSE for details)
       contentType: "application/json;charset=UTF-8",
       success: function(response) {
         response.forEach(element => {
-        	addRecentMovie(element.name)
+        	addRecentMovie(element.title)
         });
       },
       error: function(error) {
