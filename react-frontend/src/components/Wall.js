@@ -77,7 +77,7 @@ const Wall = () => {
         </div>
       </div>
 
-      <div id="post-container" style={{margin: 'auto', maxWidth: '800px', height: '95%', overflowY: 'auto', backgroundColor: 'white'}}>
+      <div id="post-container" style={{margin: 'auto', maxWidth: '1000px', height: '95%', overflowY: 'auto', backgroundColor: 'white'}}>
         {posts.map((post, index) => (
           <Post key={index} post={post} fetchMovieData={fetchMovieData} renderStars={renderStars} />
         ))}

@@ -1,0 +1,98 @@
+/* LandingPage.css */
+.landing-page {
+    background-image: url("image.jpg");
+    background-size: cover;
+    color: azure !important;
+  }
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    color: black;
+}
+
+.landing-page {
+    background-color: rgba(255, 255, 255, 0.8);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar {
+    background-color: #343a40;
+}
+
+.navbar-brand {
+    color: white;
+    font-weight: bold;
+}
+
+#signOut {
+    background-color: transparent;
+    color: white;
+    border: none;
+    width: 5%;
+}
+
+#centralDivLanding {
+    margin-top: 60px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.heading1 {
+    width: 100%;
+}
+
+h2 {
+    color: #343a40;
+    margin-bottom: 20px;
+}
+
+p {
+    color: azure;
+    font-size: 18px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+.btn-primary {
+    margin: 10px;
+}
+
+.highlighted-section {
+    margin-top: 30px;
+    font-size: 14px;
+}
+
+.highlighted-section a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.highlighted-section a:hover {
+    text-decoration: underline;
+}
+
+#loaderLanding {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+@media (max-width: 768px) {
+    #signOut {
+        width: auto;
+    }
+
+    .btn-primary {
+        width: 80%;
+        margin: 10px auto;
+    }
+}
