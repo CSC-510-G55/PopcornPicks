@@ -17,7 +17,9 @@ from pymongo.errors import (
     DuplicateKeyError,
 )
 
-from bson import ObjectId
+from src.recommenderapp.search import Search
+from bson.objectid import ObjectId
+
 from src.recommenderapp.client import client
 from src.recommenderapp.utils import (
     beautify_feedback_data,
@@ -31,8 +33,8 @@ from src.recommenderapp.utils import (
     get_friends,
     get_recent_movies,
     get_recent_friend_movies,
+    fetch_streaming_link,
 )
-from src.recommenderapp.search import Search
 
 from src.recommenderapp.item_based import (
     recommend_for_new_user,
@@ -120,7 +122,17 @@ def predict():
         user_rating, user[1], client
     )
 
-    resp = {"recommendations": recommendations, "genres": genres, "imdb_id": imdb_id}
+    web_url = []
+    for element in imdb_id:
+        web_url.append(fetch_streaming_link(element))
+
+    resp = {
+        "recommendations": recommendations,
+        "genres": genres,
+        "imdb_id": imdb_id,
+    }
+
+    print(resp, end="\n")
     return resp
 
 
