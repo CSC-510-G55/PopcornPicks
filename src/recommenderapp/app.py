@@ -15,8 +15,9 @@ from pymongo.errors import (
     OperationFailure,
     DuplicateKeyError,
 )
-from src.recommenderapp.search import Search
 from bson.objectid import ObjectId
+
+from src.recommenderapp.search import Search
 from src.recommenderapp.client import client
 from src.recommenderapp.utils import (
     beautify_feedback_data,
