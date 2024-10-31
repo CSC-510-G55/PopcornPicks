@@ -226,12 +226,11 @@ def add_friend(client, user, username):
     return True
 
 
-def login_to_account(client, username, password):
+def login_to_account(db, username, password):
     """
     Utility function for logging in to an account
     """
     try:
-        db = client.PopcornPicksDB
         user = db.users.find_one({"username": username})
         if user and bcrypt.checkpw(password.encode("utf-8"), user["password"]):
             return str(user["_id"])

@@ -169,7 +169,7 @@ def signout():
 def login():
     """Handles user login."""
     data = json.loads(request.data)
-    resp = login_to_account(client, data["username"], data["password"])
+    resp = login_to_account(db, data["username"], data["password"])
     if not resp:
         return "Invalid credentials", 400
     return request.data
