@@ -187,36 +187,28 @@ This code is licensed under MIT license (see LICENSE for details)
         }
 
         function getFriends() {
-
             $.ajax({
                 type: 'GET',
                 url: '/getFriends',
                 contentType: "application/json;charset=UTF-8",
-                success: function (response) {
-                    friendsData = response;
-                    console.log(friendsData);
+                success: function (friendsData) { 
+                    console.log(friendsData); 
 
                     const friendsList = document.getElementById("friendsList");
-                    friendsData = JSON.stringify(friendsData);
 
-                    JSON.parse(friendsData).forEach(function(friend) {
-
-                        friend = friend[0];
+                    friendsData.forEach(function(friend) {
                         console.log(friend);
 
                         $.ajax({
                             type: 'POST',
                             url: '/getRecentFriendMovies',
-                            data: JSON.stringify(friend),
+                            data: JSON.stringify({ "friend_id": friend }), 
                             contentType: "application/json;charset=UTF-8",
-                            success: function (response) {
-
-                                recentMovies = response;
-
+                            success: function (recentMovies) {
                                 const listItem = document.createElement("li");
                                 listItem.classList.add("friend");
 
-                                const friendName = document.createTextNode(friend + " ");
+                                const friendName = document.createTextNode(friend.username + " ");
                                 listItem.appendChild(friendName);
 
                                 const showMoviesButton = document.createElement("button");
@@ -230,32 +222,28 @@ This code is licensed under MIT license (see LICENSE for details)
                                 const dropdown = document.createElement("div");
                                 dropdown.classList.add("friend-dropdown");
 
-                                console.log(recentMovies);
-
                                 recentMovies.forEach(function(recentMovie) {
                                     const movieLink = document.createElement("a");
-                                    movieLink.textContent = recentMovie.name + ": " + recentMovie.score + "/10 stars";
+                                    movieLink.textContent = recentMovie.title + ": " + recentMovie.score + "/10 stars";
                                     dropdown.appendChild(movieLink);
                                 });
 
                                 listItem.appendChild(dropdown);
-
                                 friendsList.appendChild(listItem);
-
                             },
                             error: function (error) {
-
+                                console.log("Error retrieving recent movies:", error);
                             }
                         });
                     });
                 },
                 error: function (error) {
+                    console.log("Error retrieving friends data:", error);
                 }
             });
-        
-
-            
         }
+
+
 
         function showFriendMovies(recentMovies) {
             // Hide all friend-dropdowns

@@ -29,6 +29,7 @@ from src.recommenderapp.utils import (
     get_username,
     add_friend,
     get_friends,
+    get_recent_movies,
     get_recent_friend_movies,
 )
 from src.recommenderapp.search import Search
@@ -42,7 +43,7 @@ app.secret_key = "secret key"
 
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 user = {1: None}
-user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
+#user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
 
 movies_df = pd.read_csv("data/movies.csv")
 
@@ -162,6 +163,7 @@ def login():
     resp = login_to_account(client, data["username"], data["password"])
     if not resp:
         return "Invalid credentials", 400
+    user[1] = resp
     return request.data
 
 
@@ -206,23 +208,9 @@ def wall_posts():
 @app.route("/getRecentMovies", methods=["GET"])
 def recent_movies():
     """
-    Gets the recent movies of the active user with their names and ratings.
+    Gets the recent movies of the active user
     """
-    user_id = ObjectId(user[1])
-    movies = list(
-        client.PopcornPicksDB.ratings.find({"user_id": user_id}).sort("_id", -1)
-    )
-    movie_data = [
-        {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
-    ]
-    ratings_df = pd.DataFrame(movie_data)
-
-    merged_df = pd.merge(
-        ratings_df, movies_df, how="left", left_on="movie_id", right_on="movieId"
-    )
-
-    recent_movies_list = merged_df[["title", "score"]].to_dict(orient="records")
-    return jsonify(recent_movies_list)
+    return get_recent_movies(client, user[1], movies_df)
 
 
 @app.route("/getRecentFriendMovies", methods=["POST"])
@@ -230,7 +218,9 @@ def recent_friend_movies():
     """
     Gets the recent movies of a certain friend
     """
-    return get_recent_friend_movies(client, user[1])
+    data = json.loads(request.data)
+    user_id = ObjectId(data["friend_id"]["_id"])
+    return get_recent_friend_movies(client, user_id, movies_df)
 
 
 @app.route("/getUserName", methods=["GET"])
@@ -246,7 +236,7 @@ def get_friend():
     """
     Gets the friends of the active user
     """
-    return get_friends(client, user)
+    return get_friends(client, user[1])
 
 
 @app.route("/feedback", methods=["POST"])

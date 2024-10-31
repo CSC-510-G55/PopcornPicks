@@ -19,7 +19,6 @@ from flask import jsonify
 from pymongo.errors import PyMongoError
 from bson.errors import InvalidId
 from bson.objectid import ObjectId
-import json
 import pandas as pd
 import os
 
@@ -220,9 +219,15 @@ def add_friend(client, user, username):
     """
     Utility function for adding a friend
     """
-    client.PopcornPicksDB.users.update_one(
-        {"_id": ObjectId(user[1])}, {"$addToSet": {"friends": username}}
-    )
+    try:
+        client.PopcornPicksDB.users.update_one(
+            {"_id": ObjectId(user[1])}, 
+            {"$addToSet": {"friends": username}}
+        )
+        return True
+    except PyMongoError as e:
+        print(f"Error adding friend: {str(e)}")
+        return False
 
 
 def login_to_account(client, username, password):
@@ -363,89 +368,88 @@ def get_user_ratings(client):
     return posts
 
 
-def get_recent_movies(client, user_id):
+def get_recent_movies(client, user_id, movies_df):
     """
-    Utility function for getting recent movies reviewed by a user
+    Gets the recent movies of the active user with their names and ratings.
     """
     try:
-        db = client.PopcornPicksDB
-        pipeline = [
-            {"$match": {"user_id": ObjectId(user_id)}},
-            {"$sort": {"time": -1}},
-            {"$limit": 5},
-            {
-                "$lookup": {
-                    "from": "movies",
-                    "localField": "movie_id",
-                    "foreignField": "_id",
-                    "as": "movie",
-                }
-            },
-            {"$unwind": "$movie"},
-            {"$project": {"_id": 0, "name": "$movie.name", "score": "$score"}},
+        user_id = ObjectId(user_id)
+        movies = list(
+            client.PopcornPicksDB.ratings.find({"user_id": user_id}).sort("_id", -1)
+        )
+        if not movies:
+            return jsonify([])
+            
+        movie_data = [
+            {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
         ]
-
-        results = list(db.ratings.aggregate(pipeline))
-        return jsonify(results)
-
+        ratings_df = pd.DataFrame(movie_data)
+        merged_df = pd.merge(
+            ratings_df, movies_df, how="left", left_on="movie_id", right_on="movieId"
+        )
+        recent_movies_list = merged_df[["title", "score"]].to_dict(orient="records")
+        return jsonify(recent_movies_list)
     except PyMongoError as e:
-        print(f"Database error: {str(e)}")
-        return jsonify([])
+        print(f"Database error retrieving recent movies: {str(e)}")
+        return jsonify({"error": "Database error occurred"})
 
 
 def get_username(client, user):
     """
     Utility function for getting the current users username
     """
-    user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user[1])})
-    return user_data["username"] if user_data else ""
+    try:
+        user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user[1])})
+        return user_data["username"] if user_data else ""
+    except PyMongoError as e:
+        print(f"Database error retrieving username: {str(e)}")
+        return ""
 
 
-def get_recent_friend_movies(client, username):
+def get_recent_friend_movies(client, user_id, movies_df):
     """
-    Utility function for getting recent movies from user's friends
+    Utility function for getting recent movies from user's friends.
     """
     try:
-        db = client.PopcornPicksDB
-
-        user = db.users.find_one({"username": username})
-        if not user:
+        movies = list(
+            client.PopcornPicksDB.ratings.find({"user_id": user_id}).sort("_id", -1)
+        )
+        if not movies:
             return jsonify([])
-
-        friends = user.get("friends", [])
-        if not friends:
-            return jsonify([])
-
-        pipeline = [
-            {"$match": {"user_id": {"$in": friends}}},
-            {"$sort": {"time": -1}},
-            {"$limit": 5},
-            {
-                "$lookup": {
-                    "from": "movies",
-                    "localField": "movie_id",
-                    "foreignField": "_id",
-                    "as": "movie",
-                }
-            },
-            {"$unwind": "$movie"},
-            {"$project": {"_id": 0, "name": "$movie.name", "score": "$score"}},
+            
+        movie_data = [
+            {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
         ]
-
-        results = list(db.ratings.aggregate(pipeline))
-        return jsonify(results)
-
+        ratings_df = pd.DataFrame(movie_data)
+        merged_df = pd.merge(
+            ratings_df, movies_df, how="left", left_on="movie_id", right_on="movieId"
+        )
+        recent_movies_list = merged_df[["title", "score"]].to_dict(orient="records")
+        return jsonify(recent_movies_list)
     except PyMongoError as e:
-        print(f"Database error: {str(e)}")
-        return jsonify([])
+        print(f"Database error retrieving friend movies: {str(e)}")
+        return jsonify({"error": "Database error occurred"})
 
 
-def get_friends(client, user):
+def get_friends(client, user_id):
     """
-    Utility function for getting the current users friends
+    Utility function to get a user's friends list with their user IDs and usernames.
     """
-    user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user[1])})
-    return json.dumps(user_data.get("friends", []))
+    user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user_id)})
+
+    friend_usernames = user_data.get("friends", [])
+
+    friends_info = list(
+        client.PopcornPicksDB.users.find(
+            {"username": {"$in": friend_usernames}, "_id": {"$ne": ObjectId(user_id)}},
+            {"_id": 1, "username": 1},
+        )
+    )
+
+    return [
+        {"_id": str(friend["_id"]), "username": friend["username"]}
+        for friend in friends_info
+    ]
 
 
 def get_user_history(client, user_id):
