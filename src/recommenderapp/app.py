@@ -11,14 +11,14 @@ This code is licensed under MIT license (see LICENSE for details)
 import json
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
-from pymongo import MongoClient
 from pymongo.errors import (
     OperationFailure,
     DuplicateKeyError,
 )
+from search import Search
 from bson.objectid import ObjectId
-from src.recommenderapp.client import client
-from src.recommenderapp.utils import (
+from client import client
+from utils import (
     beautify_feedback_data,
     send_email_to_user,
     create_account,
@@ -29,16 +29,10 @@ from src.recommenderapp.utils import (
     add_friend,
     get_friends,
     get_recent_friend_movies,
-    get_user_history,
     fetch_streaming_link,
 )
-from search import Search
-from flask import Flask, request, jsonify
-import requests
-)
-from src.recommenderapp.search import Search
 
-from src.recommenderapp.item_based import (
+from item_based import (
     recommend_for_new_user,
 )
 
@@ -130,7 +124,6 @@ def predict():
         "recommendations": recommendations,
         "genres": genres,
         "imdb_id": imdb_id,
-        "web_url": new_list,
     }
 
     print(resp, end="\n")

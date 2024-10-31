@@ -22,7 +22,6 @@ from bson.objectid import ObjectId
 import json
 import pandas as pd
 import os
-from flask import Flask, request, jsonify
 import requests
 
 
@@ -475,6 +474,9 @@ def get_user_history(client, user_id):
 
 
 def fetch_streaming_link(imdb_id):
+    """
+    Fetches the streaming links of movies.
+    """
     if not imdb_id:
         return jsonify({"error": "Please provide imdb_id"}), 400
 
@@ -495,5 +497,5 @@ def fetch_streaming_link(imdb_id):
 
     if res:  # Check if res is not empty
         return res[0]["url"]  # Returns the first URL
-    else:
-        return None
+
+    return None
