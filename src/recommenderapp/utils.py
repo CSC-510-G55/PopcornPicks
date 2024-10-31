@@ -310,6 +310,7 @@ def get_wall_posts(client):
                         "_id": 0,
                         "name": "$movie_info.name",
                         "imdb_id": "$movie_info.imdb_id",
+                        "user_id": "$user_id",
                         "review": "$review",
                         "score": "$score",
                         "time": "$time",
@@ -320,8 +321,18 @@ def get_wall_posts(client):
             ]
         )
     )
+    def get_username_from_user_id(client, user):
+        """
+        Utility function for getting the current users username
+        """
+        user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user)})
+        return user_data["username"] if user_data else ""
     print(posts)
-    return jsonify(posts)
+    posts = [{**post, 'username': get_username_from_user_id(client, str(post['user_id']))} for post in posts]
+
+# Remove the 'user_id' field if you don't want it in the final output
+    posts = [{k: v for k, v in post.items() if k != 'user_id'} for post in posts]
+    return posts
 
 
 def get_user_ratings(client):

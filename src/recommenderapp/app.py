@@ -208,7 +208,8 @@ def wall_posts():
     """
     Gets the posts for the wall
     """
-    return get_wall_posts(client)
+    wall_posts = get_wall_posts(client)
+    return wall_posts
 
 
 @app.route("/getRecentMovies", methods=["GET"])
