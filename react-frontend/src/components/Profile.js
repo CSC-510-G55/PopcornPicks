@@ -68,8 +68,27 @@ const ProfilePage = () => {
 
   const addFriend = async () => {
     // Implement the logic to add a friend
+    try {
+      const response = await axios.post('/friend', 
+        { username: newFriend },
+        {
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+  
+      console.log('Adding friend:', newFriend);
+      console.log('Server response:', response.data);
+  
+      // Update the friends list in the state
+      setFriends(prevFriends => [...prevFriends, response.data]);
+  
+      // Clear the input field
+      setNewFriend('');
+  
+    } catch (error) {
+      console.error('Error adding friend:', error);
+    }
     console.log('Adding friend:', newFriend);
-    setNewFriend('');
   };
 
   const showFriendMovies = (friendName) => {
@@ -84,6 +103,13 @@ const ProfilePage = () => {
   };
 
   return (
+    <>
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark topNavBar fixed-top">
+        <div className="container-fluid">
+          <a className="navbar-brand" href="#">PopcornPicks🍿</a>
+          <button type="button" id="signOut" onClick={() => {/* Implement sign out logic */}} style={{backgroundColor: 'transparent', color: 'white', width: '5%'}}>Sign Out</button>
+        </div>
+      </nav>
     <div className="profile-page">
       <h1 id="userNameBanner">Welcome {userName}!</h1>
 
@@ -136,6 +162,7 @@ const ProfilePage = () => {
 
       <button onClick={backToLandingPage} className="btn btn-primary">Return home</button>
     </div>
+    </>
   );
 };
 
