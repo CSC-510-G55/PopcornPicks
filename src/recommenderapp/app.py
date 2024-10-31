@@ -10,13 +10,16 @@ This code is licensed under MIT license (see LICENSE for details)
 # pylint: disable=import-error
 import json
 from flask import Flask, jsonify, render_template, request
+import pandas as pd
 from flask_cors import CORS
 from pymongo.errors import (
     OperationFailure,
     DuplicateKeyError,
 )
+
 from src.recommenderapp.search import Search
 from bson.objectid import ObjectId
+
 from src.recommenderapp.client import client
 from src.recommenderapp.utils import (
     beautify_feedback_data,
@@ -28,6 +31,7 @@ from src.recommenderapp.utils import (
     get_username,
     add_friend,
     get_friends,
+    get_recent_movies,
     get_recent_friend_movies,
     fetch_streaming_link,
 )
@@ -41,7 +45,9 @@ app.secret_key = "secret key"
 
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 user = {1: None}
-user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
+# user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
+
+movies_df = pd.read_csv("data/movies.csv")
 
 
 @app.route("/")
@@ -169,6 +175,7 @@ def login():
     resp = login_to_account(client, data["username"], data["password"])
     if not resp:
         return "Invalid credentials", 400
+    user[1] = resp
     return request.data
 
 
@@ -215,12 +222,7 @@ def recent_movies():
     """
     Gets the recent movies of the active user
     """
-    movies = list(
-        client.PopcornPicksDB.reviews.find(
-            {"user_id": ObjectId(user[1])}, {"movie": 1, "_id": 0}
-        ).sort("_id", -1)
-    )
-    return json.dumps(movies)
+    return get_recent_movies(client, user[1], movies_df)
 
 
 @app.route("/getRecentFriendMovies", methods=["POST"])
@@ -228,7 +230,9 @@ def recent_friend_movies():
     """
     Gets the recent movies of a certain friend
     """
-    return get_recent_friend_movies(client, user[1])
+    data = json.loads(request.data)
+    user_id = ObjectId(data["friend_id"]["_id"])
+    return get_recent_friend_movies(client, user_id, movies_df)
 
 
 @app.route("/getUserName", methods=["GET"])
@@ -244,7 +248,7 @@ def get_friend():
     """
     Gets the friends of the active user
     """
-    return get_friends(client, user)
+    return get_friends(client, user[1])
 
 
 @app.route("/feedback", methods=["POST"])
