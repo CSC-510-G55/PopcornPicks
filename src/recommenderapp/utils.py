@@ -221,8 +221,7 @@ def add_friend(client, user, username):
     """
     try:
         client.PopcornPicksDB.users.update_one(
-            {"_id": ObjectId(user[1])}, 
-            {"$addToSet": {"friends": username}}
+            {"_id": ObjectId(user[1])}, {"$addToSet": {"friends": username}}
         )
         return True
     except PyMongoError as e:
@@ -379,7 +378,6 @@ def get_recent_movies(client, user_id, movies_df):
         )
         if not movies:
             return jsonify([])
-            
         movie_data = [
             {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
         ]
@@ -416,7 +414,6 @@ def get_recent_friend_movies(client, user_id, movies_df):
         )
         if not movies:
             return jsonify([])
-            
         movie_data = [
             {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
         ]

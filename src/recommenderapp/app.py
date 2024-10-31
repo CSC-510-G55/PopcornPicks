@@ -43,7 +43,7 @@ app.secret_key = "secret key"
 
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 user = {1: None}
-#user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
+# user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
 
 movies_df = pd.read_csv("data/movies.csv")
 
