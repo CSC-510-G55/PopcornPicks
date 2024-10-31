@@ -198,10 +198,9 @@ def send_email_to_user(recipient_email, categorized_data):
         server.quit()
 
 
-def create_account(client, email, username, password):
+def create_account(db, email, username, password):
     """Utility function for creating an account"""
     try:
-        db = client.PopcornPicksDB
         hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
         user_data = {
             "username": username,
@@ -224,6 +223,7 @@ def add_friend(client, user, username):
     client.PopcornPicksDB.users.update_one(
         {"_id": ObjectId(user[1])}, {"$addToSet": {"friends": username}}
     )
+    return True
 
 
 def login_to_account(client, username, password):
@@ -457,6 +457,7 @@ def get_friends(client, user):
     Utility function for getting the current users friends
     """
     user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user[1])})
+    print(user_data)
     return json.dumps(user_data.get("friends", []))
 
 

@@ -40,9 +40,11 @@ from src.recommenderapp.item_based import (
 app = Flask(__name__)
 app.secret_key = "secret key"
 
+db = client.PopcornPicksDB
+
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 user = {1: None}
-user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
+#user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
 
 
 @app.route("/")
@@ -150,7 +152,7 @@ def create_acc():
     Handles creating a new account
     """
     data = json.loads(request.data)
-    create_account(client, data["email"], data["username"], data["password"])
+    create_account(db, data["email"], data["username"], data["password"])
     return request.data
 
 
