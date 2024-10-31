@@ -15,10 +15,10 @@ from pymongo.errors import (
     OperationFailure,
     DuplicateKeyError,
 )
-from search import Search
+from src.recommenderapp.search import Search
 from bson.objectid import ObjectId
-from client import client
-from utils import (
+from src.recommenderapp.client import client
+from src.recommenderapp.utils import (
     beautify_feedback_data,
     send_email_to_user,
     create_account,
@@ -32,7 +32,7 @@ from utils import (
     fetch_streaming_link,
 )
 
-from item_based import (
+from src.recommenderapp.item_based import (
     recommend_for_new_user,
 )
 
