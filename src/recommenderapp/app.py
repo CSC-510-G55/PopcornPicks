@@ -68,7 +68,7 @@ def profile_page():
     """
     Renders the login page.
     """
-    get_genre_count(client, user)
+    get_genre_count(db, user)
 
     if user[1] is not None:
         return render_template("profile.html")
@@ -222,7 +222,7 @@ def wall_posts():
     """
     Gets the posts for the wall
     """
-    wall_posts = get_wall_posts(client)
+    wall_posts = get_wall_posts(db)
     return wall_posts
 
 
@@ -231,7 +231,7 @@ def recent_movies():
     """
     Gets the recent movies of the active user
     """
-    return get_recent_movies(client, user[1], movies_df)
+    return get_recent_movies(db, user[1], movies_df)
 
 
 @app.route("/getRecentFriendMovies", methods=["POST"])
@@ -241,7 +241,7 @@ def recent_friend_movies():
     """
     data = json.loads(request.data)
     user_id = ObjectId(data["friend_id"]["_id"])
-    return get_recent_friend_movies(client, user_id, movies_df)
+    return get_recent_friend_movies(db, user_id, movies_df)
 
 
 @app.route("/getUserName", methods=["GET"])
@@ -249,7 +249,7 @@ def username():
     """
     Gets the username of the active user
     """
-    return get_username(client, user)
+    return get_username(db, user)
 
 
 @app.route("/getFriends", methods=["GET"])
@@ -257,7 +257,7 @@ def get_friend():
     """
     Gets the friends of the active user
     """
-    return get_friends(client, user[1])
+    return get_friends(db, user[1])
 
 
 @app.route("/feedback", methods=["POST"])
@@ -293,12 +293,12 @@ def setup_mongodb_indexes():
     Sets up the MongoDB indexes.
     """
     try:
-        client.db.users.create_index([("username", 1)], unique=True)
-        client.db.users.create_index([("email", 1)], unique=True)
-        client.db.movies.create_index([("imdb_id", 1)], unique=True)
-        client.db.movies.create_index([("name", 1)])
-        client.db.ratings.create_index([("user_id", 1), ("time", -1)])
-        client.db.ratings.create_index([("movie_id", 1)])
+        db.users.create_index([("username", 1)], unique=True)
+        db.users.create_index([("email", 1)], unique=True)
+        db.movies.create_index([("imdb_id", 1)], unique=True)
+        db.movies.create_index([("name", 1)])
+        db.ratings.create_index([("user_id", 1), ("time", -1)])
+        db.ratings.create_index([("movie_id", 1)])
 
         print("Indexes created successfully")
     except DuplicateKeyError as e:

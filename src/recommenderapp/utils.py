@@ -229,7 +229,7 @@ def add_friend(db, user, username):
     Utility function for adding a friend
     """
     try:
-        client.PopcornPicksDB.users.update_one(
+        db.users.update_one(
             {"_id": ObjectId(user[1])}, {"$addToSet": {"friends": username}}
         )
         return True
@@ -295,12 +295,11 @@ def submit_review(db, user, movie, score, review):
         raise
 
 
-def get_wall_posts(client):
+def get_wall_posts(db):
     """
     Utility function to get wall posts from the MongoDB database,
     joining data from Users, Ratings, and Movies collections.
     """
-    db = client.PopcornPicksDB
 
     posts = list(
         db.ratings.aggregate(
@@ -330,14 +329,14 @@ def get_wall_posts(client):
             ]
         )
     )
-    def get_username_from_user_id(client, user):
+    def get_username_from_user_id(db, user):
         """
         Utility function for getting the current users username
         """
-        user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user)})
+        user_data = db.users.find_one({"_id": ObjectId(user)})
         return user_data["username"] if user_data else ""
     print(posts)
-    posts = [{**post, 'username': get_username_from_user_id(client, str(post['user_id']))} for post in posts]
+    posts = [{**post, 'username': get_username_from_user_id(db, str(post['user_id']))} for post in posts]
 
 # Remove the 'user_id' field if you don't want it in the final output
     posts = [{k: v for k, v in post.items() if k != 'user_id'} for post in posts]
@@ -382,14 +381,14 @@ def get_user_ratings(db):
     return posts
 
 
-def get_recent_movies(client, user_id, movies_df):
+def get_recent_movies(db, user_id, movies_df):
     """
     Gets the recent movies of the active user with their names and ratings.
     """
     try:
         user_id = ObjectId(user_id)
         movies = list(
-            client.PopcornPicksDB.ratings.find({"user_id": user_id}).sort("_id", -1)
+            db.ratings.find({"user_id": user_id}).sort("_id", -1)
         )
         if not movies:
             return jsonify([])
@@ -407,25 +406,25 @@ def get_recent_movies(client, user_id, movies_df):
         return jsonify({"error": "Database error occurred"})
 
 
-def get_username(client, user):
+def get_username(db, user):
     """
     Utility function for getting the current users username
     """
     try:
-        user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user[1])})
+        user_data = db.users.find_one({"_id": ObjectId(user[1])})
         return user_data["username"] if user_data else ""
     except PyMongoError as e:
         print(f"Database error retrieving username: {str(e)}")
         return ""
 
 
-def get_recent_friend_movies(client, user_id, movies_df):
+def get_recent_friend_movies(db, user_id, movies_df):
     """
     Utility function for getting recent movies from user's friends.
     """
     try:
         movies = list(
-            client.PopcornPicksDB.ratings.find({"user_id": user_id}).sort("_id", -1)
+            db.ratings.find({"user_id": user_id}).sort("_id", -1)
         )
         if not movies:
             return jsonify([])
@@ -443,16 +442,16 @@ def get_recent_friend_movies(client, user_id, movies_df):
         return jsonify({"error": "Database error occurred"})
 
 
-def get_friends(client, user_id):
+def get_friends(db, user_id):
     """
     Utility function to get a user's friends list with their user IDs and usernames.
     """
-    user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user_id)})
+    user_data = db.users.find_one({"_id": ObjectId(user_id)})
 
     friend_usernames = user_data.get("friends", [])
 
     friends_info = list(
-        client.PopcornPicksDB.users.find(
+        db.users.find(
             {"username": {"$in": friend_usernames}, "_id": {"$ne": ObjectId(user_id)}},
             {"_id": 1, "username": 1},
         )
@@ -464,12 +463,11 @@ def get_friends(client, user_id):
     ]
 
 
-def get_user_history(client, user_id):
+def get_user_history(db, user_id):
     """
     Retrieves the current user's movie ratings from the database for recommendation.
     """
     try:
-        db = client.PopcornPicksDB
         user_history = []
 
         user_ratings = db.ratings.find({"user_id": ObjectId(user_id)})
@@ -488,14 +486,11 @@ def get_user_history(client, user_id):
         raise
 
 
-def get_genre_count(client, user):
+def get_genre_count(db, user):
     """
     Utility function to get movies from the MongoDB database, and calculate the count of
     genres of the movies which the user has watched.
     """
-
-    db = client.PopcornPicksDB
-
     results = db.ratings.find({"user_id": ObjectId(user[1])}, {"movie_id": 1, "_id": 0})
 
     # Extract movie_ids from the results
