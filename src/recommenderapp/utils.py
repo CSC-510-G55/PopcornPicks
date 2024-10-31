@@ -216,11 +216,11 @@ def create_account(db, email, username, password):
         return False
 
 
-def add_friend(client, user, username):
+def add_friend(db, user, username):
     """
     Utility function for adding a friend
     """
-    client.PopcornPicksDB.users.update_one(
+    db.users.update_one(
         {"_id": ObjectId(user[1])}, {"$addToSet": {"friends": username}}
     )
     return True

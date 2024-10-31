@@ -181,7 +181,7 @@ def friend():
     Handles adding a new friend
     """
     data = json.loads(request.data)
-    add_friend(client, user, data["username"])
+    add_friend(db, user, data["username"])
     return request.data
 
 
