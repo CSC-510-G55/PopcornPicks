@@ -23,6 +23,15 @@ import pandas as pd
 import os
 import requests
 
+app_dir = os.path.dirname(os.path.abspath(__file__))
+code_dir = os.path.dirname(app_dir)
+project_dir = os.path.dirname(code_dir)
+
+
+def load_movies():
+    """Load movies data from CSV."""
+    return pd.read_csv(os.path.join(project_dir, "data", "movies.csv"))
+
 
 def create_colored_tags(genres):
     """
@@ -474,6 +483,42 @@ def get_user_history(client, user_id):
         raise
 
 
+def get_genre_count(client, user):
+    """
+    Utility function to get movies from the MongoDB database, and calculate the count of
+    genres of the movies which the user has watched.
+    """
+
+    db = client.PopcornPicksDB
+
+    results = db.ratings.find({"user_id": ObjectId(user[1])}, {"movie_id": 1, "_id": 0})
+
+    # Extract movie_ids from the results
+    movie_ids = [result["movie_id"] for result in results]
+
+    # Read the movies CSV file into a DataFrame
+    movies_df = load_movies()
+
+    # Filter rows where the movie_id is in the provided movie_ids list and get the 'genres' column
+    filtered_genres = movies_df[movies_df["movieId"].isin(movie_ids)]["genres"]
+
+    # Initialize an empty dictionary to store genre counts
+    genre_count = {}
+
+    # Loop through each row in the genres column
+    for genres in filtered_genres:
+        # Split by '|' and strip any whitespace around each genre
+        genre_list = [genre.strip() for genre in genres.split("|")]
+        print(genre_list, end="\n")
+        # Count each genre
+        for genre in genre_list:
+            if genre in genre_count:
+                genre_count[genre] += 1
+            else:
+                genre_count[genre] = 1
+    return genre_count
+
+
 def fetch_streaming_link(imdb_id):
     """
     Fetches the streaming links of movies.
@@ -488,7 +533,7 @@ def fetch_streaming_link(imdb_id):
 
     params = {"apiKey": api_key, "regions": "US"}
 
-    response = requests.get(url, headers=headers, params=params)
+    response = requests.get(url, headers=headers, params=params, timeout=4)
 
     sources = {
         item["name"]: {"platform": item["name"], "url": item["web_url"]}
@@ -498,5 +543,4 @@ def fetch_streaming_link(imdb_id):
 
     if res:  # Check if res is not empty
         return res[0]["url"]  # Returns the first URL
-
     return None

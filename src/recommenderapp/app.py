@@ -12,13 +12,15 @@ import json
 from flask import Flask, jsonify, render_template, request
 import pandas as pd
 from flask_cors import CORS
+from bson.objectid import ObjectId
 from pymongo.errors import (
     OperationFailure,
     DuplicateKeyError,
 )
 
-from src.recommenderapp.search import Search
 from bson.objectid import ObjectId
+
+from src.recommenderapp.search import Search
 
 from src.recommenderapp.client import client
 from src.recommenderapp.utils import (
@@ -33,6 +35,7 @@ from src.recommenderapp.utils import (
     get_friends,
     get_recent_movies,
     get_recent_friend_movies,
+    get_genre_count,
     fetch_streaming_link,
 )
 
@@ -63,6 +66,8 @@ def profile_page():
     """
     Renders the login page.
     """
+    get_genre_count(client, user)
+
     if user[1] is not None:
         return render_template("profile.html")
     return render_template("login.html")
