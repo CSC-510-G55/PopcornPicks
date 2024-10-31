@@ -18,8 +18,6 @@ from pymongo.errors import (
     DuplicateKeyError,
 )
 
-from bson.objectid import ObjectId
-
 from src.recommenderapp.search import Search
 
 from src.recommenderapp.client import client
@@ -125,9 +123,7 @@ def predict():
 
     user_rating = [{"title": movie, "rating": 10.0} for movie in data1]
 
-    recommendations, genres, imdb_id = recommend_for_new_user(
-        user_rating, user[1], db
-    )
+    recommendations, genres, imdb_id = recommend_for_new_user(user_rating, user[1], db)
 
     web_url = []
     for element in imdb_id:
@@ -222,8 +218,7 @@ def wall_posts():
     """
     Gets the posts for the wall
     """
-    wall_posts = get_wall_posts(db)
-    return wall_posts
+    return get_wall_posts(db)
 
 
 @app.route("/getRecentMovies", methods=["GET"])

@@ -329,17 +329,22 @@ def get_wall_posts(db):
             ]
         )
     )
+
     def get_username_from_user_id(db, user):
         """
         Utility function for getting the current users username
         """
         user_data = db.users.find_one({"_id": ObjectId(user)})
         return user_data["username"] if user_data else ""
-    print(posts)
-    posts = [{**post, 'username': get_username_from_user_id(db, str(post['user_id']))} for post in posts]
 
-# Remove the 'user_id' field if you don't want it in the final output
-    posts = [{k: v for k, v in post.items() if k != 'user_id'} for post in posts]
+    print(posts)
+    posts = [
+        {**post, "username": get_username_from_user_id(db, str(post["user_id"]))}
+        for post in posts
+    ]
+
+    # Remove the 'user_id' field if you don't want it in the final output
+    posts = [{k: v for k, v in post.items() if k != "user_id"} for post in posts]
     return posts
 
 
@@ -387,9 +392,7 @@ def get_recent_movies(db, user_id, movies_df):
     """
     try:
         user_id = ObjectId(user_id)
-        movies = list(
-            db.ratings.find({"user_id": user_id}).sort("_id", -1)
-        )
+        movies = list(db.ratings.find({"user_id": user_id}).sort("_id", -1))
         if not movies:
             return jsonify([])
         movie_data = [
@@ -423,9 +426,7 @@ def get_recent_friend_movies(db, user_id, movies_df):
     Utility function for getting recent movies from user's friends.
     """
     try:
-        movies = list(
-            db.ratings.find({"user_id": user_id}).sort("_id", -1)
-        )
+        movies = list(db.ratings.find({"user_id": user_id}).sort("_id", -1))
         if not movies:
             return jsonify([])
         movie_data = [
