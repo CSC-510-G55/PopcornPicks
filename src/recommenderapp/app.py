@@ -10,13 +10,14 @@ This code is licensed under MIT license (see LICENSE for details)
 # pylint: disable=import-error
 import json
 from flask import Flask, jsonify, render_template, request
+import pandas as pd
 from flask_cors import CORS
 from pymongo.errors import (
     OperationFailure,
     DuplicateKeyError,
 )
 
-from bson.objectid import ObjectId
+from bson import ObjectId
 from src.recommenderapp.client import client
 from src.recommenderapp.utils import (
     beautify_feedback_data,
@@ -42,6 +43,8 @@ app.secret_key = "secret key"
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 user = {1: None}
 user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
+
+movies_df = pd.read_csv("data/movies.csv")
 
 
 @app.route("/")
@@ -203,14 +206,23 @@ def wall_posts():
 @app.route("/getRecentMovies", methods=["GET"])
 def recent_movies():
     """
-    Gets the recent movies of the active user
+    Gets the recent movies of the active user with their names and ratings.
     """
+    user_id = ObjectId(user[1])
     movies = list(
-        client.PopcornPicksDB.reviews.find(
-            {"user_id": ObjectId(user[1])}, {"movie": 1, "_id": 0}
-        ).sort("_id", -1)
+        client.PopcornPicksDB.ratings.find({"user_id": user_id}).sort("_id", -1)
     )
-    return json.dumps(movies)
+    movie_data = [
+        {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
+    ]
+    ratings_df = pd.DataFrame(movie_data)
+
+    merged_df = pd.merge(
+        ratings_df, movies_df, how="left", left_on="movie_id", right_on="movieId"
+    )
+
+    recent_movies_list = merged_df[["title", "score"]].to_dict(orient="records")
+    return jsonify(recent_movies_list)
 
 
 @app.route("/getRecentFriendMovies", methods=["POST"])

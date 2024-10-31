@@ -170,16 +170,18 @@ This code is licensed under MIT license (see LICENSE for details)
                 url: '/getRecentMovies',
                 contentType: "application/json;charset=UTF-8",
                 success: function (response) {
+                    const userMovies = document.getElementById("userMovies");
+                    userMovies.innerHTML = '';
                     response.forEach(function(element) {
-                        const userMovies = document.getElementById("userMovies");
                         const listItem = document.createElement("li");
                         listItem.classList.add("movie");
-                        const movieText = document.createTextNode(element.name + ": " + element.score + "/10 stars");
+                        const movieText = document.createTextNode(element.title + ": " + element.score + "/10 stars");
                         listItem.appendChild(movieText);
                         userMovies.appendChild(listItem);
                     });
                 },
                 error: function (error) {
+                    console.error("Error fetching recent movies:", error);
                 }
             });
         }
@@ -194,7 +196,6 @@ This code is licensed under MIT license (see LICENSE for details)
                     friendsData = response;
                     console.log(friendsData);
 
-                    // Populate friends list with buttons to show recent movies
                     const friendsList = document.getElementById("friendsList");
                     friendsData = JSON.stringify(friendsData);
 
