@@ -21,6 +21,6 @@ client = MongoClient(MONGO_URI)
 
 try:
     client.admin.command("ping")
-    print("Pinged your deployment. You successfully connected to MongoDB!",flush=True)
+    print("Pinged your deployment. You successfully connected to MongoDB!", flush=True)
 except (InvalidURI, ConnectionFailure, ServerSelectionTimeoutError) as mongo_e:
-    print(f"Could not connect to MongoDB: {mongo_e}",flush=True)
+    print(f"Could not connect to MongoDB: {mongo_e}", flush=True)
