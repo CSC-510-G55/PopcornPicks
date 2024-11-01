@@ -95,6 +95,7 @@ class TestUtilityFunctions(BaseTestCase):
     def setUpClass(cls):
         """Set up before all tests in this class"""
         super().setUpClass()
+
     @classmethod
     def tearDownClass(cls):
         """Clean up after all tests in this class"""
@@ -145,6 +146,7 @@ class TestEmailFunctionality(BaseTestCase):
     def setUpClass(cls):
         """Set up before all tests in this class"""
         super().setUpClass()
+
     @classmethod
     def tearDownClass(cls):
         """Clean up after all tests in this class"""
@@ -196,6 +198,7 @@ class TestUserManagement(BaseTestCase):
     def setUpClass(cls):
         """Set up before all tests in this class"""
         super().setUpClass()
+
     @classmethod
     def tearDownClass(cls):
         """Clean up after all tests in this class"""
@@ -258,6 +261,7 @@ class TestReviewAndRating(BaseTestCase):
     def setUpClass(cls):
         """Set up before all tests in this class"""
         super().setUpClass()
+
     @classmethod
     def tearDownClass(cls):
         """Clean up after all tests in this class"""
@@ -326,6 +330,7 @@ class TestMovieFeatures(BaseTestCase):
     def setUpClass(cls):
         """Set up before all tests in this class"""
         super().setUpClass()
+
     @classmethod
     def tearDownClass(cls):
         """Clean up after all tests in this class"""
