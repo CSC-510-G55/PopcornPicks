@@ -1,0 +1,117 @@
+body {
+    background-image: url("image.jpg");
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+
+  
+  .container {
+    margin-top: 60px;
+    display: block;
+    text-align: center;
+  }
+  
+ 
+  #createAccountForm {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  #createAccountForm h1 {
+    font-size: 2.5em;
+    margin-bottom: 30px;
+    color: #333;
+  }
+  
+  #createAccountForm h3 {
+    font-size: 1.2em;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-align: left;
+    padding-left: 25%;
+    color: #555;
+  }
+  
+  #createAccountForm input {
+    width: 50%;
+    padding: 10px 15px;
+    margin-bottom: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 40px;
+    font-size: 1em;
+  }
+  
+  #createAccountForm input:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+  
+  #createAccountForm button {
+    padding: 10px 20px;
+    font-size: 1em;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  #createAccountForm button:hover {
+    background-color: #0056b3;
+  }
+  
+  
+  #misMatchPass, #invalidUsername {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 5px;
+    color: #721c24;
+  }
+  
+  
+  #loaderLogin {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  
+  #loaderLogin h3 {
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .spinner-border {
+    width: 3rem;
+    height: 3rem;
+    border: 0.25em solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border 0.75s linear infinite;
+  }
+  
+  @keyframes spinner-border {
+    to { transform: rotate(360deg); }
+  }

@@ -12,6 +12,10 @@ body {
     color: black;
 }
 
+.text-center {
+    color: white;
+}
+
 .landing-page {
     background-color: rgba(255, 255, 255, 0.8);
     min-height: 100vh;

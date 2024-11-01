@@ -69,7 +69,7 @@ const Wall = () => {
         </div>
       </nav>
 
-      <div className="container" style={{marginTop: '80px'}}>
+      <div className="container" style={{marginTop: '700px'}}>
         <div className="heading1">
           <h2><center>Popcorn Picks Wall</center></h2>
           <p><center>View other user ratings on movies!</center></p>
@@ -77,7 +77,7 @@ const Wall = () => {
         </div>
       </div>
 
-      <div id="post-container" style={{margin: 'auto', maxWidth: '1000px', height: '95%', overflowY: 'auto', backgroundColor: 'white'}}>
+      <div id="post-container" style={{margin: 'auto', maxWidth: '1000px', height: '95%', overflowY: 'auto'}}>
         {posts.map((post, index) => (
           <Post key={index} post={post} fetchMovieData={fetchMovieData} renderStars={renderStars} />
         ))}
