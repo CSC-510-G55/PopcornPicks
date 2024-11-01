@@ -5,6 +5,8 @@ on: [push]
 jobs:
   upload-coverage:
     runs-on: ubuntu-latest
+    env:
+      MONGO_URI: ${{ secrets.MONGO_URI }}
 
     steps:
       - name: Checkout code
@@ -23,6 +25,7 @@ jobs:
       - name: Create env file
         run: |
           echo "CODECOV_TOKEN=${{ secrets.CODECOV_TOKEN }}" > .env
+          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
 
       - name: Test with pytest
         run: pytest --tb=line
