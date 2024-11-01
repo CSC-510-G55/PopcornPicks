@@ -15,6 +15,7 @@ const SearchPage = () => {
 
   useEffect(() => {
     getRecentMovies();
+    // window.location.href = 'https://disreputable-seance-wxrx9qjxv67hvjxv-3000.app.github.dev/search_page';
   }, []);
 
   const getRecentMovies = async () => {

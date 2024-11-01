@@ -5,12 +5,14 @@ import React, {useState, useEffect} from 'react';
 import ProfilePage from './components/Profile';
 import Landing from './components/Landing';
 import SearchPage from './components/SearchPage';
+import SearchPageRedirect from './components/SearchPageRedirect';
 
 
 function App() {
   return (
       <Router>
       <Routes>
+        <Route path='/search-page' element={<SearchPageRedirect />} />
         <Route path="/" element={<LoginPage />} />
         <Route path="/wall" element={<Wall />} />
         <Route path='/profile' element={<ProfilePage />} />
