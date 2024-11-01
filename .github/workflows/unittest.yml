@@ -1,28 +1,21 @@
-name: Unittest
+name: Code Coverage
 
-on:
-  push:
-    branches: [main, workflows]
-  schedule:
-    - cron: '00 23 * * *'
+on: [push]
 
 jobs:
-  build:
+  upload-coverage:
     runs-on: ubuntu-latest
     env:
       MONGO_URI: ${{ secrets.MONGO_URI }}
-    
-    strategy:
-      matrix:
-        python-version: ["3.9"]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+      - name: Set up Python
+        uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: 3.9  # Replace '3.x' with your desired Python version
 
       - name: Install dependencies
         run: |
@@ -31,9 +24,8 @@ jobs:
 
       - name: Create env file
         run: |
-            echo "CODECOV_TOKEN=${{ secrets.CODECOV_TOKEN }}" > .env
-            echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
+          echo "CODECOV_TOKEN=${{ secrets.CODECOV_TOKEN }}" > .env
+          echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
 
-      - name: Run Unit Tests
-        run: |
-          run: pytest --tb=line
+      - name: Test with pytest
+        run: pytest --tb=line
