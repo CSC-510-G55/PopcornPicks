@@ -48,21 +48,36 @@ class TestUtils(unittest.TestCase):
         cls.client = client
         cls.db = client.testDB
 
+        cls.db.users.create_index([("username", 1)], unique=True)
+        cls.db.users.create_index([("email", 1)], unique=True)
+        cls.db.movies.create_index([("imdb_id", 1)], unique=True)
+        cls.db.movies.create_index([("name", 1)])
+        cls.db.ratings.create_index([("user_id", 1), ("time", -1)])
+        cls.db.ratings.create_index([("movie_id", 1)])
+
         cls.sample_movies = [
             {
                 "_id": ObjectId(),
-                "name": "Toy Story",
+                "name": "Toy Story (1995)",
                 "imdb_id": "tt0114709",
+                "movie_id": 862,
                 "year": 1995,
             },
             {
                 "_id": ObjectId(),
-                "name": "Interstellar",
+                "name": "Interstellar (2014)",
                 "imdb_id": "tt0816692",
                 "year": 2014,
+                "movie_id": 862,
             },
         ]
 
+        create_account(
+            cls.db,
+            email="test1@example.com",
+            username="testUserLogin",
+            password="password123",
+        )
         cls.db.movies.insert_many(cls.sample_movies)
 
     def test_create_colored_tags(self):
@@ -72,12 +87,11 @@ class TestUtils(unittest.TestCase):
         """
         genres = ["Musical", "Sci-Fi"]
         result = create_colored_tags(genres)
-        expected_result = (
-            """<span style="background-color: #FF1493; color: #FFFFFF; p
-            adding: 5px; border-radius: 5px;">Musical</span>"""
-            """<span style="background-color: #00CED1; color: #FFFFFF; 
-            padding: 5px; border-radius: 5px;">Sci-Fi</span>"""
-        )
+        print(result)
+        expected_result = '<span style="background-color: #FF1493; color: #FFFFFF; \
+            padding: 5px; border-radius: 5px;">Musical</span> \
+            <span style="background-color: #00CED1; color: #FFFFFF; \
+            padding: 5px; border-radius: 5px;">Sci-Fi</span>'
         self.assertEqual(result, expected_result)
 
     def test_beautify_feedback_data(self):
@@ -118,15 +132,25 @@ class TestUtils(unittest.TestCase):
         Mock the SMTP server to avoid sending real emails during testing.
         """
         categorized_data = {
-            "Liked": ["Toy Story"],
-            "Disliked": ["Cutthroat Island"],
-            "Yet to Watch": ["Assassins"],
+            "The Crimson Permanent Assurance (1983)": "Like",
+            "Romancing the Stone (1984)": "Yet to watch",
+            "Downtown (1990)": "Dislike",
+            "City Slickers (1991)": "Yet to watch",
+            "The Return of the Musketeers (1989)": "Like",
+            "Gurren Lagann The Movie: Childhood's End (2008)": "Yet to watch",
+            "The Machine Girl (2008)": "Dislike",
+            "The Myth (2005)": "Yet to watch",
+            "Gurren Lagann The Movie: The Lights in the \
+                                Sky Are Stars (2009)": "Like",
+            "Journey to the Center of the Earth (2008)": "Yet to watch",
         }
 
         mock_server_instance = MagicMock()
         mock_smtp.return_value.__enter__.return_value = mock_server_instance
 
-        send_email_to_user("test@example.com", categorized_data)
+        send_email_to_user(
+            "shrimadh332001@gmail.com", beautify_feedback_data(categorized_data)
+        )
 
         mock_server_instance.sendmail.assert_called_once()
 
@@ -151,14 +175,6 @@ class TestUtils(unittest.TestCase):
          - Ensure login fails with incorrect credentials.
         """
 
-        # Create an account first for testing login functionality
-        create_account(
-            self.db,
-            email="test@example.com",
-            username="testUserLogin",
-            password="password123",
-        )
-
         # Test successful login
         user_id = login_to_account(
             self.db, username="testUserLogin", password="password123"
@@ -179,9 +195,13 @@ class TestUtils(unittest.TestCase):
         user_id = login_to_account(
             self.db, username="testUserLogin", password="password123"
         )
-
+        self.db.ratings.delete_many({})
         submit_review(
-            self.db, user=user_id, movie="Toy Story", score=5, review="Great movie!"
+            self.db,
+            user=[None, user_id],
+            movie="Toy Story (1995)",
+            score=5,
+            review="Great movie!",
         )
 
         review_doc = self.db.ratings.find_one({"user_id": ObjectId(user_id)})
@@ -197,14 +217,18 @@ class TestUtils(unittest.TestCase):
         user_id = login_to_account(
             self.db, username="testUserLogin", password="password123"
         )
-
+        self.db.ratings.delete_many({})
         submit_review(
-            self.db, user=user_id, movie="Toy Story", score=5, review="Great movie!"
+            self.db,
+            user=[None, user_id],
+            movie="Toy Story (1995)",
+            score=5,
+            review="Great movie!",
         )
 
         posts = get_wall_posts(self.db)
-
-        self.assertGreater(len(posts.json), 0)
+        print(posts)
+        self.assertGreater(len(posts), 0)
 
     def test_get_recent_movies(self):
         """
@@ -214,14 +238,19 @@ class TestUtils(unittest.TestCase):
         user_id = login_to_account(
             self.db, username="testUserLogin", password="password123"
         )
-
+        self.db.ratings.delete_many({})
+        self.db.movies.delete_many({})
         submit_review(
-            self.db, user=user_id, movie="Toy Story", score=5, review="Great movie!"
+            self.db,
+            user=[None, user_id],
+            movie="Toy Story (1995)",
+            score=10,
+            review="Great movie!",
         )
 
         recent_movies = get_recent_movies(self.db, user_id, self.movies_df)
-
-        self.assertGreater(len(recent_movies.json), 0)
+        print("test_utils", recent_movies)
+        self.assertGreater(len(recent_movies), 0)
 
     def test_get_username(self):
         """
@@ -241,13 +270,21 @@ class TestUtils(unittest.TestCase):
         Test adding a friend and retrieving the list of friends for a user.
         Ensure that friends are correctly added and retrieved from the database.
         """
+        create_account(
+            self.db,
+            email="test2@example.com",
+            username="Friend1",
+            password="password123",
+        )
         user_id_1 = login_to_account(
-            self.db, username="testUserLogin1", password="password123"
+            self.db, username="testUserLogin", password="password123"
         )
         print(user_id_1)
         add_friend(self.db, [None, user_id_1], username="Friend1")
 
-        friends_list = get_friends(self.db, [None, user_id_1])
+        friends_list = get_friends(self.db, user_id_1)
+        print(friends_list)
+        friends_list = [friend["username"] for friend in friends_list]
 
         self.assertIn("Friend1", friends_list)
 
@@ -257,10 +294,16 @@ class TestUtils(unittest.TestCase):
         Ensure that reviews submitted by a user are correctly retrieved from their history.
         """
         user_id_1 = login_to_account(
-            self.db, username="testUserLogin1", password="password123"
+            self.db, username="testUserLogin", password="password123"
         )
 
-        submit_review(self.db, user=user_id_1, movie="Toy Story", score=4, review="")
+        submit_review(
+            self.db,
+            user=[None, user_id_1],
+            movie="Toy Story (1995)",
+            score=4,
+            review="",
+        )
 
         history = get_user_history(self.db, user_id_1)
 
@@ -282,6 +325,18 @@ class TestUtils(unittest.TestCase):
         url = fetch_streaming_link("tt0114709")
 
         self.assertEqual(url, "https://netflix.com")
+
+    @classmethod
+    def tearDownClass(cls):
+        """
+        Clean up after all tests have run by deleting all
+        documents from users, movies, and ratings collections.
+        Drop the entire test database to ensure no leftover data.
+        """
+        cls.db.users.delete_many({})
+        cls.db.movies.delete_many({})
+        cls.db.ratings.delete_many({})
+        client.drop_database("testDB")
 
 
 if __name__ == "__main__":

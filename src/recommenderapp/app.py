@@ -124,7 +124,6 @@ def predict():
     user_rating = [{"title": movie, "rating": 10.0} for movie in data1]
 
     recommendations, genres, imdb_id = recommend_for_new_user(user_rating, user[1], db)
-
     web_url = []
     for element in imdb_id:
         web_url.append(fetch_streaming_link(element))
@@ -133,9 +132,8 @@ def predict():
         "recommendations": recommendations,
         "genres": genres,
         "imdb_id": imdb_id,
+        "web_url": web_url,
     }
-
-    print(resp, end="\n")
     return resp
 
 
@@ -261,6 +259,8 @@ def feedback():
     Handles user feedback submission and mails the results.
     """
     data = json.loads(request.data)
+
+    send_email_to_user("svrao3@ncsu.edu", beautify_feedback_data(data))
     return data
 
 

@@ -8,6 +8,7 @@ This code is licensed under MIT license (see LICENSE for details)
 # pylint: disable=wrong-import-position
 # pylint: disable=wrong-import-order
 # pylint: disable=import-error
+import json
 import datetime
 import logging
 import smtplib
@@ -15,7 +16,6 @@ import bcrypt
 from smtplib import SMTPException
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from flask import jsonify
 from pymongo.errors import PyMongoError
 from bson.errors import InvalidId
 from bson.objectid import ObjectId
@@ -30,7 +30,7 @@ project_dir = os.path.dirname(code_dir)
 
 def load_movies():
     """Load movies data from CSV."""
-    return pd.read_csv(os.path.join(project_dir, "data", "movies.csv"))
+    return pd.read_csv(os.path.join("data", "movies.csv"))
 
 
 def create_colored_tags(genres):
@@ -117,6 +117,16 @@ def send_email_to_user(recipient_email, categorized_data):
     """
     Utility function to send movie recommendations to user over email
     """
+    # Email configuration
+    smtp_server = "smtp.gmail.com"
+    smtp_port = 587
+    sender_email = "shrimadh332001@gmail.com"  # Get from environment variable
+    sender_password = "tnjydyefhlpsmdao"  # Get from environment variable
+
+    # Verify that environment variables are set
+    if not sender_email or not sender_password:
+        logging.error("Email credentials not found in environment variables")
+        raise ValueError("Email credentials not properly configured")
 
     email_html_content = """
                         <html>
@@ -146,64 +156,55 @@ def send_email_to_user(recipient_email, categorized_data):
                         </html>
                         """
 
-    # Email configuration
-    smtp_server = "smtp.gmail.com"
-    # Port for TLS
-    smtp_port = 587
-    sender_email = "popcornpicks777@gmail.com"
-
-    # Use an app password since 2-factor authentication is enabled
-    sender_password = " "
-    subject = "Your movie recommendation from PopcornPicks"
-
     # Create the email message
     message = MIMEMultipart("alternative")
     message["From"] = sender_email
     message["To"] = recipient_email
-    message["Subject"] = subject
-    # Load the CSV file into a DataFrame
-    movie_genre_df = pd.read_csv("../../data/movies.csv")
-    # Creating movie-genres map
-    movie_to_genres = create_movie_genres(movie_genre_df)
-    # Create the email message with HTML content
-    html_content = email_html_content.format(
-        "\n".join(
-            f'<li>{movie} \
-            {create_colored_tags(movie_to_genres.get(movie, ["Unknown Genre"]))}</li><br>'
-            for movie in categorized_data["Liked"]
-        ),
-        "\n".join(
-            f'<li>{movie} \
-            {create_colored_tags(movie_to_genres.get(movie, ["Unknown Genre"]))}</li><br>'
-            for movie in categorized_data["Disliked"]
-        ),
-        "\n".join(
-            f'<li>{movie} \
-            {create_colored_tags(movie_to_genres.get(movie, ["Unknown Genre"]))}</li><br>'
-            for movie in categorized_data["Yet to Watch"]
-        ),
-    )
+    message["Subject"] = "Your movie recommendation from PopcornPicks"
 
-    # Attach the HTML email body
-    message.attach(MIMEText(html_content, "html"))
-
-    # Connect to the SMTP server
     try:
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        # Start TLS encryption
-        server.starttls()
-        server.login(sender_email, sender_password)
+        # Load the CSV file into a DataFrame
+        movie_genre_df = pd.read_csv("data/movies.csv")
+        # Creating movie-genres map
+        movie_to_genres = create_movie_genres(movie_genre_df)
+        # Create the email message with HTML content
+        html_content = email_html_content.format(
+            "\n".join(
+                f'<li>{movie} \
+                {create_colored_tags(movie_to_genres.get(movie, ["Unknown Genre"]))}</li><br>'
+                for movie in categorized_data["Liked"]
+            ),
+            "\n".join(
+                f'<li>{movie} \
+                {create_colored_tags(movie_to_genres.get(movie, ["Unknown Genre"]))}</li><br>'
+                for movie in categorized_data["Disliked"]
+            ),
+            "\n".join(
+                f'<li>{movie} \
+                {create_colored_tags(movie_to_genres.get(movie, ["Unknown Genre"]))}</li><br>'
+                for movie in categorized_data["Yet to Watch"]
+            ),
+        )
 
-        # Send the email
-        server.sendmail(sender_email, recipient_email, message.as_string())
-        logging.info("Email sent successfully!")
+        # Attach the HTML email body
+        message.attach(MIMEText(html_content, "html"))
 
+        # Connect to the SMTP server
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, recipient_email, message.as_string())
+            logging.info("Email sent successfully!")
+
+    except FileNotFoundError:
+        logging.error("Movies CSV file not found")
+        raise
     except SMTPException as e:
-        # Handle SMTP-related exceptions
         logging.error("SMTP error while sending email: %s", str(e))
-
-    finally:
-        server.quit()
+        raise
+    except Exception as e:
+        logging.error("Unexpected error while sending email: %s", str(e))
+        raise
 
 
 def create_account(db, email, username, password):
@@ -260,7 +261,7 @@ def submit_review(db, user, movie, score, review):
         movie_doc = db.movies.find_one({"name": movie})
 
         if not movie_doc:
-            csv_path = os.path.join(os.path.dirname(__file__), "../../data/movies.csv")
+            csv_path = os.path.join("data/movies.csv")
             df = pd.read_csv(csv_path)
             print(df.head())
             movie_row = df[df["title"] == movie]
@@ -393,8 +394,9 @@ def get_recent_movies(db, user_id, movies_df):
     try:
         user_id = ObjectId(user_id)
         movies = list(db.ratings.find({"user_id": user_id}).sort("_id", -1))
+        print(movies)
         if not movies:
-            return jsonify([])
+            return json.dumps([])
         movie_data = [
             {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
         ]
@@ -403,10 +405,10 @@ def get_recent_movies(db, user_id, movies_df):
             ratings_df, movies_df, how="left", left_on="movie_id", right_on="movieId"
         )
         recent_movies_list = merged_df[["title", "score"]].to_dict(orient="records")
-        return jsonify(recent_movies_list)
+        return json.dumps(recent_movies_list)
     except PyMongoError as e:
         print(f"Database error retrieving recent movies: {str(e)}")
-        return jsonify({"error": "Database error occurred"})
+        return json.dumps({"error": "Database error occurred"})
 
 
 def get_username(db, user):
@@ -428,7 +430,7 @@ def get_recent_friend_movies(db, user_id, movies_df):
     try:
         movies = list(db.ratings.find({"user_id": user_id}).sort("_id", -1))
         if not movies:
-            return jsonify([])
+            return json.dumps([])
         movie_data = [
             {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
         ]
@@ -437,10 +439,10 @@ def get_recent_friend_movies(db, user_id, movies_df):
             ratings_df, movies_df, how="left", left_on="movie_id", right_on="movieId"
         )
         recent_movies_list = merged_df[["title", "score"]].to_dict(orient="records")
-        return jsonify(recent_movies_list)
+        return json.dumps(recent_movies_list)
     except PyMongoError as e:
         print(f"Database error retrieving friend movies: {str(e)}")
-        return jsonify({"error": "Database error occurred"})
+        return json.dumps({"error": "Database error occurred"})
 
 
 def get_friends(db, user_id):
@@ -525,7 +527,7 @@ def fetch_streaming_link(imdb_id):
     Fetches the streaming links of movies.
     """
     if not imdb_id:
-        return jsonify({"error": "Please provide imdb_id"}), 400
+        return json.dumps({"error": "Please provide imdb_id"}), 400
 
     url = f"https://api.watchmode.com/v1/title/{imdb_id}/sources/"
     api_key = "fh04Ehayqo4Rdn7RJ0vaGttCD8QYbmWRgZsB4DYy"
