@@ -36,5 +36,6 @@ class TestDB(unittest.TestCase):
 
         os.environ["MONGO_URI"] = self.original_mongo_uri
 
+
 if __name__ == "__main__":
     unittest.main()
