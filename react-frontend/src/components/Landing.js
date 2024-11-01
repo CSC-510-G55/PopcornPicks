@@ -72,7 +72,7 @@ const Landing = () => {
           <div className="d-flex justify-content-center flex-wrap">
             <button 
               className="btn btn-primary m-2"
-              onClick={() => handleNavigation('/get-started')}
+              onClick={() => handleNavigation('/search_page')}
             >
               Get Started!
             </button>

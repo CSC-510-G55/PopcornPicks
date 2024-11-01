@@ -4,6 +4,7 @@ import Wall from './components/Wall';
 import React, {useState, useEffect} from 'react';
 import ProfilePage from './components/Profile';
 import Landing from './components/Landing';
+import SearchPage from './components/SearchPage';
 
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         <Route path="/wall" element={<Wall />} />
         <Route path='/profile' element={<ProfilePage />} />
         <Route path='/landing' element={<Landing />} />
+        <Route path='/search_page' element={<SearchPage />} />
       </Routes>
     </Router>
   );
