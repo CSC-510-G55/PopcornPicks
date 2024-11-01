@@ -1,13 +1,33 @@
 import React from 'react';
+import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../LandingPage.css'; // You'll need to create this CSS file
 
 const Landing = () => {
   const navigate = useNavigate();
 
-  const handleSignOut = () => {
-    // Implement sign out logic here
-    console.log('Signing out');
+  const handleSignOut = async () => {
+    const data = {
+      user: 'None'
+    };
+
+    try {
+      const response = await axios.post('/out', data, {
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      });
+
+      if (response.status === 200) {
+        console.log('Signed out successfully');
+        // Navigate to the home page after a short delay
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
   };
 
   const handleNavigation = (path) => {
