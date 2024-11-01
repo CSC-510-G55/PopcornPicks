@@ -33,26 +33,7 @@ jobs:
         run: |
             echo "CODECOV_TOKEN=${{ secrets.CODECOV_TOKEN }}" > .env
             echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
-      - name: Set up MongoDB Client for Tests
-        env:
-          MONGO_URI: "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net/?retryWrites=true&w=majority&appName=PopCorn"
-        run: |
-          python -c "
-          import os
-          from pymongo import MongoClient
-          uri = os.getenv('MONGO_URI')
-          client = MongoClient(uri)
-          try:
-              client.admin.command('ping')
-              print('Successfully connected to MongoDB Atlas!')
-              client.close()
-          except Exception as e:
-              print('MongoDB connection failed:', e)
-              exit(1)
-          "
 
       - name: Run Unit Tests
-        env:
-          MONGO_URI: "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net/?retryWrites=true&w=majority&appName=PopCorn"
         run: |
-          python -m unittest discover -s test -p "*.py"
+          run: pytest --tb=line
