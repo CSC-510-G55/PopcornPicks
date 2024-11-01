@@ -91,6 +91,13 @@ class BaseTestCase(unittest.TestCase):
 class TestUtilityFunctions(BaseTestCase):
     """Test class for utility functions like tags, data formatting, etc."""
 
+    @classmethod
+    def tearDownClass(cls):
+        """Clean up after all tests in this class"""
+        cls.db.users.delete_many({})
+        cls.db.movies.delete_many({})
+        cls.db.ratings.delete_many({})
+
     def test_create_colored_tags(self):
         """Test generating HTML tags with specific colors for movie genres."""
         genres = ["Musical", "Sci-Fi"]
@@ -131,6 +138,13 @@ class TestUtilityFunctions(BaseTestCase):
 
 class TestEmailFunctionality(BaseTestCase):
     """Test class for email-related functionality"""
+
+    @classmethod
+    def tearDownClass(cls):
+        """Clean up after all tests in this class"""
+        cls.db.users.delete_many({})
+        cls.db.movies.delete_many({})
+        cls.db.ratings.delete_many({})
 
     @patch("smtplib.SMTP")
     def test_send_email_to_user(self, mock_smtp):
@@ -173,6 +187,13 @@ class TestEmailFunctionality(BaseTestCase):
 
 class TestUserManagement(BaseTestCase):
     """Test class for user management functionality"""
+
+    @classmethod
+    def tearDownClass(cls):
+        """Clean up after all tests in this class"""
+        cls.db.users.delete_many({})
+        cls.db.movies.delete_many({})
+        cls.db.ratings.delete_many({})
 
     def test_create_account(self):
         """Test creating a new user account."""
@@ -227,6 +248,13 @@ class TestUserManagement(BaseTestCase):
 class TestReviewAndRating(BaseTestCase):
     """Test class for review and rating functionality"""
 
+    @classmethod
+    def tearDownClass(cls):
+        """Clean up after all tests in this class"""
+        cls.db.users.delete_many({})
+        cls.db.movies.delete_many({})
+        cls.db.ratings.delete_many({})
+    
     def test_submit_review(self):
         """Test submitting movie reviews."""
         user_id = login_to_account(
@@ -286,6 +314,13 @@ class TestReviewAndRating(BaseTestCase):
 class TestMovieFeatures(BaseTestCase):
     """Test class for movie-related features"""
 
+    @classmethod
+    def tearDownClass(cls):
+        """Clean up after all tests in this class"""
+        cls.db.users.delete_many({})
+        cls.db.movies.delete_many({})
+        cls.db.ratings.delete_many({})
+    
     def test_get_recent_movies(self):
         """Test retrieving recent movies."""
         user_id = login_to_account(
