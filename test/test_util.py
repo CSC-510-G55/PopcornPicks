@@ -179,13 +179,13 @@ class TestRecommenderApp(unittest.TestCase):
         user_id = login_to_account(
             self.db, username="testUserLogin", password="password123"
         )
-        #self.assertIsNotNone(user_id)
+        # self.assertIsNotNone(user_id)
 
         # Test failed login
         wrong_login_attempt = login_to_account(
             self.db, username="testUserLogin", password="wrongPassword"
         )
-        #self.assertIsNone(wrong_login_attempt)
+        # self.assertIsNone(wrong_login_attempt)
 
     def test_get_username(self):
         """Test retrieving username based on user ID."""
