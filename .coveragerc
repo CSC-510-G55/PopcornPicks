@@ -5,6 +5,8 @@ omit =
     */tests/*
     */venv/*
     setup.py
+    app.py
+    set_env.py
 
 [report]
 exclude_lines =
