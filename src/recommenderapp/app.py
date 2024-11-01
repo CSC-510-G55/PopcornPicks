@@ -288,8 +288,8 @@ def setup_mongodb_indexes():
     Sets up the MongoDB indexes.
     """
     try:
-        db.users.create_index([("username", 1)], unique=True)
-        db.users.create_index([("email", 1)], unique=True)
+        db.users.create_index([("username", 1)])
+        db.users.create_index([("email", 1)])
         db.movies.create_index([("imdb_id", 1)], unique=True)
         db.movies.create_index([("name", 1)])
         db.ratings.create_index([("user_id", 1), ("time", -1)])

@@ -1,4 +1,16 @@
-# .coveragerc
-
 [run]
-include = src/recommenderapp/*,src/prediction_scripts/*
+source = .
+omit = 
+    */test/*
+    */tests/*
+    */venv/*
+    setup.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    pass
+    raise ImportError
