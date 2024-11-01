@@ -89,7 +89,8 @@ class TestUtils(unittest.TestCase):
         result = create_colored_tags(genres)
         expected_result = (
             '<span style="background-color: #FF1493; color: #FFFFFF;             '
-            'padding: 5px; border-radius: 5px;">Musical</span> <span style="background-color: #00CED1; color: #FFFFFF;             '
+            'padding: 5px; border-radius: 5px;">Musical</span> <s'
+            'pan style="background-color: #00CED1; color: #FFFFFF;             '
             'padding: 5px; border-radius: 5px;">Sci-Fi</span>'
         )
         self.assertEqual(result, expected_result)
