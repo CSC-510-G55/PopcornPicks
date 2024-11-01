@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../ProfilePage.css';
+import { useNavigate } from 'react-router-dom';
 // import '../stylesheet.css';
 
 const ProfilePage = () => {
@@ -8,6 +9,7 @@ const ProfilePage = () => {
   const [userMovies, setUserMovies] = useState([]);
   const [friends, setFriends] = useState([]);
   const [newFriend, setNewFriend] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     getUserName();
@@ -65,7 +67,29 @@ const ProfilePage = () => {
       console.error('Error fetching friends:', error);
     }
   };
+  const handleSignOut = async () => {
+    const data = {
+      user: 'None'
+    };
 
+    try {
+      const response = await axios.post('/out', data, {
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      });
+
+      if (response.status === 200) {
+        console.log('Signed out successfully');
+        // Navigate to the home page after a short delay
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
   const addFriend = async () => {
     // Implement the logic to add a friend
     try {
@@ -107,7 +131,7 @@ const ProfilePage = () => {
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark topNavBar fixed-top">
         <div className="container-fluid">
           <a className="navbar-brand" href="#">PopcornPicks🍿</a>
-          <button type="button" id="signOut" onClick={() => {/* Implement sign out logic */}} style={{backgroundColor: 'transparent', color: 'white', width: '5%'}}>Sign Out</button>
+          <button type="button" id="signOut" onClick={handleSignOut} style={{backgroundColor: 'transparent', color: 'white', width: '5%'}}>Sign Out</button>
         </div>
       </nav>
     <div className="profile-page">
