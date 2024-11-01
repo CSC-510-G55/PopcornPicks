@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import '../LoginPage.css'; // You'll need to create this CSS file for styling
 // import '../stylesheet.css';
 
@@ -14,32 +16,72 @@ const LoginPage = () => {
   const [showMismatchError, setShowMismatchError] = useState(false);
   const [showInvalidUsernameError, setShowInvalidUsernameError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const login = () => {
+  const login = async () => {
     // Implement login logic here
     setIsLoading(true);
-    // After login attempt
-    setIsLoading(false);
-    setShowLoginError(true); // Show this only if login fails
+    setShowLoginError(false);
+    try {
+      const response = await axios.post('/log', {
+        username,
+        password
+      }, {
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      });
+
+      if (response.status === 200) {
+        // Successful login
+        setTimeout(() => {
+          navigate('/landing');
+        }, 2000);
+      }
+    } catch (error) {
+      setShowLoginError(true);
+      setUsername('');
+      setPassword('');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const createAccount = () => {
     setIsCreatingAccount(true);
   };
 
-  const makeAccount = () => {
-    // Implement account creation logic here
+  const makeAccount = async () => {
     if (newPassword !== dupPassword) {
       setShowMismatchError(true);
       return;
     }
-    // Check for invalid username
-    setShowInvalidUsernameError(true);
-    // If successful, you might want to switch back to login view or log the user in directly
+    setShowMismatchError(false);
+    setShowInvalidUsernameError(false);
+    
+    try {
+      const response = await axios.post('/', {
+        username: newUsername,
+        password: newPassword,
+        email
+      });
+
+      if (response.status === 200) {
+        // Account created successfully
+        setIsCreatingAccount(false);
+        // Optionally, you can automatically log in the user here
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        setShowInvalidUsernameError(true);
+      }
+    }
   };
+
 
   const continueAsGuest = () => {
     // Implement guest login logic here
+    navigate('/landing'); // Assuming guest users are redirected to the landing page
   };
 
   return (
