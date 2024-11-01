@@ -4,14 +4,18 @@ This code is licensed under MIT license (see LICENSE for details)
 
 @author: PopcornPicks
 
-Test suit for search feature
+Test suite for search feature
 """
 
 import unittest
 from unittest.mock import patch, MagicMock
+from smtplib import SMTPException
 
 import pandas as pd
+
 from bson import ObjectId
+from bson.errors import InvalidId
+
 
 from src.recommenderapp.client import client
 from src.recommenderapp.utils import (
@@ -29,22 +33,17 @@ from src.recommenderapp.utils import (
     get_friends,
     get_user_history,
     fetch_streaming_link,
+    get_genre_count,
 )
 
 
-class TestUtils(unittest.TestCase):
-    """
-    Unit tests for utility functions related to movie recommendation app.
-    """
+class BaseTestCase(unittest.TestCase):
+    """Base test class with common setup and teardown"""
 
     @classmethod
     def setUpClass(cls):
-        """
-        Set up the test database and insert sample movie data before running the tests.
-        This method is called once before any tests are executed.
-        """
+        """Common setup for all test classes"""
         cls.movies_df = pd.read_csv("data/movies.csv")
-
         cls.client = client
         cls.db = client.testDB
 
@@ -80,11 +79,20 @@ class TestUtils(unittest.TestCase):
         )
         cls.db.movies.insert_many(cls.sample_movies)
 
+    @classmethod
+    def tearDownClass(cls):
+        """Clean up after all tests"""
+        cls.db.users.delete_many({})
+        cls.db.movies.delete_many({})
+        cls.db.ratings.delete_many({})
+        client.drop_database("testDB")
+
+
+class TestUtilityFunctions(BaseTestCase):
+    """Test class for utility functions like tags, data formatting, etc."""
+
     def test_create_colored_tags(self):
-        """
-        Test the function that generates HTML
-        tags with specific colors for movie genres.
-        """
+        """Test generating HTML tags with specific colors for movie genres."""
         genres = ["Musical", "Sci-Fi"]
         result = create_colored_tags(genres)
         expected_result = (
@@ -96,10 +104,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     def test_beautify_feedback_data(self):
-        """
-        Test the function that organizes feedback data
-        into categories such as 'Liked', 'Disliked', and 'Yet to Watch'.
-        """
+        """Test organizing feedback data into categories."""
         data = {"Movie 1": "Yet to watch", "Movie 2": "Like", "Movie 3": "Dislike"}
         result = beautify_feedback_data(data)
         expected_result = {
@@ -110,10 +115,7 @@ class TestUtils(unittest.TestCase):
         self.assertEqual(result, expected_result)
 
     def test_create_movie_genres(self):
-        """
-        Test the function that creates a dictionary of movie titles
-        and their associated genres from a DataFrame.
-        """
+        """Test creating dictionary of movie titles and genres."""
         data = [
             ["862", "Toy Story (1995)", "Animation|Comedy|Family"],
             ["8844", "Jumanji (1995)", "Adventure|Fantasy|Family"],
@@ -126,40 +128,54 @@ class TestUtils(unittest.TestCase):
         }
         self.assertEqual(result, expected_result)
 
+
+class TestEmailFunctionality(BaseTestCase):
+    """Test class for email-related functionality"""
+
     @patch("smtplib.SMTP")
     def test_send_email_to_user(self, mock_smtp):
-        """
-        Test the function that sends an email to a user with categorized movie feedback.
-        Mock the SMTP server to avoid sending real emails during testing.
-        """
+        """Test sending email to user with categorized movie feedback."""
         categorized_data = {
             "The Crimson Permanent Assurance (1983)": "Like",
             "Romancing the Stone (1984)": "Yet to watch",
             "Downtown (1990)": "Dislike",
-            "City Slickers (1991)": "Yet to watch",
-            "The Return of the Musketeers (1989)": "Like",
-            "Gurren Lagann The Movie: Childhood's End (2008)": "Yet to watch",
-            "The Machine Girl (2008)": "Dislike",
-            "The Myth (2005)": "Yet to watch",
-            "Gurren Lagann The Movie: The Lights in the \
-                                Sky Are Stars (2009)": "Like",
-            "Journey to the Center of the Earth (2008)": "Yet to watch",
         }
-
         mock_server_instance = MagicMock()
         mock_smtp.return_value.__enter__.return_value = mock_server_instance
-
-        send_email_to_user(
-            "shrimadh332001@gmail.com", beautify_feedback_data(categorized_data)
-        )
-
+        send_email_to_user("test@example.com", beautify_feedback_data(categorized_data))
         mock_server_instance.sendmail.assert_called_once()
 
+    @patch("pandas.read_csv")
+    def test_send_email_file_not_found(self, mock_read_csv):
+        """Test handling of FileNotFoundError."""
+        mock_read_csv.side_effect = FileNotFoundError
+        categorized_data = {"Test Movie": "Like"}
+
+        with self.assertRaises(FileNotFoundError):
+            send_email_to_user(
+                "test@example.com", beautify_feedback_data(categorized_data)
+            )
+
+    @patch("smtplib.SMTP")
+    def test_send_email_smtp_error(self, mock_smtp):
+        """Test handling of SMTPException."""
+        mock_server_instance = MagicMock()
+        mock_smtp.return_value.__enter__.return_value = mock_server_instance
+        mock_server_instance.sendmail.side_effect = SMTPException("SMTP Error")
+
+        categorized_data = {"Test Movie": "Like"}
+
+        with self.assertRaises(SMTPException):
+            send_email_to_user(
+                "test@example.com", beautify_feedback_data(categorized_data)
+            )
+
+
+class TestUserManagement(BaseTestCase):
+    """Test class for user management functionality"""
+
     def test_create_account(self):
-        """
-        Test the function that creates a new user account in the database.
-        Ensure that account creation is successful.
-        """
+        """Test creating a new user account."""
         result = create_account(
             self.db,
             email="test@example.com",
@@ -169,30 +185,50 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(result)
 
     def test_login_to_account(self):
-        """
-        Test the function that logs in a user by checking their credentials.
-
-         - Ensure successful login with correct credentials.
-         - Ensure login fails with incorrect credentials.
-        """
-
+        """Test user login functionality."""
         # Test successful login
         user_id = login_to_account(
             self.db, username="testUserLogin", password="password123"
         )
         self.assertIsNotNone(user_id)
 
-        # Test failed login with incorrect password
+        # Test failed login
         wrong_login_attempt = login_to_account(
             self.db, username="testUserLogin", password="wrongPassword"
         )
         self.assertIsNone(wrong_login_attempt)
 
+    def test_get_username(self):
+        """Test retrieving username based on user ID."""
+        user_id = login_to_account(
+            self.db, username="testUserLogin", password="password123"
+        )
+        username = get_username(self.db, user=[None, user_id])
+        self.assertEqual(username, "testUserLogin")
+
+    def test_add_friend_and_get_friends(self):
+        """Test adding and retrieving friends."""
+        create_account(
+            self.db,
+            email="test2@example.com",
+            username="Friend1",
+            password="password123",
+        )
+        user_id_1 = login_to_account(
+            self.db, username="testUserLogin", password="password123"
+        )
+        add_friend(self.db, [None, user_id_1], username="Friend1")
+
+        friends_list = get_friends(self.db, user_id_1)
+        friends_usernames = [friend["username"] for friend in friends_list]
+        self.assertIn("Friend1", friends_usernames)
+
+
+class TestReviewAndRating(BaseTestCase):
+    """Test class for review and rating functionality"""
+
     def test_submit_review(self):
-        """
-        Test the function that allows users to submit reviews for movies.
-        Ensure that the review is saved correctly in the database.
-        """
+        """Test submitting movie reviews."""
         user_id = login_to_account(
             self.db, username="testUserLogin", password="password123"
         )
@@ -206,15 +242,11 @@ class TestUtils(unittest.TestCase):
         )
 
         review_doc = self.db.ratings.find_one({"user_id": ObjectId(user_id)})
-
         self.assertIsNotNone(review_doc)
         self.assertEqual(review_doc["score"], 5)
 
     def test_get_wall_posts(self):
-        """
-        Test the function that retrieves wall posts (reviews) from all users.
-        Ensure that wall posts are returned after a review is submitted.
-        """
+        """Test retrieving wall posts."""
         user_id = login_to_account(
             self.db, username="testUserLogin", password="password123"
         )
@@ -228,14 +260,34 @@ class TestUtils(unittest.TestCase):
         )
 
         posts = get_wall_posts(self.db)
-        print(posts)
         self.assertGreater(len(posts), 0)
 
+    def test_get_user_history(self):
+        """Test retrieving user history."""
+        user_id = login_to_account(
+            self.db, username="testUserLogin", password="password123"
+        )
+        submit_review(
+            self.db,
+            user=[None, user_id],
+            movie="Toy Story (1995)",
+            score=4,
+            review="",
+        )
+        history = get_user_history(self.db, user_id)
+        self.assertGreater(len(history), 0)
+
+    def test_get_user_history_invalid_id(self):
+        """Test handling invalid user ID in history retrieval."""
+        with self.assertRaises(InvalidId):
+            get_user_history(self.db, "invalid_id_format")
+
+
+class TestMovieFeatures(BaseTestCase):
+    """Test class for movie-related features"""
+
     def test_get_recent_movies(self):
-        """
-        Test the function that retrieves recent movies reviewed by a specific user.
-        Ensure that recent movies are returned after submitting a review.
-        """
+        """Test retrieving recent movies."""
         user_id = login_to_account(
             self.db, username="testUserLogin", password="password123"
         )
@@ -250,73 +302,11 @@ class TestUtils(unittest.TestCase):
         )
 
         recent_movies = get_recent_movies(self.db, user_id, self.movies_df)
-        print("test_utils", recent_movies)
         self.assertGreater(len(recent_movies), 0)
-
-    def test_get_username(self):
-        """
-        Test the function that retrieves a user's username based on their ID.
-        Ensure that the correct username is returned for a given user ID.
-        """
-        user_id = login_to_account(
-            self.db, username="testUserLogin", password="password123"
-        )
-
-        username = get_username(self.db, user=[None, user_id])
-
-        self.assertEqual(username, "testUserLogin")
-
-    def test_add_friend_and_get_friends(self):
-        """
-        Test adding a friend and retrieving the list of friends for a user.
-        Ensure that friends are correctly added and retrieved from the database.
-        """
-        create_account(
-            self.db,
-            email="test2@example.com",
-            username="Friend1",
-            password="password123",
-        )
-        user_id_1 = login_to_account(
-            self.db, username="testUserLogin", password="password123"
-        )
-        print(user_id_1)
-        add_friend(self.db, [None, user_id_1], username="Friend1")
-
-        friends_list = get_friends(self.db, user_id_1)
-        print(friends_list)
-        friends_list = [friend["username"] for friend in friends_list]
-
-        self.assertIn("Friend1", friends_list)
-
-    def test_get_user_history(self):
-        """
-        Test retrieving a user's history of reviews and ratings.
-        Ensure that reviews submitted by a user are correctly retrieved from their history.
-        """
-        user_id_1 = login_to_account(
-            self.db, username="testUserLogin", password="password123"
-        )
-
-        submit_review(
-            self.db,
-            user=[None, user_id_1],
-            movie="Toy Story (1995)",
-            score=4,
-            review="",
-        )
-
-        history = get_user_history(self.db, user_id_1)
-
-        self.assertGreater(len(history), 0)
 
     @patch("requests.get")
     def test_fetch_streaming_link(self, mock_get):
-        """
-        Test fetching streaming links for movies using an external API.
-        Mock the requests.get method to simulate API responses without making real HTTP requests.
-        Ensure that the correct streaming URL is returned based on the API response.
-        """
+        """Test fetching streaming links."""
         mock_response = MagicMock()
         mock_response.json.return_value = [
             {"name": "Netflix", "web_url": "https://netflix.com"}
@@ -324,20 +314,39 @@ class TestUtils(unittest.TestCase):
         mock_get.return_value = mock_response
 
         url = fetch_streaming_link("tt0114709")
-
         self.assertEqual(url, "https://netflix.com")
 
-    @classmethod
-    def tearDownClass(cls):
-        """
-        Clean up after all tests have run by deleting all
-        documents from users, movies, and ratings collections.
-        Drop the entire test database to ensure no leftover data.
-        """
-        cls.db.users.delete_many({})
-        cls.db.movies.delete_many({})
-        cls.db.ratings.delete_many({})
-        client.drop_database("testDB")
+    @patch("pandas.read_csv")
+    def test_get_genre_count(self, mock_read_csv):
+        """Test calculating genre counts."""
+        user_id = login_to_account(
+            self.db, username="testUserLogin", password="password123"
+        )
+
+        mock_movie_results = [{"movie_id": 1}, {"movie_id": 2}, {"movie_id": 3}]
+        mock_db = MagicMock()
+        mock_db.ratings.find.return_value = mock_movie_results
+
+        mock_movies_data = {
+            "movieId": [1, 2, 3],
+            "genres": ["Action|Adventure", "Comedy|Drama", "Action|Sci-Fi"],
+        }
+        mock_df = pd.DataFrame(mock_movies_data)
+        mock_read_csv.return_value = mock_df
+
+        genre_counts = get_genre_count(mock_db, [None, str(user_id)])
+
+        expected_counts = {
+            "Action": 2,
+            "Adventure": 1,
+            "Comedy": 1,
+            "Drama": 1,
+            "Sci-Fi": 1,
+        }
+
+        self.assertEqual(genre_counts, expected_counts)
+        mock_db.ratings.find.assert_called_once()
+        mock_read_csv.assert_called_once()
 
 
 if __name__ == "__main__":
