@@ -220,14 +220,14 @@ class TestRecommenderApp(unittest.TestCase):
         submit_review(
             self.db,
             user=[None, user_id],
-            movie="Toy Story (1995)",
-            score=5,
+            movie="Jumanji (1995)",
+            score=10,
             review="Great movie!",
         )
 
         review_doc = self.db.ratings.find_one({"user_id": ObjectId(user_id)})
         self.assertIsNotNone(review_doc)
-        self.assertEqual(review_doc["score"], 5)
+        self.assertEqual(review_doc["score"], 10)
 
     def test_get_wall_posts(self):
         """Test retrieving wall posts."""
@@ -254,9 +254,9 @@ class TestRecommenderApp(unittest.TestCase):
         submit_review(
             self.db,
             user=[None, user_id],
-            movie="Toy Story (1995)",
-            score=4,
-            review="",
+            movie="Interstellar (2014)",
+            score=8,
+            review="Good movie",
         )
         history = get_user_history(self.db, user_id)
         self.assertGreater(len(history), 0)
