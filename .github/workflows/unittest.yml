@@ -29,6 +29,10 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
+      - name: Create env file
+        run: |
+            echo "CODECOV_TOKEN=${{ secrets.CODECOV_TOKEN }}" > .env
+            echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
       - name: Set up MongoDB Client for Tests
         env:
           MONGO_URI: "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net/?retryWrites=true&w=majority&appName=PopCorn"
