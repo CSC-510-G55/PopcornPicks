@@ -154,12 +154,13 @@ class TestPopcornPicks(unittest.TestCase):
             self.db,
             user=[None, user_id],
             movie="Toy Story (1995)",
-            score=5,
-            review="Great movie!",
+            score=10,
+            review="Great movie!"
         )
         review_doc = self.db.ratings.find_one({"user_id": ObjectId(user_id)})
+        print(review_doc)
         self.assertIsNotNone(review_doc)
-        self.assertEqual(review_doc["score"], 5)
+        self.assertEqual(review_doc["score"], 10)
 
     # Movie Features
     def test_get_recent_movies(self):
