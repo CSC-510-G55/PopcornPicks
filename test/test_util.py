@@ -6,6 +6,7 @@ This code is licensed under MIT license (see LICENSE for details)
 
 Test suite for search feature
 """
+
 # pylint: skip-file
 
 import unittest
