@@ -49,7 +49,7 @@ class BaseTestCase(unittest.TestCase):
 
         cls.db.users.create_index([("username", 1)])
         cls.db.users.create_index([("email", 1)])
-        cls.db.movies.create_index([("imdb_id", 1)], unique=True)
+        cls.db.movies.create_index([("imdb_id", 1)])
         cls.db.movies.create_index([("name", 1)])
         cls.db.ratings.create_index([("user_id", 1), ("time", -1)])
         cls.db.ratings.create_index([("movie_id", 1)])
@@ -92,11 +92,13 @@ class TestUtilityFunctions(BaseTestCase):
     """Test class for utility functions like tags, data formatting, etc."""
 
     @classmethod
+    def setUpClass(cls):
+        """Set up before all tests in this class"""
+        super().setUpClass()
+    @classmethod
     def tearDownClass(cls):
         """Clean up after all tests in this class"""
-        cls.db.users.delete_many({})
-        cls.db.movies.delete_many({})
-        cls.db.ratings.delete_many({})
+        super().tearDownClass()
 
     def test_create_colored_tags(self):
         """Test generating HTML tags with specific colors for movie genres."""
@@ -140,11 +142,13 @@ class TestEmailFunctionality(BaseTestCase):
     """Test class for email-related functionality"""
 
     @classmethod
+    def setUpClass(cls):
+        """Set up before all tests in this class"""
+        super().setUpClass()
+    @classmethod
     def tearDownClass(cls):
         """Clean up after all tests in this class"""
-        cls.db.users.delete_many({})
-        cls.db.movies.delete_many({})
-        cls.db.ratings.delete_many({})
+        super().tearDownClass()
 
     @patch("smtplib.SMTP")
     def test_send_email_to_user(self, mock_smtp):
@@ -189,11 +193,13 @@ class TestUserManagement(BaseTestCase):
     """Test class for user management functionality"""
 
     @classmethod
+    def setUpClass(cls):
+        """Set up before all tests in this class"""
+        super().setUpClass()
+    @classmethod
     def tearDownClass(cls):
         """Clean up after all tests in this class"""
-        cls.db.users.delete_many({})
-        cls.db.movies.delete_many({})
-        cls.db.ratings.delete_many({})
+        super().tearDownClass()
 
     def test_create_account(self):
         """Test creating a new user account."""
@@ -249,12 +255,14 @@ class TestReviewAndRating(BaseTestCase):
     """Test class for review and rating functionality"""
 
     @classmethod
+    def setUpClass(cls):
+        """Set up before all tests in this class"""
+        super().setUpClass()
+    @classmethod
     def tearDownClass(cls):
         """Clean up after all tests in this class"""
-        cls.db.users.delete_many({})
-        cls.db.movies.delete_many({})
-        cls.db.ratings.delete_many({})
-    
+        super().tearDownClass()
+
     def test_submit_review(self):
         """Test submitting movie reviews."""
         user_id = login_to_account(
@@ -315,12 +323,14 @@ class TestMovieFeatures(BaseTestCase):
     """Test class for movie-related features"""
 
     @classmethod
+    def setUpClass(cls):
+        """Set up before all tests in this class"""
+        super().setUpClass()
+    @classmethod
     def tearDownClass(cls):
         """Clean up after all tests in this class"""
-        cls.db.users.delete_many({})
-        cls.db.movies.delete_many({})
-        cls.db.ratings.delete_many({})
-    
+        super().tearDownClass()
+
     def test_get_recent_movies(self):
         """Test retrieving recent movies."""
         user_id = login_to_account(
