@@ -87,7 +87,7 @@ async function buildPost(post, postContainer){
     var image = $('<img>', {src: movieData.Poster, alt: 'Image not found', style: 'width:100px;'})
 
     var titleDiv = $('<div>').addClass('postTitle');
-
+    console.log(post);
     var usernameDiv = $('<div>').addClass('username').text(post.username);
 
     var postTitleText = $('<div>').addClass('postTitleText').text('reviewed');

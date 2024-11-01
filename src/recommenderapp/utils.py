@@ -8,6 +8,7 @@ This code is licensed under MIT license (see LICENSE for details)
 # pylint: disable=wrong-import-position
 # pylint: disable=wrong-import-order
 # pylint: disable=import-error
+import json
 import datetime
 import logging
 import smtplib
@@ -15,7 +16,6 @@ import bcrypt
 from smtplib import SMTPException
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from flask import jsonify
 from pymongo.errors import PyMongoError
 from bson.errors import InvalidId
 from bson.objectid import ObjectId
@@ -30,7 +30,7 @@ project_dir = os.path.dirname(code_dir)
 
 def load_movies():
     """Load movies data from CSV."""
-    return pd.read_csv(os.path.join(project_dir, "data", "movies.csv"))
+    return pd.read_csv(os.path.join("data", "movies.csv"))
 
 
 def create_colored_tags(genres):
@@ -117,6 +117,16 @@ def send_email_to_user(recipient_email, categorized_data):
     """
     Utility function to send movie recommendations to user over email
     """
+    # Email configuration
+    smtp_server = "smtp.gmail.com"
+    smtp_port = 587
+    sender_email = "shrimadh332001@gmail.com"  # Get from environment variable
+    sender_password = "tnjydyefhlpsmdao"  # Get from environment variable
+
+    # Verify that environment variables are set
+    if not sender_email or not sender_password:
+        logging.error("Email credentials not found in environment variables")
+        raise ValueError("Email credentials not properly configured")
 
     email_html_content = """
                         <html>
@@ -146,70 +156,60 @@ def send_email_to_user(recipient_email, categorized_data):
                         </html>
                         """
 
-    # Email configuration
-    smtp_server = "smtp.gmail.com"
-    # Port for TLS
-    smtp_port = 587
-    sender_email = "popcornpicks777@gmail.com"
-
-    # Use an app password since 2-factor authentication is enabled
-    sender_password = " "
-    subject = "Your movie recommendation from PopcornPicks"
-
     # Create the email message
     message = MIMEMultipart("alternative")
     message["From"] = sender_email
     message["To"] = recipient_email
-    message["Subject"] = subject
-    # Load the CSV file into a DataFrame
-    movie_genre_df = pd.read_csv("../../data/movies.csv")
-    # Creating movie-genres map
-    movie_to_genres = create_movie_genres(movie_genre_df)
-    # Create the email message with HTML content
-    html_content = email_html_content.format(
-        "\n".join(
-            f'<li>{movie} \
-            {create_colored_tags(movie_to_genres.get(movie, ["Unknown Genre"]))}</li><br>'
-            for movie in categorized_data["Liked"]
-        ),
-        "\n".join(
-            f'<li>{movie} \
-            {create_colored_tags(movie_to_genres.get(movie, ["Unknown Genre"]))}</li><br>'
-            for movie in categorized_data["Disliked"]
-        ),
-        "\n".join(
-            f'<li>{movie} \
-            {create_colored_tags(movie_to_genres.get(movie, ["Unknown Genre"]))}</li><br>'
-            for movie in categorized_data["Yet to Watch"]
-        ),
-    )
+    message["Subject"] = "Your movie recommendation from PopcornPicks"
 
-    # Attach the HTML email body
-    message.attach(MIMEText(html_content, "html"))
-
-    # Connect to the SMTP server
     try:
-        server = smtplib.SMTP(smtp_server, smtp_port)
-        # Start TLS encryption
-        server.starttls()
-        server.login(sender_email, sender_password)
+        # Load the CSV file into a DataFrame
+        movie_genre_df = pd.read_csv("data/movies.csv")
+        # Creating movie-genres map
+        movie_to_genres = create_movie_genres(movie_genre_df)
+        # Create the email message with HTML content
+        html_content = email_html_content.format(
+            "\n".join(
+                f'<li>{movie} \
+                {create_colored_tags(movie_to_genres.get(movie, ["Unknown Genre"]))}</li><br>'
+                for movie in categorized_data["Liked"]
+            ),
+            "\n".join(
+                f'<li>{movie} \
+                {create_colored_tags(movie_to_genres.get(movie, ["Unknown Genre"]))}</li><br>'
+                for movie in categorized_data["Disliked"]
+            ),
+            "\n".join(
+                f'<li>{movie} \
+                {create_colored_tags(movie_to_genres.get(movie, ["Unknown Genre"]))}</li><br>'
+                for movie in categorized_data["Yet to Watch"]
+            ),
+        )
 
-        # Send the email
-        server.sendmail(sender_email, recipient_email, message.as_string())
-        logging.info("Email sent successfully!")
+        # Attach the HTML email body
+        message.attach(MIMEText(html_content, "html"))
 
+        # Connect to the SMTP server
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(sender_email, sender_password)
+            server.sendmail(sender_email, recipient_email, message.as_string())
+            logging.info("Email sent successfully!")
+
+    except FileNotFoundError:
+        logging.error("Movies CSV file not found")
+        raise
     except SMTPException as e:
-        # Handle SMTP-related exceptions
         logging.error("SMTP error while sending email: %s", str(e))
+        raise
+    except Exception as e:
+        logging.error("Unexpected error while sending email: %s", str(e))
+        raise
 
-    finally:
-        server.quit()
 
-
-def create_account(client, email, username, password):
+def create_account(db, email, username, password):
     """Utility function for creating an account"""
     try:
-        db = client.PopcornPicksDB
         hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
         user_data = {
             "username": username,
@@ -225,12 +225,12 @@ def create_account(client, email, username, password):
         return False
 
 
-def add_friend(client, user, username):
+def add_friend(db, user, username):
     """
     Utility function for adding a friend
     """
     try:
-        client.PopcornPicksDB.users.update_one(
+        db.users.update_one(
             {"_id": ObjectId(user[1])}, {"$addToSet": {"friends": username}}
         )
         return True
@@ -239,12 +239,11 @@ def add_friend(client, user, username):
         return False
 
 
-def login_to_account(client, username, password):
+def login_to_account(db, username, password):
     """
     Utility function for logging in to an account
     """
     try:
-        db = client.PopcornPicksDB
         user = db.users.find_one({"username": username})
         if user and bcrypt.checkpw(password.encode("utf-8"), user["password"]):
             return str(user["_id"])
@@ -254,17 +253,15 @@ def login_to_account(client, username, password):
         return None
 
 
-def submit_review(client, user, movie, score, review):
+def submit_review(db, user, movie, score, review):
     """
     Utility function for creating a dictionary for submitting a review
     """
     try:
-        db = client.PopcornPicksDB
-
         movie_doc = db.movies.find_one({"name": movie})
 
         if not movie_doc:
-            csv_path = os.path.join(os.path.dirname(__file__), "../../data/movies.csv")
+            csv_path = os.path.join("data/movies.csv")
             df = pd.read_csv(csv_path)
             print(df.head())
             movie_row = df[df["title"] == movie]
@@ -299,12 +296,11 @@ def submit_review(client, user, movie, score, review):
         raise
 
 
-def get_wall_posts(client):
+def get_wall_posts(db):
     """
     Utility function to get wall posts from the MongoDB database,
     joining data from Users, Ratings, and Movies collections.
     """
-    db = client.PopcornPicksDB
 
     posts = list(
         db.ratings.aggregate(
@@ -323,6 +319,7 @@ def get_wall_posts(client):
                         "_id": 0,
                         "name": "$movie_info.name",
                         "imdb_id": "$movie_info.imdb_id",
+                        "user_id": "$user_id",
                         "review": "$review",
                         "score": "$score",
                         "time": "$time",
@@ -333,17 +330,30 @@ def get_wall_posts(client):
             ]
         )
     )
+
+    def get_username_from_user_id(db, user):
+        """
+        Utility function for getting the current users username
+        """
+        user_data = db.users.find_one({"_id": ObjectId(user)})
+        return user_data["username"] if user_data else ""
+
     print(posts)
-    return jsonify(posts)
+    posts = [
+        {**post, "username": get_username_from_user_id(db, str(post["user_id"]))}
+        for post in posts
+    ]
+
+    # Remove the 'user_id' field if you don't want it in the final output
+    posts = [{k: v for k, v in post.items() if k != "user_id"} for post in posts]
+    return posts
 
 
-def get_user_ratings(client):
+def get_user_ratings(db):
     """
     Utility function to get wall posts from the MongoDB database,
     joining data from Users, Ratings, and Movies collections.
     """
-    db = client.PopcornPicksDB
-
     posts = list(
         db.ratings.aggregate(
             [
@@ -377,17 +387,16 @@ def get_user_ratings(client):
     return posts
 
 
-def get_recent_movies(client, user_id, movies_df):
+def get_recent_movies(db, user_id, movies_df):
     """
     Gets the recent movies of the active user with their names and ratings.
     """
     try:
         user_id = ObjectId(user_id)
-        movies = list(
-            client.PopcornPicksDB.ratings.find({"user_id": user_id}).sort("_id", -1)
-        )
+        movies = list(db.ratings.find({"user_id": user_id}).sort("_id", -1))
+        print(movies)
         if not movies:
-            return jsonify([])
+            return json.dumps([])
         movie_data = [
             {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
         ]
@@ -396,34 +405,32 @@ def get_recent_movies(client, user_id, movies_df):
             ratings_df, movies_df, how="left", left_on="movie_id", right_on="movieId"
         )
         recent_movies_list = merged_df[["title", "score"]].to_dict(orient="records")
-        return jsonify(recent_movies_list)
+        return json.dumps(recent_movies_list)
     except PyMongoError as e:
         print(f"Database error retrieving recent movies: {str(e)}")
-        return jsonify({"error": "Database error occurred"})
+        return json.dumps({"error": "Database error occurred"})
 
 
-def get_username(client, user):
+def get_username(db, user):
     """
     Utility function for getting the current users username
     """
     try:
-        user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user[1])})
+        user_data = db.users.find_one({"_id": ObjectId(user[1])})
         return user_data["username"] if user_data else ""
     except PyMongoError as e:
         print(f"Database error retrieving username: {str(e)}")
         return ""
 
 
-def get_recent_friend_movies(client, user_id, movies_df):
+def get_recent_friend_movies(db, user_id, movies_df):
     """
     Utility function for getting recent movies from user's friends.
     """
     try:
-        movies = list(
-            client.PopcornPicksDB.ratings.find({"user_id": user_id}).sort("_id", -1)
-        )
+        movies = list(db.ratings.find({"user_id": user_id}).sort("_id", -1))
         if not movies:
-            return jsonify([])
+            return json.dumps([])
         movie_data = [
             {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
         ]
@@ -432,22 +439,22 @@ def get_recent_friend_movies(client, user_id, movies_df):
             ratings_df, movies_df, how="left", left_on="movie_id", right_on="movieId"
         )
         recent_movies_list = merged_df[["title", "score"]].to_dict(orient="records")
-        return jsonify(recent_movies_list)
+        return json.dumps(recent_movies_list)
     except PyMongoError as e:
         print(f"Database error retrieving friend movies: {str(e)}")
-        return jsonify({"error": "Database error occurred"})
+        return json.dumps({"error": "Database error occurred"})
 
 
-def get_friends(client, user_id):
+def get_friends(db, user_id):
     """
     Utility function to get a user's friends list with their user IDs and usernames.
     """
-    user_data = client.PopcornPicksDB.users.find_one({"_id": ObjectId(user_id)})
+    user_data = db.users.find_one({"_id": ObjectId(user_id)})
 
     friend_usernames = user_data.get("friends", [])
 
     friends_info = list(
-        client.PopcornPicksDB.users.find(
+        db.users.find(
             {"username": {"$in": friend_usernames}, "_id": {"$ne": ObjectId(user_id)}},
             {"_id": 1, "username": 1},
         )
@@ -459,12 +466,11 @@ def get_friends(client, user_id):
     ]
 
 
-def get_user_history(client, user_id):
+def get_user_history(db, user_id):
     """
     Retrieves the current user's movie ratings from the database for recommendation.
     """
     try:
-        db = client.PopcornPicksDB
         user_history = []
 
         user_ratings = db.ratings.find({"user_id": ObjectId(user_id)})
@@ -483,14 +489,11 @@ def get_user_history(client, user_id):
         raise
 
 
-def get_genre_count(client, user):
+def get_genre_count(db, user):
     """
     Utility function to get movies from the MongoDB database, and calculate the count of
     genres of the movies which the user has watched.
     """
-
-    db = client.PopcornPicksDB
-
     results = db.ratings.find({"user_id": ObjectId(user[1])}, {"movie_id": 1, "_id": 0})
 
     # Extract movie_ids from the results
@@ -524,7 +527,7 @@ def fetch_streaming_link(imdb_id):
     Fetches the streaming links of movies.
     """
     if not imdb_id:
-        return jsonify({"error": "Please provide imdb_id"}), 400
+        return json.dumps({"error": "Please provide imdb_id"}), 400
 
     url = f"https://api.watchmode.com/v1/title/{imdb_id}/sources/"
     api_key = "fh04Ehayqo4Rdn7RJ0vaGttCD8QYbmWRgZsB4DYy"
