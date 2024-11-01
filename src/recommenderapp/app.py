@@ -259,8 +259,8 @@ def feedback():
     Handles user feedback submission and mails the results.
     """
     data = json.loads(request.data)
-
-    send_email_to_user("svrao3@ncsu.edu", beautify_feedback_data(data))
+    user_email = db.users.find_one({"_id": ObjectId(user[1])})["email"]
+    send_email_to_user(user_email, beautify_feedback_data(data))
     return data
 
 

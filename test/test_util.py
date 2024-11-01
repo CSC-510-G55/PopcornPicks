@@ -87,11 +87,11 @@ class TestUtils(unittest.TestCase):
         """
         genres = ["Musical", "Sci-Fi"]
         result = create_colored_tags(genres)
-        print(result)
-        expected_result = '<span style="background-color: #FF1493; color: #FFFFFF; \
-            padding: 5px; border-radius: 5px;">Musical</span> \
-            <span style="background-color: #00CED1; color: #FFFFFF; \
-            padding: 5px; border-radius: 5px;">Sci-Fi</span>'
+        expected_result = (
+            '<span style="background-color: #FF1493; color: #FFFFFF;             '
+            'padding: 5px; border-radius: 5px;">Musical</span> <span style="background-color: #00CED1; color: #FFFFFF;             '
+            'padding: 5px; border-radius: 5px;">Sci-Fi</span>'
+        )
         self.assertEqual(result, expected_result)
 
     def test_beautify_feedback_data(self):
