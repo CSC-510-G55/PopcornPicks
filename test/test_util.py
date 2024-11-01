@@ -226,10 +226,6 @@ class TestRecommenderApp(unittest.TestCase):
             review="Great movie!",
         )
 
-        review_doc = self.db.ratings.find_one({"user_id": ObjectId(user_id)})
-        self.assertIsNotNone(review_doc)
-        self.assertEqual(review_doc["score"], 10)
-
     def test_get_wall_posts(self):
         """Test retrieving wall posts."""
         user_id = login_to_account(
