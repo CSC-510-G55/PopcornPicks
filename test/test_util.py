@@ -36,8 +36,10 @@ from src.recommenderapp.utils import (
     get_genre_count,
 )
 
+
 class BaseTestCase(unittest.TestCase):
     """Base test class with common setup and teardown"""
+
     @classmethod
     def setUpClass(cls):
         """Common setup for all test classes"""
@@ -85,6 +87,7 @@ class BaseTestCase(unittest.TestCase):
         cls.db.ratings.delete_many({})
         client.drop_database("testDB")
 
+
 class TestUtilityFunctions(BaseTestCase):
     """Test class for utility functions like tags, data formatting, etc."""
 
@@ -125,6 +128,7 @@ class TestUtilityFunctions(BaseTestCase):
         }
         self.assertEqual(result, expected_result)
 
+
 class TestEmailFunctionality(BaseTestCase):
     """Test class for email-related functionality"""
 
@@ -138,9 +142,7 @@ class TestEmailFunctionality(BaseTestCase):
         }
         mock_server_instance = MagicMock()
         mock_smtp.return_value.__enter__.return_value = mock_server_instance
-        send_email_to_user(
-            "test@example.com", beautify_feedback_data(categorized_data)
-        )
+        send_email_to_user("test@example.com", beautify_feedback_data(categorized_data))
         mock_server_instance.sendmail.assert_called_once()
 
     @patch("pandas.read_csv")
@@ -167,6 +169,7 @@ class TestEmailFunctionality(BaseTestCase):
             send_email_to_user(
                 "test@example.com", beautify_feedback_data(categorized_data)
             )
+
 
 class TestUserManagement(BaseTestCase):
     """Test class for user management functionality"""
@@ -219,6 +222,7 @@ class TestUserManagement(BaseTestCase):
         friends_list = get_friends(self.db, user_id_1)
         friends_usernames = [friend["username"] for friend in friends_list]
         self.assertIn("Friend1", friends_usernames)
+
 
 class TestReviewAndRating(BaseTestCase):
     """Test class for review and rating functionality"""
@@ -277,6 +281,7 @@ class TestReviewAndRating(BaseTestCase):
         """Test handling invalid user ID in history retrieval."""
         with self.assertRaises(InvalidId):
             get_user_history(self.db, "invalid_id_format")
+
 
 class TestMovieFeatures(BaseTestCase):
     """Test class for movie-related features"""
@@ -342,6 +347,7 @@ class TestMovieFeatures(BaseTestCase):
         self.assertEqual(genre_counts, expected_counts)
         mock_db.ratings.find.assert_called_once()
         mock_read_csv.assert_called_once()
+
 
 if __name__ == "__main__":
     unittest.main()
