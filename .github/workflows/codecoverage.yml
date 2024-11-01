@@ -28,7 +28,9 @@ jobs:
         run: pytest --tb=line
 
       - name: Generate coverage
-        run: pytest --tb=line --cov-config=.coveragerc --cov --cov-report=xml
+        run: |
+          pytest --tb=line --cov-config=.coveragerc --cov --cov-report=xml
+          python -c "from pymongo import MongoClient; client = MongoClient("mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net/?retryWrites=true&w=majority&appName=PopCorn"); client.testDB.movies.drop(); client.close()"
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
