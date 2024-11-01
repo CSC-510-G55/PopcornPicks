@@ -141,7 +141,8 @@ This code is licensed under MIT license (see LICENSE for details)
       url: '/getRecentMovies',
       contentType: "application/json;charset=UTF-8",
       success: function(response) {
-        response.forEach(element => {
+        const data = JSON.parse(response);
+        data.forEach(element => {
         	addRecentMovie(element.title)
         });
       },

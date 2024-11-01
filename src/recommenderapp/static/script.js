@@ -76,9 +76,11 @@ $(document).ready(function () {
 			success: function (response) {
 				var ulList = $("#predictedMovies")
 				var i = 0
+				console.log(response)
 				var recommendations = response["recommendations"]
 				var imdbIds = response["imdb_id"]
 				var webUrls = response["web_url"]
+				console.log(recommendations, imdbIds, webUrls)
 				for (var i = 0; i < recommendations.length; i++) {
 					var element = recommendations[i]
 					var imdbID = imdbIds[i]
@@ -89,6 +91,7 @@ $(document).ready(function () {
 						.text("IMDb🔗")
 						.css({ "text-decoration": "none" })
 						.attr("href", "https://www.imdb.com/title/" + imdbID)
+					console.log(web_url)
 					var streaming_link = $("<a/>")
 						.text("   Stream Here!🍿")
 						.css({ "text-decoration": "none" })
@@ -118,7 +121,9 @@ $(document).ready(function () {
 
 					diventry.append(li)
 					diventry.append(link)
-					diventry.append(streaming_link)
+					if (web_url != null){
+						diventry.append(streaming_link)
+					}
 					diventry.append(radios)
 					fieldset.append(diventry)
 					ulList.append(fieldset)

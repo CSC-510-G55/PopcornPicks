@@ -171,8 +171,10 @@ This code is licensed under MIT license (see LICENSE for details)
                 contentType: "application/json;charset=UTF-8",
                 success: function (response) {
                     const userMovies = document.getElementById("userMovies");
+                    const jsonresponse = JSON.parse(response)
                     userMovies.innerHTML = '';
-                    response.forEach(function(element) {
+                    console.log(jsonresponse);
+                    jsonresponse.forEach(function(element) {
                         const listItem = document.createElement("li");
                         listItem.classList.add("movie");
                         const movieText = document.createTextNode(element.title + ": " + element.score + "/10 stars");

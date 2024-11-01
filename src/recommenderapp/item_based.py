@@ -20,9 +20,9 @@ def load_movies():
     return pd.read_csv(os.path.join(project_dir, "data", "movies.csv"))
 
 
-def prepare_ratings(client):
+def prepare_ratings(db):
     """Prepare ratings DataFrame."""
-    all_ratings = get_user_ratings(client)
+    all_ratings = get_user_ratings(db)
     ratings = pd.DataFrame(all_ratings)
     ratings["user_id"] = ratings["user_id"].astype(str)
     ratings["movie_id"] = ratings["movie_id"].astype(str)
@@ -93,12 +93,12 @@ def calculate_hybrid_score(enriched_movies, user_rating_count):
     )
 
 
-def recommend_for_new_user(user_rating, user_id, client):
+def recommend_for_new_user(user_rating, user_id, db):
     """Generate recommendations for a new user."""
     if not user_rating:
         return [], None, None
     movies = load_movies()
-    ratings = prepare_ratings(client)
+    ratings = prepare_ratings(db)
     surprise_df = prepare_surprise_df(ratings)
 
     recommendations = generate_cf_recommendations(surprise_df, ratings, movies, user_id)

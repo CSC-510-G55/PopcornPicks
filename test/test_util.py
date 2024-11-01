@@ -1,357 +1,344 @@
-# """
-# Copyright (c) 2023 Aditya Pai, Ananya Mantravadi, Rishi Singhal, Samarth Shetty
-# This code is licensed under MIT license (see LICENSE for details)
+"""
+Copyright (c) 2023 Aditya Pai, Ananya Mantravadi, Rishi Singhal, Samarth Shetty
+This code is licensed under MIT license (see LICENSE for details)
 
-# @author: PopcornPicks
-# """
+@author: PopcornPicks
 
-# # pylint: disable=wrong-import-position
-# # pylint: disable=wrong-import-order
-# # pylint: disable=import-error
+Test suit for search feature
+"""
 
-# import sys
-# import unittest
-# import warnings
-# import os
-# import bcrypt
-# import flask
-# from dotenv import load_dotenv
-# from pathlib import Path
+import unittest
+from unittest.mock import patch, MagicMock
 
-# pass
+import pandas as pd
+from bson import ObjectId
 
-# # import mysql.connector
-# # import pandas as pd
-
-# # sys.path.append(str(Path(__file__).resolve().parents[1]))
-# # # pylint: disable=wrong-import-position
-# # from src.recommenderapp.utils import (
-# #     create_colored_tags,
-# #     beautify_feedback_data,
-# #     create_movie_genres,
-# #     send_email_to_user,
-# #     create_account,
-# #     login_to_account,
-# #     get_wall_posts,
-# #     get_username,
-# #     get_recent_movies,
-# #     add_friend,
-# #     get_friends,
-# #     submit_review,
-# #     get_recent_friend_movies,
-# # )
-
-# # # pylint: enable=wrong-import-position
-
-# # warnings.filterwarnings("ignore")
+from src.recommenderapp.client import client
+from src.recommenderapp.utils import (
+    create_colored_tags,
+    beautify_feedback_data,
+    create_movie_genres,
+    send_email_to_user,
+    create_account,
+    login_to_account,
+    submit_review,
+    get_wall_posts,
+    get_recent_movies,
+    get_username,
+    add_friend,
+    get_friends,
+    get_user_history,
+    fetch_streaming_link,
+)
 
 
-# # class Tests(unittest.TestCase):
-# #     """
-# #     Test cases for utility functions
-# #     """
+class TestUtils(unittest.TestCase):
+    """
+    Unit tests for utility functions related to movie recommendation app.
+    """
 
-# #     def setUp(self):
-# #         print("\nrunning setup method")
-# #         load_dotenv()
-# #         db = mysql.connector.connect(
-# #             user="root", password=os.getenv("DB_PASSWORD"), host="127.0.0.1"
-# #         )
-# #         executor = db.cursor()
-# #         executor.execute("USE testDB;")
-# #         executor.execute("SET FOREIGN_KEY_CHECKS=0;")
-# #         executor.execute("DELETE FROM Users")
-# #         executor.execute("DELETE FROM Ratings")
-# #         executor.execute("DELETE FROM Friends")
-# #         db.commit()
+    @classmethod
+    def setUpClass(cls):
+        """
+        Set up the test database and insert sample movie data before running the tests.
+        This method is called once before any tests are executed.
+        """
+        cls.movies_df = pd.read_csv("data/movies.csv")
 
-# #     def test_beautify_feedback_data(self):
-# #         """
-# #         Test case 1
-# #         """
-# #         data = {"Movie 1": "Yet to watch", "Movie 2": "Like", "Movie 3": "Dislike"}
-# #         result = beautify_feedback_data(data)
-# #         expected_result = {
-# #             "Liked": ["Movie 2"],
-# #             "Disliked": ["Movie 3"],
-# #             "Yet to Watch": ["Movie 1"],
-# #         }
+        cls.client = client
+        cls.db = client.testDB
 
-# #         self.assertTrue(result == expected_result)
+        cls.db.users.create_index([("username", 1)], unique=True)
+        cls.db.users.create_index([("email", 1)], unique=True)
+        cls.db.movies.create_index([("imdb_id", 1)], unique=True)
+        cls.db.movies.create_index([("name", 1)])
+        cls.db.ratings.create_index([("user_id", 1), ("time", -1)])
+        cls.db.ratings.create_index([("movie_id", 1)])
 
-# #     def test_create_colored_tags(self):
-# #         """
-# #         Test case 2
-# #         """
-# #         expected_result = '<span style="background-color: #FF1493; color: #FFFFFF; \
-# #             padding: 5px; border-radius: 5px;">Musical</span>'
-# #         result = create_colored_tags(["Musical"])
-# #         self.assertTrue(result == expected_result)
+        cls.sample_movies = [
+            {
+                "_id": ObjectId(),
+                "name": "Toy Story (1995)",
+                "imdb_id": "tt0114709",
+                "movie_id": 862,
+                "year": 1995,
+            },
+            {
+                "_id": ObjectId(),
+                "name": "Interstellar (2014)",
+                "imdb_id": "tt0816692",
+                "year": 2014,
+                "movie_id": 862,
+            },
+        ]
 
-# #     def test_create_movie_genres(self):
-# #         """
-# #         Test case 3
-# #         """
-# #         expected_result = {
-# #             "Toy Story (1995)": ["Animation", "Comedy", "Family"],
-# #             "Jumanji (1995)": ["Adventure", "Fantasy", "Family"],
-# #         }
+        create_account(
+            cls.db,
+            email="test1@example.com",
+            username="testUserLogin",
+            password="password123",
+        )
+        cls.db.movies.insert_many(cls.sample_movies)
 
-# #         data = [
-# #             [
-# #                 "862",
-# #                 "Toy Story (1995)",
-# #                 "Animation|Comedy|Family",
-# #                 "tt0114709",
-# #                 " ",
-# #                 "/rhIRbceoE9lR4veEXuwCC2wARtG.jpg",
-# #                 "81",
-# #             ],
-# #             [
-# #                 "8844",
-# #                 "Jumanji (1995)",
-# #                 "Adventure|Fantasy|Family",
-# #                 "tt0113497",
-# #                 " ",
-# #                 "/vzmL6fP7aPKNKPRTFnZmiUfciyV.jpg",
-# #                 "104",
-# #             ],
-# #         ]
+    def test_create_colored_tags(self):
+        """
+        Test the function that generates HTML
+        tags with specific colors for movie genres.
+        """
+        genres = ["Musical", "Sci-Fi"]
+        result = create_colored_tags(genres)
+        expected_result = (
+            '<span style="background-color: #FF1493; color: #FFFFFF;             '
+            'padding: 5px; border-radius: 5px;">Musical</span> <s'
+            'pan style="background-color: #00CED1; color: #FFFFFF;             '
+            'padding: 5px; border-radius: 5px;">Sci-Fi</span>'
+        )
+        self.assertEqual(result, expected_result)
 
-# #         movie_genre_df = pd.DataFrame(
-# #             data,
-# #             columns=[
-# #                 "movieId",
-# #                 "title",
-# #                 "genres",
-# #                 "imdb_id",
-# #                 "overview",
-# #                 "poster_path",
-# #                 "runtime",
-# #             ],
-# #         )
+    def test_beautify_feedback_data(self):
+        """
+        Test the function that organizes feedback data
+        into categories such as 'Liked', 'Disliked', and 'Yet to Watch'.
+        """
+        data = {"Movie 1": "Yet to watch", "Movie 2": "Like", "Movie 3": "Dislike"}
+        result = beautify_feedback_data(data)
+        expected_result = {
+            "Liked": ["Movie 2"],
+            "Disliked": ["Movie 3"],
+            "Yet to Watch": ["Movie 1"],
+        }
+        self.assertEqual(result, expected_result)
 
-# #         result = create_movie_genres(movie_genre_df)
-# #         self.assertTrue(result == expected_result)
+    def test_create_movie_genres(self):
+        """
+        Test the function that creates a dictionary of movie titles
+        and their associated genres from a DataFrame.
+        """
+        data = [
+            ["862", "Toy Story (1995)", "Animation|Comedy|Family"],
+            ["8844", "Jumanji (1995)", "Adventure|Fantasy|Family"],
+        ]
+        movie_genre_df = pd.DataFrame(data, columns=["movieId", "title", "genres"])
+        result = create_movie_genres(movie_genre_df)
+        expected_result = {
+            "Toy Story (1995)": ["Animation", "Comedy", "Family"],
+            "Jumanji (1995)": ["Adventure", "Fantasy", "Family"],
+        }
+        self.assertEqual(result, expected_result)
 
-# #     def test_send_email_to_user(self):
-# #         """
-# #         Test case 4
-# #         """
-# #         data = {
-# #             "Liked": ["Toy Story (1995)"],
-# #             "Disliked": ["Cutthroat Island (1995)"],
-# #             "Yet to Watch": ["Assassins (1995)"],
-# #         }
-# #         with self.assertRaises(Exception):
-# #             send_email_to_user("wrong_email", beautify_feedback_data(data))
+    @patch("smtplib.SMTP")
+    def test_send_email_to_user(self, mock_smtp):
+        """
+        Test the function that sends an email to a user with categorized movie feedback.
+        Mock the SMTP server to avoid sending real emails during testing.
+        """
+        categorized_data = {
+            "The Crimson Permanent Assurance (1983)": "Like",
+            "Romancing the Stone (1984)": "Yet to watch",
+            "Downtown (1990)": "Dislike",
+            "City Slickers (1991)": "Yet to watch",
+            "The Return of the Musketeers (1989)": "Like",
+            "Gurren Lagann The Movie: Childhood's End (2008)": "Yet to watch",
+            "The Machine Girl (2008)": "Dislike",
+            "The Myth (2005)": "Yet to watch",
+            "Gurren Lagann The Movie: The Lights in the \
+                                Sky Are Stars (2009)": "Like",
+            "Journey to the Center of the Earth (2008)": "Yet to watch",
+        }
 
-# #     def test_accounts(self):
-# #         """
-# #         Test case 5
-# #         """
-# #         load_dotenv()
-# #         db = mysql.connector.connect(
-# #             user="root", password=os.getenv("DB_PASSWORD"), host="127.0.0.1"
-# #         )
-# #         executor = db.cursor()
-# #         executor.execute("USE testDB;")
-# #         create_account(db, "test@test.com", "testUser", "testPassword")
-# #         expected_username = "testUser"
-# #         expected_email = "test@test.com"
-# #         expected_password = ("testPassword").encode("utf-8")
-# #         executor = db.cursor()
-# #         executor.execute("SELECT * FROM Users;")
-# #         db_result = executor.fetchall()
-# #         actual_password = (db_result[0][3]).encode("utf-8")
-# #         self.assertTrue(len(db_result) > 0)
-# #         self.assertEqual(expected_username, db_result[0][1])
-# #         self.assertEqual(expected_email, db_result[0][2])
-# #         self.assertTrue(bcrypt.checkpw(expected_password, actual_password))
-# #         fail = login_to_account(db, "testUser", "wrongPassword")
-# #         self.assertIsNone(fail)
-# #         db.close()
+        mock_server_instance = MagicMock()
+        mock_smtp.return_value.__enter__.return_value = mock_server_instance
 
-# #     def test_get_wall_posts(self):
-# #         """
-# #         Test case 6
-# #         """
-# #         load_dotenv()
-# #         db = mysql.connector.connect(
-# #             user="root", password=os.getenv("DB_PASSWORD"), host="127.0.0.1"
-# #         )
-# #         executor = db.cursor()
-# #         executor.execute("USE testDB;")
-# #         executor.execute("SET FOREIGN_KEY_CHECKS=0;")
-# #         create_account(db, "test@test.com", "testUser", "testPassword")
-# #         executor.execute("SELECT idUsers FROM Users WHERE username='testUser'")
-# #         db_result = executor.fetchall()
-# #         user = db_result[0][0]
-# #         executor.execute(
-# #             "INSERT INTO Ratings(user_id, movie_id, score, review, time) \
-# #                          VALUES (%s, %s, %s, %s, %s);",
-# #             (int(user), int(11), int(4), "this is a great movie", "1970-01-01"),
-# #         )
-# #         db.commit()
-# #         app = flask.Flask(__name__)
-# #         a = ""
-# #         with app.test_request_context("/"):
-# #             a = get_wall_posts(db)
-# #         self.assertEqual(a.json[0]["imdb_id"], "tt0076759")
-# #         self.assertEqual(a.json[0]["name"], "Star Wars (1977)")
-# #         self.assertEqual(a.json[0]["review"], "this is a great movie")
-# #         self.assertEqual(a.json[0]["score"], 4)
+        send_email_to_user(
+            "shrimadh332001@gmail.com", beautify_feedback_data(categorized_data)
+        )
 
-# #     def test_get_username(self):
-# #         """
-# #         Test case 7
-# #         """
-# #         load_dotenv()
-# #         db = mysql.connector.connect(
-# #             user="root", password=os.getenv("DB_PASSWORD"), host="127.0.0.1"
-# #         )
-# #         executor = db.cursor()
-# #         executor.execute("USE testDB;")
-# #         create_account(db, "test@test.com", "testUser", "testPassword")
-# #         user = login_to_account(db, "testUser", "testPassword")
-# #         app = flask.Flask(__name__)
-# #         username = ""
-# #         with app.test_request_context("/"):
-# #             username = get_username(db, user).json
-# #         self.assertEqual("testUser", username)
+        mock_server_instance.sendmail.assert_called_once()
 
-# #     def test_get_recent_movies(self):
-# #         """
-# #         Test case 8
-# #         """
-# #         load_dotenv()
-# #         db = mysql.connector.connect(
-# #             user="root", password=os.getenv("DB_PASSWORD"), host="127.0.0.1"
-# #         )
-# #         executor = db.cursor()
-# #         executor.execute("USE testDB;")
-# #         create_account(db, "test@test.com", "testUser", "testPassword")
-# #         user = login_to_account(db, "testUser", "testPassword")
+    def test_create_account(self):
+        """
+        Test the function that creates a new user account in the database.
+        Ensure that account creation is successful.
+        """
+        result = create_account(
+            self.db,
+            email="test@example.com",
+            username="testUser",
+            password="password123",
+        )
+        self.assertTrue(result)
 
-# #         movies_to_review = [
-# #             (2, 3, "1970-01-06"),
-# #             (3, 4, "1970-01-05"),
-# #             (5, 5, "1970-01-04"),
-# #             (6, 2, "1970-01-03"),
-# #             (11, 1, "1970-01-02"),
-# #             (12, 3, "1970-01-01"),
-# #         ]
-# #         for movie in movies_to_review:
-# #             executor.execute(
-# #                 "INSERT INTO Ratings(user_id, movie_id, score, review, time) \
-# #                              VALUES (%s, %s, %s, %s, %s);",
-# #                 (
-# #                     int(user),
-# #                     int(movie[0]),
-# #                     int(movie[1]),
-# #                     "this is a great movie",
-# #                     movie[2],
-# #                 ),
-# #             )
-# #         db.commit()
-# #         app = flask.Flask(__name__)
-# #         recent_movies = []
-# #         with app.test_request_context("/"):
-# #             recent_movies = get_recent_movies(db, user)
-# #         self.assertEqual(5, len(recent_movies.json))
-# #         for i, movie in enumerate(recent_movies.json):
-# #             self.assertEqual(movie["score"], movies_to_review[i][1])
+    def test_login_to_account(self):
+        """
+        Test the function that logs in a user by checking their credentials.
 
-# #     def test_friends(self):
-# #         """
-# #         Test case 9
-# #         """
-# #         load_dotenv()
-# #         db = mysql.connector.connect(
-# #             user="root", password=os.getenv("DB_PASSWORD"), host="127.0.0.1"
-# #         )
-# #         executor = db.cursor()
-# #         executor.execute("USE testDB;")
-# #         create_account(db, "test@test.com", "testUser", "testPassword")
-# #         user = login_to_account(db, "testUser", "testPassword")
-# #         executor.execute(
-# #             "INSERT INTO Users(username, email, password) VALUES \
-# #                           ('testFriend', 'friend@test.com', 'testPassword')"
-# #         )
-# #         executor.execute(
-# #             "INSERT INTO Users(username, email, password) VALUES \
-# #                          ('testFriend2', 'friend2@test.com', 'testPassword')"
-# #         )
-# #         app = flask.Flask(__name__)
+         - Ensure successful login with correct credentials.
+         - Ensure login fails with incorrect credentials.
+        """
 
-# #         result = ""
-# #         with app.test_request_context("/"):
-# #             add_friend(db, "testFriend", user)
-# #             add_friend(db, "testFriend2", user)
-# #             db.commit()
+        # Test successful login
+        user_id = login_to_account(
+            self.db, username="testUserLogin", password="password123"
+        )
+        self.assertIsNotNone(user_id)
 
-# #             result = get_friends(db, user)
+        # Test failed login with incorrect password
+        wrong_login_attempt = login_to_account(
+            self.db, username="testUserLogin", password="wrongPassword"
+        )
+        self.assertIsNone(wrong_login_attempt)
 
-# #         friends = []
-# #         friends.append(result.json[0][0])
-# #         friends.append(result.json[1][0])
-# #         self.assertIn("testFriend", friends)
-# #         self.assertIn("testFriend2", friends)
+    def test_submit_review(self):
+        """
+        Test the function that allows users to submit reviews for movies.
+        Ensure that the review is saved correctly in the database.
+        """
+        user_id = login_to_account(
+            self.db, username="testUserLogin", password="password123"
+        )
+        self.db.ratings.delete_many({})
+        submit_review(
+            self.db,
+            user=[None, user_id],
+            movie="Toy Story (1995)",
+            score=5,
+            review="Great movie!",
+        )
 
-# #         executor.execute("SELECT idUsers FROM Users WHERE username = 'testFriend'")
-# #         friend = executor.fetchall()[0][0]
-# #         movies_to_review = [
-# #             (2, 3, "1970-01-06"),
-# #             (3, 4, "1970-01-05"),
-# #             (5, 5, "1970-01-04"),
-# #             (6, 2, "1970-01-03"),
-# #             (11, 1, "1970-01-02"),
-# #             (12, 3, "1970-01-01"),
-# #         ]
-# #         for movie in movies_to_review:
-# #             executor.execute(
-# #                 "INSERT INTO Ratings(user_id, movie_id, score, review, time) \
-# #                              VALUES (%s, %s, %s, %s, %s);",
-# #                 (
-# #                     int(friend),
-# #                     int(movie[0]),
-# #                     int(movie[1]),
-# #                     "this is a great movie",
-# #                     movie[2],
-# #                 ),
-# #             )
-# #         db.commit()
-# #         app = flask.Flask(__name__)
-# #         result = []
-# #         with app.test_request_context("/"):
-# #             result = get_recent_friend_movies(db, "testFriend")
-# #         self.assertEqual(5, len(result.json))
-# #         for i, movie in enumerate(result.json):
-# #             self.assertEqual(movie["score"], movies_to_review[i][1])
+        review_doc = self.db.ratings.find_one({"user_id": ObjectId(user_id)})
 
-# #     def test_submit_review(self):
-# #         """
-# #         Test case 10
-# #         """
-# #         load_dotenv()
-# #         db = mysql.connector.connect(
-# #             user="root", password=os.getenv("DB_PASSWORD"), host="127.0.0.1"
-# #         )
-# #         executor = db.cursor()
-# #         executor.execute("USE testDB;")
-# #         create_account(db, "test@test.com", "testUser", "testPassword")
-# #         user = login_to_account(db, "testUser", "testPassword")
-# #         app = flask.Flask(__name__)
+        self.assertIsNotNone(review_doc)
+        self.assertEqual(review_doc["score"], 5)
 
-# #         result = ""
-# #         with app.test_request_context("/"):
-# #             submit_review(db, user, "Forrest Gump (1994)", 9, "testReview")
-# #             db.commit()
+    def test_get_wall_posts(self):
+        """
+        Test the function that retrieves wall posts (reviews) from all users.
+        Ensure that wall posts are returned after a review is submitted.
+        """
+        user_id = login_to_account(
+            self.db, username="testUserLogin", password="password123"
+        )
+        self.db.ratings.delete_many({})
+        submit_review(
+            self.db,
+            user=[None, user_id],
+            movie="Toy Story (1995)",
+            score=5,
+            review="Great movie!",
+        )
 
-# #             executor.execute("SELECT score FROM Ratings WHERE movie_id = 13")
-# #             result = executor.fetchall()[0][0]
-# #             self.assertEqual(9, int(result))
+        posts = get_wall_posts(self.db)
+        print(posts)
+        self.assertGreater(len(posts), 0)
+
+    def test_get_recent_movies(self):
+        """
+        Test the function that retrieves recent movies reviewed by a specific user.
+        Ensure that recent movies are returned after submitting a review.
+        """
+        user_id = login_to_account(
+            self.db, username="testUserLogin", password="password123"
+        )
+        self.db.ratings.delete_many({})
+        self.db.movies.delete_many({})
+        submit_review(
+            self.db,
+            user=[None, user_id],
+            movie="Toy Story (1995)",
+            score=10,
+            review="Great movie!",
+        )
+
+        recent_movies = get_recent_movies(self.db, user_id, self.movies_df)
+        print("test_utils", recent_movies)
+        self.assertGreater(len(recent_movies), 0)
+
+    def test_get_username(self):
+        """
+        Test the function that retrieves a user's username based on their ID.
+        Ensure that the correct username is returned for a given user ID.
+        """
+        user_id = login_to_account(
+            self.db, username="testUserLogin", password="password123"
+        )
+
+        username = get_username(self.db, user=[None, user_id])
+
+        self.assertEqual(username, "testUserLogin")
+
+    def test_add_friend_and_get_friends(self):
+        """
+        Test adding a friend and retrieving the list of friends for a user.
+        Ensure that friends are correctly added and retrieved from the database.
+        """
+        create_account(
+            self.db,
+            email="test2@example.com",
+            username="Friend1",
+            password="password123",
+        )
+        user_id_1 = login_to_account(
+            self.db, username="testUserLogin", password="password123"
+        )
+        print(user_id_1)
+        add_friend(self.db, [None, user_id_1], username="Friend1")
+
+        friends_list = get_friends(self.db, user_id_1)
+        print(friends_list)
+        friends_list = [friend["username"] for friend in friends_list]
+
+        self.assertIn("Friend1", friends_list)
+
+    def test_get_user_history(self):
+        """
+        Test retrieving a user's history of reviews and ratings.
+        Ensure that reviews submitted by a user are correctly retrieved from their history.
+        """
+        user_id_1 = login_to_account(
+            self.db, username="testUserLogin", password="password123"
+        )
+
+        submit_review(
+            self.db,
+            user=[None, user_id_1],
+            movie="Toy Story (1995)",
+            score=4,
+            review="",
+        )
+
+        history = get_user_history(self.db, user_id_1)
+
+        self.assertGreater(len(history), 0)
+
+    @patch("requests.get")
+    def test_fetch_streaming_link(self, mock_get):
+        """
+        Test fetching streaming links for movies using an external API.
+        Mock the requests.get method to simulate API responses without making real HTTP requests.
+        Ensure that the correct streaming URL is returned based on the API response.
+        """
+        mock_response = MagicMock()
+        mock_response.json.return_value = [
+            {"name": "Netflix", "web_url": "https://netflix.com"}
+        ]
+        mock_get.return_value = mock_response
+
+        url = fetch_streaming_link("tt0114709")
+
+        self.assertEqual(url, "https://netflix.com")
+
+    @classmethod
+    def tearDownClass(cls):
+        """
+        Clean up after all tests have run by deleting all
+        documents from users, movies, and ratings collections.
+        Drop the entire test database to ensure no leftover data.
+        """
+        cls.db.users.delete_many({})
+        cls.db.movies.delete_many({})
+        cls.db.ratings.delete_many({})
+        client.drop_database("testDB")
 
 
-# # if __name__ == "__main__":
-# #     unittest.main()
+if __name__ == "__main__":
+    unittest.main()

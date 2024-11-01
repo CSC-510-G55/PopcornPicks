@@ -18,8 +18,6 @@ from pymongo.errors import (
     DuplicateKeyError,
 )
 
-from bson.objectid import ObjectId
-
 from src.recommenderapp.search import Search
 
 from src.recommenderapp.client import client
@@ -46,6 +44,8 @@ from src.recommenderapp.item_based import (
 app = Flask(__name__)
 app.secret_key = "secret key"
 
+db = client.PopcornPicksDB
+
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 user = {1: None}
 # user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
@@ -66,7 +66,7 @@ def profile_page():
     """
     Renders the login page.
     """
-    get_genre_count(client, user)
+    get_genre_count(db, user)
 
     if user[1] is not None:
         return render_template("profile.html")
@@ -123,10 +123,7 @@ def predict():
 
     user_rating = [{"title": movie, "rating": 10.0} for movie in data1]
 
-    recommendations, genres, imdb_id = recommend_for_new_user(
-        user_rating, user[1], client
-    )
-
+    recommendations, genres, imdb_id = recommend_for_new_user(user_rating, user[1], db)
     web_url = []
     for element in imdb_id:
         web_url.append(fetch_streaming_link(element))
@@ -135,9 +132,8 @@ def predict():
         "recommendations": recommendations,
         "genres": genres,
         "imdb_id": imdb_id,
+        "web_url": web_url,
     }
-
-    print(resp, end="\n")
     return resp
 
 
@@ -160,7 +156,7 @@ def create_acc():
     Handles creating a new account
     """
     data = json.loads(request.data)
-    create_account(client, data["email"], data["username"], data["password"])
+    create_account(db, data["email"], data["username"], data["password"])
     return request.data
 
 
@@ -177,7 +173,8 @@ def signout():
 def login():
     """Handles user login."""
     data = json.loads(request.data)
-    resp = login_to_account(client, data["username"], data["password"])
+    resp = login_to_account(db, data["username"], data["password"])
+    user[1] = resp
     if not resp:
         return "Invalid credentials", 400
     user[1] = resp
@@ -190,7 +187,7 @@ def friend():
     Handles adding a new friend
     """
     data = json.loads(request.data)
-    add_friend(client, user, data["username"])
+    add_friend(db, user, data["username"])
     return request.data
 
 
@@ -210,7 +207,7 @@ def review():
     Handles the submission of a movie review
     """
     data = json.loads(request.data)
-    submit_review(client, user, data["movie"], data["score"], data["review"])
+    submit_review(db, user, data["movie"], data["score"], data["review"])
     return request.data
 
 
@@ -219,7 +216,7 @@ def wall_posts():
     """
     Gets the posts for the wall
     """
-    return get_wall_posts(client)
+    return get_wall_posts(db)
 
 
 @app.route("/getRecentMovies", methods=["GET"])
@@ -227,7 +224,7 @@ def recent_movies():
     """
     Gets the recent movies of the active user
     """
-    return get_recent_movies(client, user[1], movies_df)
+    return get_recent_movies(db, user[1], movies_df)
 
 
 @app.route("/getRecentFriendMovies", methods=["POST"])
@@ -237,7 +234,7 @@ def recent_friend_movies():
     """
     data = json.loads(request.data)
     user_id = ObjectId(data["friend_id"]["_id"])
-    return get_recent_friend_movies(client, user_id, movies_df)
+    return get_recent_friend_movies(db, user_id, movies_df)
 
 
 @app.route("/getUserName", methods=["GET"])
@@ -245,7 +242,7 @@ def username():
     """
     Gets the username of the active user
     """
-    return get_username(client, user)
+    return get_username(db, user)
 
 
 @app.route("/getFriends", methods=["GET"])
@@ -253,7 +250,7 @@ def get_friend():
     """
     Gets the friends of the active user
     """
-    return get_friends(client, user[1])
+    return get_friends(db, user[1])
 
 
 @app.route("/feedback", methods=["POST"])
@@ -262,6 +259,8 @@ def feedback():
     Handles user feedback submission and mails the results.
     """
     data = json.loads(request.data)
+    user_email = db.users.find_one({"_id": ObjectId(user[1])})["email"]
+    send_email_to_user(user_email, beautify_feedback_data(data))
     return data
 
 
@@ -289,12 +288,12 @@ def setup_mongodb_indexes():
     Sets up the MongoDB indexes.
     """
     try:
-        client.db.users.create_index([("username", 1)], unique=True)
-        client.db.users.create_index([("email", 1)], unique=True)
-        client.db.movies.create_index([("imdb_id", 1)], unique=True)
-        client.db.movies.create_index([("name", 1)])
-        client.db.ratings.create_index([("user_id", 1), ("time", -1)])
-        client.db.ratings.create_index([("movie_id", 1)])
+        db.users.create_index([("username", 1)], unique=True)
+        db.users.create_index([("email", 1)], unique=True)
+        db.movies.create_index([("imdb_id", 1)], unique=True)
+        db.movies.create_index([("name", 1)])
+        db.ratings.create_index([("user_id", 1), ("time", -1)])
+        db.ratings.create_index([("movie_id", 1)])
 
         print("Indexes created successfully")
     except DuplicateKeyError as e:
