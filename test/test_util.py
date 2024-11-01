@@ -49,7 +49,7 @@ class TestRecommenderApp(unittest.TestCase):
 
         cls.db.users.create_index([("username", 1)])
         cls.db.users.create_index([("email", 1)])
-        cls.db.movies.create_index([("imdb_id", 1)], unique=True)
+        cls.db.movies.create_index([("imdb_id", 1)])
         cls.db.movies.create_index([("name", 1)])
         cls.db.ratings.create_index([("user_id", 1), ("time", -1)])
         cls.db.ratings.create_index([("movie_id", 1)])
