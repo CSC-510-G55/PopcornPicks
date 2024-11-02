@@ -58,7 +58,7 @@ Checkout for project documentation [here](https://github.com/se24ncsu/PopcornPic
 
 ## Project Presentation Videos
 ### Project Overview
-[![why contribute video](https://img.youtube.com/vi/aQ1cryH4B7A/0.jpg)](https://www.youtube.com/watch?v=aQ1cryH4B7A)
+https://github.com/se24ncsu/PopcornPicks/blob/main/asset/animated_video.mp4
 
 ### New Features 2 minute demo
 [![why contribute video](https://img.youtube.com/vi/M13zDRgjNGE/0.jpg)](https://www.youtube.com/watch?v=M13zDRgjNGE)
