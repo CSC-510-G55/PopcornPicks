@@ -23,7 +23,7 @@ setuptools.setup(
     name="git-brwali",  # Replace with your own username
     version="1.0.0",
     author="Robert, Brandon, Nicholas, Nathan",
-    author_email="popcornpicks777@gmail.com",
+    author_email="popcornpicksse24@gmail.com@gmail.com",
     description="A movie recommendation engine",
     long_description=long_description,
     long_description_content_type="text/markdown",
