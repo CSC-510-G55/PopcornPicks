@@ -217,6 +217,7 @@ def wall_posts():
     """
     return get_wall_posts(db)
 
+
 @app.route("/getGenreCount", methods=["GET"])
 def genre_info():
     """
