@@ -10,6 +10,8 @@ const SearchPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [feedbackData, setFeedbackData] = useState({});
+  const [notifyMeDisabled, setNotifyMeDisabled] = useState(true);
 
   const navigate = useNavigate();
 
@@ -25,6 +27,52 @@ const SearchPage = () => {
     } catch (error) {
       console.error('Error fetching recent movies:', error);
     }
+  };
+
+  const handleFeedback = () => {
+    if (recommendedMovies.length === 0) {
+      alert("No movies found. Please add movies to provide feedback.");
+      return;
+    }
+
+    const data = {};
+    const labels = {
+      1: "Dislike",
+      2: "Yet to watch",
+      3: "Like",
+    };
+
+    let error = false;
+
+    recommendedMovies.forEach((movie, index) => {
+      const selectedRating = document.querySelector(`input[name="rating-${index}"]:checked`);
+      if (!selectedRating) {
+        error = true;
+        return;
+      }
+      data[movie.title] = labels[selectedRating.value];
+    });
+
+    if (error) {
+      alert("Please select a feedback for all movies.");
+      return;
+    }
+
+    setFeedbackData(data);
+    localStorage.setItem("fbData", JSON.stringify(data));
+    setNotifyMeDisabled(false);
+
+    axios.post('/feedback', data, {
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8'
+      }
+    })
+      .then(response => {
+        navigate('/success');
+      })
+      .catch(error => {
+        console.error("Feedback error:", error);
+      });
   };
 
   const handleSearch = async (e) => {
@@ -169,52 +217,30 @@ const SearchPage = () => {
         <div style={{ marginTop: '60px' }}>
       <h2>Recommended Movies:</h2>
       <ul style={{ listStyleType: 'none', paddingLeft: '0' }}>
-        {recommendedMovies.map((movie, index) => (
-          <li key={index} style={{
-            padding: '10px',
-            borderBottom: '1px solid #ced4da'
-          }}>
-            {movie.title}
-            {' '}
-            (<a href={`https://www.imdb.com/title/${movie.imdbId}`} target="_blank" rel="noopener noreferrer">IMDb🔗</a>)
-            {movie.webUrl && (
-              <>
-                {' '}
-                (<a href={movie.webUrl} target="_blank" rel="noopener noreferrer">Stream Here!🍿</a>)
-              </>
-            )}
-            <div className="rating-options">
-              <label>
-                <input
-                  type="radio"
-                  name={`rating-${index}`}
-                  value="3"
-                  onChange={() => handleRatingChange(index, 3)}
-                />
-                😍 Like
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name={`rating-${index}`}
-                  value="2"
-                  onChange={() => handleRatingChange(index, 2)}
-                />
-                😐 Yet to Watch
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name={`rating-${index}`}
-                  value="1"
-                  onChange={() => handleRatingChange(index, 1)}
-                />
-                😤 Dislike
-              </label>
-            </div>
-          </li>
-        ))}
-      </ul>
+          {recommendedMovies.map((movie, index) => (
+            <li key={index} style={{ padding: '10px', borderBottom: '1px solid #ced4da' }}>
+              {movie.title} {' '}
+              (<a href={`https://www.imdb.com/title/${movie.imdbId}`} target="_blank" rel="noopener noreferrer">IMDb🔗</a>)
+              {movie.webUrl && (
+                <> {' '} (<a href={movie.webUrl} target="_blank" rel="noopener noreferrer">Stream Here!🍿</a>) </>
+              )}
+              <div className="rating-options">
+                <label>
+                  <input type="radio" name={`rating-${index}`} value="3" onChange={() => handleRatingChange(index, 3)} />
+                  😍 Like
+                </label>
+                <label>
+                  <input type="radio" name={`rating-${index}`} value="2" onChange={() => handleRatingChange(index, 2)} />
+                  😐 Yet to Watch
+                </label>
+                <label>
+                  <input type="radio" name={`rating-${index}`} value="1" onChange={() => handleRatingChange(index, 1)} />
+                  😤 Dislike
+                </label>
+              </div>
+            </li>
+          ))}
+        </ul>
     </div>
 
         {isLoading && (
@@ -229,6 +255,10 @@ const SearchPage = () => {
         )}
 
         {/* Additional buttons or feedback sections can be added here */}
+        {/* Feedback button */}
+      <button onClick={handleFeedback} style={{ marginTop: '20px', padding: '10px 20px' }}>
+        Submit Feedback
+      </button>
         
         {/* "Return home" button */}
         <button onClick={() => navigate('/landing')} className="btn btn-primary mx-auto" style={{
