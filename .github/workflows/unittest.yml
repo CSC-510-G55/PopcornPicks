@@ -7,6 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MONGO_URI: ${{ secrets.MONGO_URI }}
+      APP_PASSWORD: ${{ secrets.APP_PASSWORD }}
 
     steps:
       - name: Checkout code
