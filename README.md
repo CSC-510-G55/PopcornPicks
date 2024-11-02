@@ -1,9 +1,9 @@
 # <i> PopcornPicks🍿: Your Destination for Movie Recommendations </i>
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/se24ncsu/PopcornPicks/graphs/commit-activity) [![Contributors Activity](https://img.shields.io/github/commit-activity/m/se24ncsu/PopcornPicks)](https://github.com/se24ncsu/PopcornPicks/pulse) [![GitHub issues](https://img.shields.io/github/issues/se24ncsu/PopcornPicks.svg)](https://github.com/se24ncsu/PopcornPicks/issues?q=is%3Aopen+is%3Aissue) [![GitHub issues-closed](https://img.shields.io/github/issues-closed/se24ncsu/PopcornPicks.svg)](https://github.com/se24ncsu/PopcornPicks/issues?q=is%3Aissue+is%3Aclosed) ![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/se24ncsu/PopcornPicks) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![License: MIT](https://img.shields.io/badge/License-MIT-red.svg)](https://opensource.org/licenses/MIT) [![Unittest](https://github.com/se24ncsu/PopcornPicks/actions/workflows/unittest.yml/badge.svg?branch=master&event=push)](https://github.com/se24ncsu/PopcornPicks/actions/workflows/unittest.yml) [![codecov](https://codecov.io/gh/se24ncsu/PopcornPicks/graph/badge.svg?token=0XN6K2DMGS)](https://codecov.io/gh/se24ncsu/PopcornPicks) [![GitHub release](https://img.shields.io/github/release/se24ncsu/PopcornPicks.svg)](https://github.com/se24ncsu/PopcornPicksreleases/) [![StyleCheck: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint) [![HitCount](https://hits.dwyl.com/se24ncsu/PopcornPicks.svg)](https://hits.dwyl.com/se24ncsu/PopcornPicks) ![GitHub contributors](https://img.shields.io/github/contributors/se24ncsu/PopcornPicks) ![GitHub Release Date - Published_At](https://img.shields.io/github/release-date/se24ncsu/PopcornPicks) ![GitHub repo size](https://img.shields.io/github/repo-size/se24ncsu/PopcornPicks) [![Black](https://github.com/se24ncsu/PopcornPicks/actions/workflows/black.yml/badge.svg)](https://github.com/se24ncsu/PopcornPicks/actions/workflows/black.yml) [![Maintainability](https://api.codeclimate.com/v1/badges/260d558f17ae5e1027e5/maintainability)](https://codeclimate.com/github/se24ncsu/PopcornPicks/maintainability) [![GitHub closed issues by-label](https://img.shields.io/github/issues-closed-raw/se24ncsu/PopcornPicks/bug?color=green&label=Squished%20bugs)](https://github.com/se24ncsu/PopcornPicks/issues?q=is%3Aissue+label%3Abug+is%3Aclosed) ![Discord](https://img.shields.io/discord/1143966088695124110) [![DOI](https://zenodo.org/badge/713118657.svg)](https://zenodo.org/doi/10.5281/zenodo.10210915)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/se24ncsu/PopcornPicks/graphs/commit-activity) [![Contributors Activity](https://img.shields.io/github/commit-activity/m/se24ncsu/PopcornPicks)](https://github.com/se24ncsu/PopcornPicks/pulse) [![GitHub issues](https://img.shields.io/github/issues/se24ncsu/PopcornPicks.svg)](https://github.com/se24ncsu/PopcornPicks/issues?q=is%3Aopen+is%3Aissue) [![GitHub issues-closed](https://img.shields.io/github/issues-closed/se24ncsu/PopcornPicks.svg)](https://github.com/se24ncsu/PopcornPicks/issues?q=is%3Aissue+is%3Aclosed) ![GitHub closed pull requests](https://img.shields.io/github/issues-pr-closed/se24ncsu/PopcornPicks) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com) [![License: MIT](https://img.shields.io/badge/License-MIT-red.svg)](https://opensource.org/licenses/MIT) [![Unittest](https://github.com/se24ncsu/PopcornPicks/actions/workflows/unittest.yml/badge.svg?branch=main&event=push)](https://github.com/se24ncsu/PopcornPicks/actions/workflows/unittest.yml) [![codecov](https://codecov.io/gh/se24ncsu/PopcornPicks/graph/badge.svg?token=0XN6K2DMGS)](https://codecov.io/gh/se24ncsu/PopcornPicks) [![GitHub release](https://img.shields.io/github/release/se24ncsu/PopcornPicks.svg)](https://github.com/se24ncsu/PopcornPicksreleases/) [![StyleCheck: pylint](https://img.shields.io/badge/linting-pylint-yellowgreen)](https://github.com/pylint-dev/pylint) [![HitCount](https://hits.dwyl.com/se24ncsu/PopcornPicks.svg)](https://hits.dwyl.com/se24ncsu/PopcornPicks) ![GitHub contributors](https://img.shields.io/github/contributors/se24ncsu/PopcornPicks) ![GitHub Release Date - Published_At](https://img.shields.io/github/release-date/se24ncsu/PopcornPicks) ![GitHub repo size](https://img.shields.io/github/repo-size/se24ncsu/PopcornPicks) [![Black](https://github.com/se24ncsu/PopcornPicks/actions/workflows/black.yml/badge.svg)](https://github.com/se24ncsu/PopcornPicks/actions/workflows/black.yml) [![Maintainability](https://api.codeclimate.com/v1/badges/260d558f17ae5e1027e5/maintainability)](https://codeclimate.com/github/se24ncsu/PopcornPicks/maintainability) [![GitHub closed issues by-label](https://img.shields.io/github/issues-closed-raw/se24ncsu/PopcornPicks/bug?color=green&label=Squished%20bugs)](https://github.com/se24ncsu/PopcornPicks/issues?q=is%3Aissue+label%3Abug+is%3Aclosed) ![Discord](https://img.shields.io/discord/1143966088695124110) [![DOI](https://zenodo.org/badge/713118657.svg)](https://zenodo.org/doi/10.5281/zenodo.10210915)
   
 
   
-<img src="https://github.com/se24ncsu/PopcornPicks/blob/master/asset/header_display.png" alt="drawing" style="width:1000px;"/>
+<img src="https://github.com/se24ncsu/PopcornPicks/blob/main/asset/header_display.png" alt="drawing" style="width:1000px;"/>
 <b>PopcornPicks is more than just a movie recommender system; it's a gateway to a world of cinematic adventures. With an ever-expanding library of films and a powerful recommendation algorithm, PopcornPicks is here to transform the way you discover, enjoy, and connect with movies.</b>
 
 # Contents  
@@ -48,7 +48,7 @@ PopcornPicks: Your movie recommender! Input movies, get tailored suggestions, an
 - **Simple:** Easy installation and setup – start discovering great movies in no time!"
 
 ## Documentation
-Checkout for project documentation [here](https://github.com/se24ncsu/PopcornPicks/tree/master/docs)
+Checkout for project documentation [here](https://github.com/se24ncsu/PopcornPicks/tree/main/docs)
 
 ## Project Presentation Videos
 ### New Features 2 minute demo
@@ -59,15 +59,15 @@ Checkout for project documentation [here](https://github.com/se24ncsu/PopcornPic
 
 
 ## Project Description
-PopcornPicks is a user-friendly movie recommender that curates a tailored list of 10 movie predictions based on user-provided movie preferences. Users can input their favorite movies, and our algorithm refines recommendations based on feedback—Liked, Disliked, or Yet To Watch. Additionally, PopcornPicks offers the convenience of emailing the recommended movies, enhancing the movie-watching experience. For the system architecture and other details, please refer to our documentation [here](https://github.com/se24ncsu/PopcornPicks/tree/master/docs)
+PopcornPicks is a user-friendly movie recommender that curates a tailored list of 10 movie predictions based on user-provided movie preferences. Users can input their favorite movies, and our algorithm refines recommendations based on feedback—Liked, Disliked, or Yet To Watch. Additionally, PopcornPicks offers the convenience of emailing the recommended movies, enhancing the movie-watching experience. For the system architecture and other details, please refer to our documentation [here](https://github.com/se24ncsu/PopcornPicks/tree/main/docs)
 
 ## What docs
 View our documentation outlining each class and function of PopcornPicks here
-- [Backend](https://github.com/se24ncsu/PopcornPicks/blob/master/docs/backend.md)
-- [Frontend](https://github.com/se24ncsu/PopcornPicks/blob/master/docs/frontend.md)
-- [Testing](https://github.com/se24ncsu/PopcornPicks/blob/master/docs/testing.md)
+- [Backend](https://github.com/se24ncsu/PopcornPicks/blob/main/docs/backend.md)
+- [Frontend](https://github.com/se24ncsu/PopcornPicks/blob/main/docs/frontend.md)
+- [Testing](https://github.com/se24ncsu/PopcornPicks/blob/main/docs/testing.md)
 
-View our autogenerated doco here [Doco](https://github.com/se24ncsu/PopcornPicks/blob/master/docs/generated_docs/)
+View our autogenerated doco here [Doco](https://github.com/se24ncsu/PopcornPicks/blob/main/docs/generated_docs/)
 
 ## How docs
 
@@ -75,40 +75,40 @@ View our autogenerated doco here [Doco](https://github.com/se24ncsu/PopcornPicks
 #### (Modified in project 3)
 **The user selects upto 5 movies to get a tailored watchlist and provide feedback for the same**
   
-<img src="https://github.com/se24ncsu/PopcornPicks/blob/master/asset/recommend_mechanism.gif" width="600" height="375">
+<img src="https://github.com/se24ncsu/PopcornPicks/blob/main/asset/recommend_mechanism.gif" width="600" height="375">
 
 ### Email Notifier
 **The user sends his/her movies feedback via an email (Notify Me button)**
   
 <div style="display: flex; justify-content: space-between;">
-    <img src="https://github.com/se24ncsu/PopcornPicks/blob/master/asset/email_notifier.gif" alt="Email Notifier" width="600" height="375">
-    <img src="https://github.com/se24ncsu/PopcornPicks/blob/master/asset/email.png" alt="Email" width="400" height="400">
+    <img src="https://github.com/se24ncsu/PopcornPicks/blob/main/asset/email_notifier.gif" alt="Email Notifier" width="600" height="375">
+    <img src="https://github.com/se24ncsu/PopcornPicks/blob/main/asset/email.png" alt="Email" width="400" height="400">
 </div>
 
 ### Create an Account
 #### (NEW in project 3)
 **Users can now create accounts, persisting data including their movie reviews and recommendations**
-<img src="https://github.com/se24ncsu/PopcornPicks/blob/master/asset/create_account.gif" width="600" height="375">
+<img src="https://github.com/se24ncsu/PopcornPicks/blob/main/asset/create_account.gif" width="600" height="375">
 
 ### Login to account
 #### (NEW in project 3)
 **The user can log in to their account securly with encrypted passwords stored in our database**
-<img src="https://github.com/se24ncsu/PopcornPicks/blob/master/asset/login.gif" width="600" height="375">
+<img src="https://github.com/se24ncsu/PopcornPicks/blob/main/asset/login.gif" width="600" height="375">
 
 ### Profile and Friends
 #### (NEW in project 3)
 **The user can add friends, view the movies reviewed by the friends, and see their reviewed movies in their profile**
-<img src="https://github.com/se24ncsu/PopcornPicks/blob/master/asset/profile.gif" width="600" height="375">
+<img src="https://github.com/se24ncsu/PopcornPicks/blob/main/asset/profile.gif" width="600" height="375">
 
 ### Wall
 #### (NEW in project 3)
 **The user can interact with other users, by viewing a community sourced wall of recent moview reviews**
-<img src="https://github.com/se24ncsu/PopcornPicks/blob/master/asset/wall.gif" width="600" height="375">
+<img src="https://github.com/se24ncsu/PopcornPicks/blob/main/asset/wall.gif" width="600" height="375">
 
 ## Project 3 Delta
-Check out the significant changes that we made for Project 3 [here](https://github.com/se24ncsu/PopcornPicks/blob/master/proj3/Proj3Changes.md)
+Check out the significant changes that we made for Project 2 [here](https://github.com/se24ncsu/PopcornPicks/blob/main/proj2/Proj2Changes.md)
 
-Our grading scorecard can be found [here](https://github.com/se24ncsu/PopcornPicks/blob/master/proj3/README.md)
+Our grading scorecard can be found [here](https://github.com/se24ncsu/PopcornPicks/blob/main/proj2/README.md)
 
 ## Tech stack Used👨‍💻:
 
@@ -148,7 +148,7 @@ Our grading scorecard can be found [here](https://github.com/se24ncsu/PopcornPic
  Step 2:
    Follow the setup instructions in the installation documentation
    
-    https://github.com/se24ncsu/PopcornPicks/blob/master/docs/install.md
+    https://github.com/se24ncsu/PopcornPicks/blob/main/docs/install.md
     
     
 <b>Finally, start enjoying personalized movie recommendations!</b>
@@ -169,7 +169,7 @@ The future of PopcornPicks is full of potential, and we invite developers, movie
 
 ## Contribute to the Project!
 
-Please refer to the [CONTRIBUTING.md](https://github.com/se24ncsu/PopcornPicks/blob/master/CONTRIBUTING.md) if you want to contribute to the PopcornPicks source code. Follow all the guidelines mentioned in the same and raise a pull request, we would love to look at it ❤️❤️!
+Please refer to the [CONTRIBUTING.md](https://github.com/se24ncsu/PopcornPicks/blob/main/CONTRIBUTING.md) if you want to contribute to the PopcornPicks source code. Follow all the guidelines mentioned in the same and raise a pull request, we would love to look at it ❤️❤️!
 
 ## Contributors
 <table>

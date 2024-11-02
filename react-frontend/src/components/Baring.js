@@ -46,7 +46,7 @@ const Baring = () => {
       };
     // Fetch genre data from the backend
     useEffect(() => {
-        fetch('/getGenreCount')
+        fetch(`${API_BASE_URL}/getGenreCount`)
             .then(response => response.json())
             .then(data => setGenreData(data))
             .catch(error => console.error('Error fetching genre data:', error));
