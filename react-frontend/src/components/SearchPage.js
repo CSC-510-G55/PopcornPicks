@@ -68,7 +68,7 @@ const SearchPage = () => {
       }
     })
       .then(response => {
-        navigate('/success');
+        navigate('/search_page');
       })
       .catch(error => {
         console.error("Feedback error:", error);
@@ -219,7 +219,7 @@ const SearchPage = () => {
       <h2 style={{color: 'white'}}>Recommended Movies:</h2>
       <ul style={{ listStyleType: 'none', paddingLeft: '0' }}>
           {recommendedMovies.map((movie, index) => (
-            <li key={index} style={{ padding: '10px', borderBottom: '1px solid #ced4da' }}>
+            <li key={index} style={{ padding: '10px', borderBottom: '1px solid #ced4da',color: 'white' }}>
               {movie.title} {' '}
               (<a href={`https://www.imdb.com/title/${movie.imdbId}`} target="_blank" rel="noopener noreferrer">IMDb🔗</a>)
               {movie.webUrl && (
@@ -257,7 +257,7 @@ const SearchPage = () => {
 
         {/* Additional buttons or feedback sections can be added here */}
         {/* Feedback button */}
-      <button onClick={handleFeedback} style={{ marginTop: '20px', padding: '10px 20px' }}>
+      <button onClick={handleFeedback} className='btn btn-primary mx-auto' style={{ marginTop: '20px', padding: '10px 20px' }}>
         Submit Feedback
       </button>
         
