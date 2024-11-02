@@ -193,7 +193,7 @@ class TestRecommenderApp(unittest.TestCase):
             self.db, username="testUserLogin", password="password123"
         )
         username = get_username(self.db, user=[None, user_id])
-        #self.assertEqual(username, "testUserLogin")
+        # self.assertEqual(username, "testUserLogin")
 
     def test_add_friend_and_get_friends(self):
         """Test adding and retrieving friends."""

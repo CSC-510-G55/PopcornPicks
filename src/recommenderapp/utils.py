@@ -30,6 +30,7 @@ project_dir = os.path.dirname(code_dir)
 
 load_dotenv()
 
+
 def load_movies():
     """Load movies data from CSV."""
     return pd.read_csv(os.path.join("data", "movies.csv"))
@@ -123,7 +124,7 @@ def send_email_to_user(recipient_email, categorized_data):
     smtp_server = "smtp.gmail.com"
     smtp_port = 587
     sender_email = "shrimadh332001@gmail.com"
-    sender_password = os.getenv('APP_PASSWORD')
+    sender_password = os.getenv("APP_PASSWORD")
 
     # Verify that environment variables are set
     if not sender_email or not sender_password:
