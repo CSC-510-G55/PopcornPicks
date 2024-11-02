@@ -87,6 +87,10 @@ const Landing = () => {
             </button>
             <button 
               className="btn btn-primary m-2"
+              onClick={() => handleNavigation('/dashboard')}
+            >Dashboard</button>
+            <button 
+              className="btn btn-primary m-2"
               onClick={() => handleNavigation('/profile')}
             >
               Profile
