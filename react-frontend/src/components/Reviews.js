@@ -211,7 +211,7 @@ const ReviewPage = () => {
                 key={index}
                 style={{
                   ...styles.star,
-                  backgroundImage: `url(${index < rating ? '/static/filledstar.png' : '/static/unfilledstar.png'})`,
+                  backgroundImage: `url(${index < rating ? '/filledstar.png' : '/unfilledstar.png'})`,
                 }}
                 onClick={() => handleRatingChange(index + 1)}
               />
