@@ -132,7 +132,7 @@ const ProfilePage = () => {
     <>
     <nav className="navbar navbar-expand-lg navbar-dark bg-dark topNavBar fixed-top">
         <div className="container-fluid">
-          <a className="navbar-brand" href="#">PopcornPicks🍿</a>
+          <a className="navbar-brand" href="/landing">PopcornPicks🍿</a>
           <button type="button" id="signOut" onClick={handleSignOut} style={{backgroundColor: 'transparent', color: 'white', width: '5%'}}>Sign Out</button>
         </div>
       </nav>

@@ -14,6 +14,7 @@ const SearchPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [feedbackData, setFeedbackData] = useState({});
   const [notifyMeDisabled, setNotifyMeDisabled] = useState(true);
+  const [view, setView] = useState(true);
 
   const navigate = useNavigate();
 
@@ -21,7 +22,9 @@ const SearchPage = () => {
     getRecentMovies();
     // window.location.href = 'https://disreputable-seance-wxrx9qjxv67hvjxv-3000.app.github.dev/search_page';
   }, []);
-
+  const handleView = () => {
+    setView(false)
+  };
   const getRecentMovies = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/getRecentMovies`);
@@ -70,7 +73,10 @@ const SearchPage = () => {
       }
     })
       .then(response => {
-        navigate('/success');
+        if (response.status === 200) {
+          navigate('/success');
+        }
+        
       })
       .catch(error => {
         console.error("Feedback error:", error);
@@ -111,6 +117,7 @@ const SearchPage = () => {
     }
 
     setIsLoading(true);
+    handleView();
     setRecommendedMovies([]);
 
     try {
@@ -142,14 +149,15 @@ const SearchPage = () => {
   };
 
   return (
+    
     <div>
       <nav style={{ backgroundColor: '#343a40', color: 'white', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 20px' }}>
-          <a href="#" style={{ color: 'white', textDecoration: 'none', fontSize: '1.25rem' }}>PopcornPicks🍿</a>
+          <a href="/landing" style={{ color: 'white', textDecoration: 'none', fontSize: '1.25rem' }}>PopcornPicks🍿</a>
           <button onClick={handleSignOut} style={{ backgroundColor: 'transparent', color: 'white', border: 'none', cursor: 'pointer' }}>Sign Out</button>
         </div>
       </nav>
-
+      { view && (
       <div style={{ marginTop: '60px', padding: '20px' }}>
         <div style={{ textAlign: 'center' }}>
           <h2 style={{ marginBottom: '5px' , color: 'white'}}>🎬 Pick a Movie! 🎬</h2>
@@ -177,7 +185,7 @@ const SearchPage = () => {
                 />
                 <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
                   {selectedMovies.map((movie, index) => (
-                    <li key={index} style={{ padding: '10px', borderBottom: '1px solid #ced4da' }}>
+                    <li key={index} style={{ padding: '10px', borderBottom: '1px solid #ced4da', color: 'white' }}>
                       {movie}
                       <button onClick={() => setSelectedMovies(selectedMovies.filter(m => m !== movie))} style={{
                         float: 'right',
@@ -216,12 +224,14 @@ const SearchPage = () => {
             </ul>
           </div>
         </div>
-
+      </div>
+      )}
+      <div>
         <div style={{ marginTop: '60px' }}>
       <h2 style={{color: 'white'}}>Recommended Movies:</h2>
       <ul style={{ listStyleType: 'none', paddingLeft: '0' }}>
           {recommendedMovies.map((movie, index) => (
-            <li key={index} style={{ padding: '10px', borderBottom: '1px solid #ced4da' }}>
+            <li key={index} style={{ padding: '10px', borderBottom: '1px solid #ced4da',color: 'white' }}>
               {movie.title} {' '}
               (<a href={`https://www.imdb.com/title/${movie.imdbId}`} target="_blank" rel="noopener noreferrer">IMDb🔗</a>)
               {movie.webUrl && (
@@ -245,7 +255,7 @@ const SearchPage = () => {
           ))}
         </ul>
     </div>
-
+      
         {isLoading && (
           <div id="loaderLogin">
           <center>
@@ -259,7 +269,7 @@ const SearchPage = () => {
 
         {/* Additional buttons or feedback sections can be added here */}
         {/* Feedback button */}
-      <button onClick={handleFeedback} style={{ marginTop: '20px', padding: '10px 20px' }}>
+      <button onClick={handleFeedback} className='btn btn-primary mx-auto' style={{ marginTop: '20px', padding: '10px 20px' }}>
         Submit Feedback
       </button>
         
@@ -271,6 +281,7 @@ const SearchPage = () => {
 
       </div>
     </div>
+      
   );
 };
 

@@ -5,8 +5,8 @@ import ProfilePage from './components/Profile';
 import Landing from './components/Landing';
 import Baring from './components/Baring';
 import SearchPage from './components/SearchPage';
-import SearchPageRedirect from './components/SearchPageRedirect';
 import ReviewPage from './components/Reviews';
+import SuccessPage from './components/Success';
 
 
 function App() {
@@ -20,6 +20,7 @@ function App() {
         <Route path='/dashboard' element={<Baring />} />
         <Route path='/search_page' element={<SearchPage />} />
         <Route path='/reviews' element={<ReviewPage />} />
+        <Route path='/success' element={<SuccessPage />} />
       </Routes>
     </Router>
   );
