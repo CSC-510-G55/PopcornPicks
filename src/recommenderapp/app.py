@@ -66,7 +66,6 @@ def profile_page():
     """
     Renders the login page.
     """
-    get_genre_count(db, user)
 
     if user[1] is not None:
         return render_template("profile.html")
@@ -217,6 +216,14 @@ def wall_posts():
     Gets the posts for the wall
     """
     return get_wall_posts(db)
+
+
+@app.route("/getGenreCount", methods=["GET"])
+def genre_info():
+    """
+    Gets the genres for movies watched by user.
+    """
+    return get_genre_count(db, user)
 
 
 @app.route("/getRecentMovies", methods=["GET"])
