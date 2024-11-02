@@ -177,7 +177,7 @@ Our grading scorecard can be found [here](https://github.com/se24ncsu/PopcornPic
  OR 
  
  Step 1:
-   Use docker image present at https://drive.google.com/file/d/14ofAh84cE1sCS8k8yHVbWzRlIa1KDRhb/view?usp=share_link and use
+   Use docker image present at [Docker Image](https://drive.google.com/file/d/14ofAh84cE1sCS8k8yHVbWzRlIa1KDRhb/view?usp=share_link) and use
 
    docker save -o popcorn.tar popcorn
 
