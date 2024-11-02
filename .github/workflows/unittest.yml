@@ -3,7 +3,7 @@ name: Tests
 on: [push]
 
 jobs:
-  upload-coverage:
+  unittest:
     runs-on: ubuntu-latest
     env:
       MONGO_URI: ${{ secrets.MONGO_URI }}
@@ -28,4 +28,6 @@ jobs:
           echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
 
       - name: Test with pytest
-        run: pytest --tb=line
+        run: |
+          pytest -v
+          python -c "import os;from pymongo import MongoClient; client = MongoClient(os.getenv('MONGO_URI')); client.testDB.movies.drop(); client.close()"

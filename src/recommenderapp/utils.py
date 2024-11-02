@@ -277,7 +277,7 @@ def submit_review(db, user, movie, score, review):
             }
 
             db.movies.insert_one(movie_doc)
-
+        print(movie_doc)
         if not movie_doc:
             raise PyMongoError("Movie not found in database or CSV")
 
@@ -288,7 +288,7 @@ def submit_review(db, user, movie, score, review):
             "review": review,
             "time": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
         }
-
+        print(review_doc)
         db.ratings.insert_one(review_doc)
 
     except Exception as e:
