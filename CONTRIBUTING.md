@@ -13,61 +13,57 @@
 * Help us to scale the system to a larger database
 * To run the email notifier feature - make your own Gmail account and password and replace the same in the utils.py(function: send_email_to_user(recipient_email, categorized_data))
 
-## Our Table Of Contents
+Here's the modified markdown table of contents matching your project structure:
 
-- .github/workflows  
-  - all GitHub workflow YAML files
-    
-- proj3  
-   - README.md
-   - Proj3Changes.md
-     
-- src  
-  - prediction_scripts    
-     - item_based.py   
-  - recommenderapp
-    - static
-      - script.js
-      - stylesheet.css
-      - wall.js
-    - templates
-      - landing_page.html
-      - login.html
-      - profile.html
-      - review.html
-      - search_page.html
-      - success.html
-      - wall.html
-    - app.py
-    - search.py
-    - utils.py
-  - init.sql
-  - movies.sql
-  
-- test  
-    - test_predict.py  
-    - test_search.py  
-    - test_util.py  
-  
-- .gitignore
+# Project Structure
 
-- CHAT.md
+## Source Code
+- `src/`
+  - `prediction_scripts/`
+    - `item_based.py`
+  - `recommenderapp/`
+    - `static/`
+      - `script.js`
+      - `stylesheet.css`
+      - `wall.js`
+    - `templates/`
+      - `landing_page.html`
+      - `login.html`
+      - `profile.html`
+      - `review.html`
+      - `search_page.html`
+      - `success.html`
+      - `wall.html`
+    - `app.py`
+    - `search.py`
+    - `utils.py`
+  - `init.sql`
+  - `movies.sql`
 
-- CITATION.md
+## Tests
+- `test/`
+  - `test_predict.py`
+  - `test_search.py`
+  - `test_util.py`
 
-- CODE_OF_CONDUCT.md
+## GitHub Workflows
+- `.github/workflows/`
+  - *GitHub workflow YAML files*
 
-- CONTRIBUTING.md
+## Project Documentation
+- `README.md`
+- `Proj3Changes.md`
+- `CONTRIBUTING.md`
+- `CODE_OF_CONDUCT.md`
+- `CITATION.md`
+- `CHAT.md`
+- `Dependencies.md`
+- `LICENSE`
 
-- Dependencies.md
-
-- LICENSE
-
-- README.md
-
-- requirements.txt
-
-- setup.py
+## Configuration Files
+- `.gitignore`
+- `requirements.txt`
+- `setup.py`
 
 ## Suggesting Enhancements
 
@@ -104,7 +100,7 @@ Any suggested enhancements like adding new features or improving existing functi
 
 ## Code of Conduct:
 
-* Please go through the [Code of Conduct](https://github.com/brwali/PopcornPicks/blob/master/CODE_OF_CONDUCT.md) before you begin contributing. This project and everyone participating in it is governed by the Code of Conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to popcornpicks777@gmail.com.
+* Please go through the [Code of Conduct](https://github.com/brwali/PopcornPicks/blob/master/CODE_OF_CONDUCT.md) before you begin contributing. This project and everyone participating in it is governed by the Code of Conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to popcornpicksse24@gmail.com.
 
 ## Pull Request Submission Guidelines
 
@@ -117,7 +113,7 @@ Any suggested enhancements like adding new features or improving existing functi
 
 ## Code Style Guide 
 
-* Python language(Version 3.x) has been used to build this project repository
+* Python language(Version 3.9) has been used to build this project repository
 * Make sure to add the functionalities in the form of modules
 * Any code that is not tested should be committed to the test codes in the code folder. After they are successfully tested, the  main code can be updated.
 * Variable names should be self-explanatory
