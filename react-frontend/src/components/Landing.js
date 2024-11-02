@@ -23,7 +23,7 @@ const Landing = () => {
         // Navigate to the home page after a short delay
         setTimeout(() => {
           navigate('/');
-        }, 1000);
+        }, 500);
       }
     } catch (error) {
       console.error('Sign out error:', error);

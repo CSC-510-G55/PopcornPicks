@@ -6,6 +6,7 @@ import ProfilePage from './components/Profile';
 import Landing from './components/Landing';
 import SearchPage from './components/SearchPage';
 import SearchPageRedirect from './components/SearchPageRedirect';
+import ReviewPage from './components/Reviews';
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path='/profile' element={<ProfilePage />} />
         <Route path='/landing' element={<Landing />} />
         <Route path='/search_page' element={<SearchPage />} />
+        <Route path='/reviews' element={<ReviewPage />} />
       </Routes>
     </Router>
   );
