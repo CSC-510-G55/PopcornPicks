@@ -1,6 +1,6 @@
 ## Contributing:
 
-* If you would like to contribute and collaborate with this repository, then please inform us through email at popcornpicks777@gmail.com.
+* If you would like to contribute and collaborate with this repository, then please inform us through email at popcornpicksse24@gmail.com@gmail.com.
 
 ## Purpose of Contributing:
 
@@ -13,11 +13,19 @@
 * Help us to scale the system to a larger database
 * To run the email notifier feature - make your own Gmail account and password and replace the same in the utils.py(function: send_email_to_user(recipient_email, categorized_data))
 
-Here's the modified markdown table of contents matching your project structure:
-
 # Project Structure
 
 ## Source Code
+-`react-frontend`
+  - `src/`
+    - `components`
+      - `Landing.js`
+      - `LoginPage.js`
+      - `Profile.js`
+      - `Reviews.js`
+      - `SearchPage.js`
+      - `Wall.js`
+    - `App.js`
 - `src/`
   - `prediction_scripts/`
     - `item_based.py`
@@ -37,8 +45,7 @@ Here's the modified markdown table of contents matching your project structure:
     - `app.py`
     - `search.py`
     - `utils.py`
-  - `init.sql`
-  - `movies.sql`
+    - `client.py`
 
 ## Tests
 - `test/`
@@ -52,7 +59,7 @@ Here's the modified markdown table of contents matching your project structure:
 
 ## Project Documentation
 - `README.md`
-- `Proj3Changes.md`
+- `Proj2Changes.md`
 - `CONTRIBUTING.md`
 - `CODE_OF_CONDUCT.md`
 - `CITATION.md`
@@ -100,7 +107,7 @@ Any suggested enhancements like adding new features or improving existing functi
 
 ## Code of Conduct:
 
-* Please go through the [Code of Conduct](https://github.com/brwali/PopcornPicks/blob/master/CODE_OF_CONDUCT.md) before you begin contributing. This project and everyone participating in it is governed by the Code of Conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to popcornpicksse24@gmail.com.
+* Please go through the [Code of Conduct](https://github.com/se24ncsu/PopcornPicks/blob/main/CODE_OF_CONDUCT.md) before you begin contributing. This project and everyone participating in it is governed by the Code of Conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to popcornpicksse24@gmail.com.
 
 ## Pull Request Submission Guidelines
 
