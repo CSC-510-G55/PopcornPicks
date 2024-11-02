@@ -202,10 +202,6 @@ def send_email_to_user(recipient_email, categorized_data):
     except SMTPException as e:
         logging.error("SMTP error while sending email: %s", str(e))
         raise
-    except Exception as e:
-        logging.error("Unexpected error while sending email: %s", str(e))
-        raise
-
 
 def create_account(db, email, username, password):
     """Utility function for creating an account"""
@@ -229,15 +225,10 @@ def add_friend(db, user, username):
     """
     Utility function for adding a friend
     """
-    try:
-        db.users.update_one(
-            {"_id": ObjectId(user[1])}, {"$addToSet": {"friends": username}}
-        )
-        return True
-    except PyMongoError as e:
-        print(f"Error adding friend: {str(e)}")
-        return False
-
+    db.users.update_one(
+        {"_id": ObjectId(user[1])}, {"$addToSet": {"friends": username}}
+    )
+    return True
 
 def login_to_account(db, username, password):
     """
@@ -257,43 +248,30 @@ def submit_review(db, user, movie, score, review):
     """
     Utility function for creating a dictionary for submitting a review
     """
-    try:
-        movie_doc = db.movies.find_one({"name": movie})
+    movie_doc = db.movies.find_one({"name": movie})
 
-        if not movie_doc:
-            csv_path = os.path.join("data/movies.csv")
-            df = pd.read_csv(csv_path)
-            print(df.head())
-            movie_row = df[df["title"] == movie]
-            print(movie, movie_row)
+    if not movie_doc:
+        csv_path = os.path.join("data/movies.csv")
+        df = pd.read_csv(csv_path)
+        movie_row = df[df["title"] == movie]
 
-            if movie_row.empty:
-                raise PyMongoError("Movie not found in CSV")
-
-            movie_doc = {
-                "_id": int(movie_row.iloc[0]["movieId"]),
-                "name": movie,
-                "imdb_id": movie_row.iloc[0]["imdb_id"],
-            }
-
-            db.movies.insert_one(movie_doc)
-        print(movie_doc)
-        if not movie_doc:
-            raise PyMongoError("Movie not found in database or CSV")
-
-        review_doc = {
-            "user_id": ObjectId(user[1]),
-            "movie_id": movie_doc["_id"],
-            "score": score,
-            "review": review,
-            "time": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
+        movie_doc = {
+            "_id": int(movie_row.iloc[0]["movieId"]),
+            "name": movie,
+            "imdb_id": movie_row.iloc[0]["imdb_id"],
         }
-        print(review_doc)
-        db.ratings.insert_one(review_doc)
 
-    except Exception as e:
-        print(f"Error submitting review: {str(e)}")
-        raise
+        db.movies.insert_one(movie_doc)
+
+    review_doc = {
+        "user_id": ObjectId(user[1]),
+        "movie_id": movie_doc["_id"],
+        "score": score,
+        "review": review,
+        "time": datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S"),
+    }
+
+    db.ratings.insert_one(review_doc)
 
 
 def get_wall_posts(db):
@@ -391,58 +369,47 @@ def get_recent_movies(db, user_id, movies_df):
     """
     Gets the recent movies of the active user with their names and ratings.
     """
-    try:
-        user_id = ObjectId(user_id)
-        movies = list(db.ratings.find({"user_id": user_id}).sort("_id", -1))
-        print(movies)
-        if not movies:
-            return json.dumps([])
-        movie_data = [
-            {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
-        ]
-        ratings_df = pd.DataFrame(movie_data)
-        merged_df = pd.merge(
-            ratings_df, movies_df, how="left", left_on="movie_id", right_on="movieId"
-        )
-        recent_movies_list = merged_df[["title", "score"]].to_dict(orient="records")
-        return json.dumps(recent_movies_list)
-    except PyMongoError as e:
-        print(f"Database error retrieving recent movies: {str(e)}")
-        return json.dumps({"error": "Database error occurred"})
+    user_id = ObjectId(user_id)
+    movies = list(db.ratings.find({"user_id": user_id}).sort("_id", -1))
+    print(movies)
+    if not movies:
+        return json.dumps([])
+    movie_data = [
+        {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
+    ]
+    ratings_df = pd.DataFrame(movie_data)
+    merged_df = pd.merge(
+        ratings_df, movies_df, how="left", left_on="movie_id", right_on="movieId"
+    )
+    recent_movies_list = merged_df[["title", "score"]].to_dict(orient="records")
+    return json.dumps(recent_movies_list)
+
 
 
 def get_username(db, user):
     """
     Utility function for getting the current users username
     """
-    try:
-        user_data = db.users.find_one({"_id": ObjectId(user[1])})
-        return user_data["username"] if user_data else ""
-    except PyMongoError as e:
-        print(f"Database error retrieving username: {str(e)}")
-        return ""
+    user_data = db.users.find_one({"_id": ObjectId(user[1])})
+    return user_data["username"] if user_data else ""
 
 
 def get_recent_friend_movies(db, user_id, movies_df):
     """
     Utility function for getting recent movies from user's friends.
     """
-    try:
-        movies = list(db.ratings.find({"user_id": user_id}).sort("_id", -1))
-        if not movies:
-            return json.dumps([])
-        movie_data = [
-            {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
-        ]
-        ratings_df = pd.DataFrame(movie_data)
-        merged_df = pd.merge(
-            ratings_df, movies_df, how="left", left_on="movie_id", right_on="movieId"
-        )
-        recent_movies_list = merged_df[["title", "score"]].to_dict(orient="records")
-        return json.dumps(recent_movies_list)
-    except PyMongoError as e:
-        print(f"Database error retrieving friend movies: {str(e)}")
-        return json.dumps({"error": "Database error occurred"})
+    movies = list(db.ratings.find({"user_id": user_id}).sort("_id", -1))
+    if not movies:
+        return json.dumps([])
+    movie_data = [
+        {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
+    ]
+    ratings_df = pd.DataFrame(movie_data)
+    merged_df = pd.merge(
+        ratings_df, movies_df, how="left", left_on="movie_id", right_on="movieId"
+    )
+    recent_movies_list = merged_df[["title", "score"]].to_dict(orient="records")
+    return json.dumps(recent_movies_list)
 
 
 def get_friends(db, user_id):
@@ -484,10 +451,6 @@ def get_user_history(db, user_id):
         print(f"Invalid user ID format: {str(e)}")
         raise
 
-    except PyMongoError as e:
-        print(f"Database error: {str(e)}")
-        raise
-
 
 def get_genre_count(db, user):
     """
@@ -526,8 +489,6 @@ def fetch_streaming_link(imdb_id):
     """
     Fetches the streaming links of movies.
     """
-    if not imdb_id:
-        return json.dumps({"error": "Please provide imdb_id"}), 400
 
     url = f"https://api.watchmode.com/v1/title/{imdb_id}/sources/"
     api_key = "fh04Ehayqo4Rdn7RJ0vaGttCD8QYbmWRgZsB4DYy"
@@ -544,6 +505,4 @@ def fetch_streaming_link(imdb_id):
     }
     res = sorted(sources.values(), key=lambda x: x["platform"])
 
-    if res:  # Check if res is not empty
-        return res[0]["url"]  # Returns the first URL
-    return None
+    return res[0]["url"]  # Returns the first URL
