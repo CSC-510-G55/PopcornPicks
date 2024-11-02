@@ -16,6 +16,7 @@ COPY --from=react-build /frontend/build /app/react-frontend/build
 COPY ./requirements.txt /app/
 COPY ./src /app/src
 COPY ./data /app/data
+COPY .env /app/.env
 
 RUN pip install -r requirements.txt
 

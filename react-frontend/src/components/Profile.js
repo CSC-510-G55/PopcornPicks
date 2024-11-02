@@ -49,7 +49,7 @@ const ProfilePage = () => {
       
       const friendsWithMovies = await Promise.all(
         friendsData.map(async (friend) => {
-          const moviesResponse = await axios.post('/getRecentFriendMovies', {"friend_id": friend}, {
+          const moviesResponse = await axios.post(`${API_BASE_URL}/getRecentFriendMovies`, {"friend_id": friend}, {
             headers: { 'Content-Type': 'application/json' }
           });
           console.log(moviesResponse);

@@ -2,6 +2,5 @@ node_modules
 build
 .git
 .DS_Store
-.env
 *.pyc
 _pycache_/
