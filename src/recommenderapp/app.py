@@ -1,5 +1,5 @@
 """
-Copyright (c) 2023 Nathan Kohen, Nicholas Foster, Brandon Walia, Robert Kenney
+Copyright (c) 2023 Srimadh V Rao, Akul G Devali, Manav D Shah
 This code is licensed under MIT license (see LICENSE for details)
 
 @author: PopcornPicks
@@ -295,8 +295,8 @@ def setup_mongodb_indexes():
     Sets up the MongoDB indexes.
     """
     try:
-        db.users.create_index([("username", 1)], unique=True)
-        db.users.create_index([("email", 1)], unique=True)
+        db.users.create_index([("username", 1)])
+        db.users.create_index([("email", 1)])
         db.movies.create_index([("imdb_id", 1)], unique=True)
         db.movies.create_index([("name", 1)])
         db.ratings.create_index([("user_id", 1), ("time", -1)])
@@ -311,4 +311,4 @@ def setup_mongodb_indexes():
 
 if __name__ == "__main__":
     setup_mongodb_indexes()
-    app.run(port=5000)
+    app.run("0.0.0.0", port=5001)

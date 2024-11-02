@@ -4,6 +4,8 @@ import '../ProfilePage.css';
 import { useNavigate } from 'react-router-dom';
 // import '../stylesheet.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 const ProfilePage = () => {
   const [userName, setUserName] = useState('');
   const [userMovies, setUserMovies] = useState([]);
@@ -19,7 +21,7 @@ const ProfilePage = () => {
 
   const getUserName = async () => {
     try {
-      const response = await axios.get('/getUserName');
+      const response = await axios.get(`${API_BASE_URL}/getUserName`);
       setUserName(response.data);
     } catch (error) {
       console.error('Error fetching user name:', error);
@@ -28,7 +30,7 @@ const ProfilePage = () => {
 
   const getRecentMoviesProfile = async () => {
     try {
-      const response = await axios.get('/getRecentMovies');
+      const response = await axios.get(`${API_BASE_URL}/getRecentMovies`);
       console.log(response.data);
       
       // Assuming the response is an array of objects with a "movie" property
@@ -40,14 +42,14 @@ const ProfilePage = () => {
 
   const getFriends = async () => {
     try {
-      const response = await axios.get('/getFriends');
+      const response = await axios.get(`${API_BASE_URL}/getFriends`);
       
       const friendsData = response.data;
       console.log(friendsData);
       
       const friendsWithMovies = await Promise.all(
         friendsData.map(async (friend) => {
-          const moviesResponse = await axios.post('/getRecentFriendMovies', {"friend_id": friend}, {
+          const moviesResponse = await axios.post(`${API_BASE_URL}/getRecentFriendMovies`, {"friend_id": friend}, {
             headers: { 'Content-Type': 'application/json' }
           });
           console.log(moviesResponse);
@@ -73,7 +75,7 @@ const ProfilePage = () => {
     };
 
     try {
-      const response = await axios.post('/out', data, {
+      const response = await axios.post(`${API_BASE_URL}/out`, data, {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8'
         }
@@ -93,7 +95,7 @@ const ProfilePage = () => {
   const addFriend = async () => {
     // Implement the logic to add a friend
     try {
-      const response = await axios.post('/friend', 
+      const response = await axios.post(`${API_BASE_URL}/friend`, 
         { username: newFriend },
         {
           headers: { 'Content-Type': 'application/json' }

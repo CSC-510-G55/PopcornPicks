@@ -5,6 +5,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { useNavigate } from 'react-router-dom';
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 //const genreData = { Action: 10, Adventure: 30, Drama: 40, Romance: 22, Crime: 31 };
 const Baring = () => {
@@ -19,7 +20,7 @@ const Baring = () => {
         };
     
         try {
-          const response = await axios.post('/out', data, {
+          const response = await axios.post(`${API_BASE_URL}/out`, data, {
             headers: {
               'Content-Type': 'application/json;charset=UTF-8'
             }
@@ -45,7 +46,7 @@ const Baring = () => {
       };
     // Fetch genre data from the backend
     useEffect(() => {
-        fetch('/getGenreCount')
+        fetch(`${API_BASE_URL}/getGenreCount`)
             .then(response => response.json())
             .then(data => setGenreData(data))
             .catch(error => console.error('Error fetching genre data:', error));

@@ -1,5 +1,5 @@
 /**
-Copyright (c) 2023 Nathan Kohen, Nicholas Foster, Brandon Walia, Robert Kenney
+Copyright (c) 2023 Srimadh V Rao, Akul G Devali, Manav D Shah
 This code is licensed under MIT license (see LICENSE for details)
 
 @author: PopcornPicks
@@ -10,7 +10,7 @@ $(document).ready(function () {
 			source: function (request, response) {
 				$.ajax({
 					type: "POST",
-					url: "http://127.0.0.1:5000/search",
+					url: "http://127.0.0.1:5001/search",
 					dataType: "json",
 					cache: false,
 					data: {

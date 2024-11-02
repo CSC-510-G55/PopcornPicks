@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 const Wall = () => {
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +18,7 @@ const Wall = () => {
     };
 
     try {
-      const response = await axios.post('/out', data, {
+      const response = await axios.post(`${API_BASE_URL}/out`, data, {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8'
         }
@@ -36,7 +38,7 @@ const Wall = () => {
 
   const loadPosts = async () => {
     try {
-      const response = await axios.get('/getWallData');
+      const response = await axios.get(`${API_BASE_URL}/getWallData`);
       setPosts(response.data);
     } catch (error) {
       console.error('Error loading posts:', error);

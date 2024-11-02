@@ -1,163 +1,178 @@
-# Functions Description of the backend
+Here's the content formatted in markdown:
 
-## [app.py](https://github.com/brwali/PopcornPicks/blob/master/src/recommenderapp/app.py)
+# app.py
 
 ### login_page()
-**Renders to the login page of the web-app**
+Renders the login page of the web-app.
 
 ### profile_page()
-**Renders to the profile page of the web-app**
+Renders the profile page of the web-app.
+Fetches genre count for the user from the database.
 
 ### wall_page()
-**Renders to the wall page of the web-app**
+Renders the wall page of the web-app.
+Checks if the user is logged in or a guest before rendering.
 
 ### review_page()
-**Renders to the review page of the web-app**
+Renders the review page of the web-app.
+Ensures user is logged in or a guest before rendering.
 
 ### landing_page()
-**Renders to the landing page of the web-app**
+Renders the landing page of the web-app.
+Ensures user is logged in or a guest before rendering.
 
 ### search_page()
-**Render to the search page of the web-app**
+Renders the search page of the web-app.
+Ensures user is logged in or a guest before rendering.
 
 ### predict()
-**Returns movie recommendations on the basis of user-input movies**
+Predicts movie recommendations based on user-input movies.
+* Input: List of movies rated by the user.
+* Output: Recommended movies, genres, IMDb IDs, and streaming links.
 
 ### search()
-**Returns top-10 movie searches for an input string in the search box**
+Handles movie search requests.
+* Input: Search term.
+* Output: Top 10 movie results matching the search term.
 
 ### create_acc()
-**Handles creating a new account**
+Handles creating a new account.
+* Input: User data (email, username, password).
+* Output: Creates a new account in the database.
 
 ### signout()
-**Handles signing out the active user**
+Handles signing out of the active user.
+Resets user session data.
 
 ### login()
-**Handles logging in the active user**
+Handles logging in an active user.
+* Input: Username and password.
+* Output: User session is set if credentials are valid.
 
 ### friend()
-**Handles adding a new friend**
+Handles adding a new friend to the user's account.
+* Input: Friend's username.
+* Output: Adds friend to user's friend list in the database.
 
 ### guest()
-**Sets the user to be a guest user**
+Sets the current session to guest mode.
+* Input: Guest identifier.
+* Output: User session is set as guest.
 
 ### review()
-**Handles the submission of a movie review**
+Handles submission of a movie review by a user.
+* Input: Movie title, score, and review text.
+* Output: Saves review data to the database.
 
 ### wall_posts()
-**Gets the posts for the wall**
+Fetches posts for the user's wall.
+* Output: List of recent posts from friends and other users.
 
 ### recent_movies()
-**Gets the recent movies of the active user**
+Gets recent movies rated by the active user.
+* Output: List of recently rated movies by the logged-in user.
 
 ### recent_friend_movies()
-**Gets the recent movies of a certain friend**
+Gets recent movies rated by a specific friend.
+* Input: Friend's ID.
+* Output: List of recently rated movies by that friend.
 
 ### username()
-**Gets the username of the active user**
+Fetches username of the active user.
+* Output: Username associated with the current session's user ID.
 
 ### get_friend()
-**Gets the friends of the active user**
+Fetches friends of the active user.
+* Output: List of friends associated with the current user's account.
 
 ### feedback()
-**Handles user feedback submission**
+Handles submission of feedback from users and sends it via email.
+* Input: Feedback data.
+* Output: Sends feedback email to user's registered email address.
 
 ### send_mail()
-**Handles user feedback submission and mails the results**
+Handles sending emails with feedback or recommendations to users.
+* Input: Recipient email and feedback data.
+* Output: Sends email with categorized movie recommendations or feedback details.
 
 ### success()
-**Renders to the success page**
+Renders success page after successful operations like account creation or feedback submission.
 
 ### before_request()
-**Opens the db connection.**
+Opens a connection to the database before processing each request.
 
 ### after_request()
-**Closes the db connection.**
+Closes database connection after processing each request.
 
-## [utils.py](https://github.com/brwali/PopcornPicks/blob/master/src/recommenderapp/utils.py)
+# item_based.py
+
+### load_movies()
+Loads movie data from CSV file into a DataFrame.
+
+### prepare_ratings(db)
+Prepares ratings DataFrame from database records.
+* Input: Database connection.
+* Output: DataFrame containing user ratings (user_id, movie_id, score).
+
+### prepare_surprise_df(ratings)
+Prepares DataFrame for use with Surprise library (collaborative filtering).
+* Input: Ratings DataFrame.
+* Output: DataFrame formatted for Surprise library (user, item, rating).
+
+### generate_cf_recommendations(surprise_df, ratings, movies, user_id)
+Generates collaborative filtering recommendations using SVD model for a specific user.
+* Input: Surprise-formatted DataFrame, ratings DataFrame, movies DataFrame, and user ID.
+* Output: List of recommended movie IDs and their predicted ratings.
+
+### calculate_genre_similarity(selected_movies, enriched_movies)
+Calculates genre similarity between selected movies and all other movies based on genres.
+
+### calculate_runtime_similarity(selected_movies, enriched_movies)
+Calculates runtime similarity between selected movies and all other movies based on runtime duration.
+
+### calculate_hybrid_score(enriched_movies, user_rating_count)
+Calculates hybrid score for recommendations using weights for genre similarity, collaborative filtering predictions, and runtime similarity based on user's rating count.
+
+### recommend_for_new_user(user_rating, user_id, db)
+Generates recommendations for new users based on their initial ratings using collaborative filtering and genre/runtime similarity analysis.
+* Input: User's initial ratings (list), User ID, Database connection.
+* Output: Recommended movie titles, genres, IMDb IDs for top 10 recommended movies.
+
+# utils.py
+
+### load_movies()
+Loads movie data from CSV file into a DataFrame for further processing or analysis.
 
 ### create_colored_tags(genres)
-**Utility function to create colored tags for different movie genres**<br/>
-**Input: Movie genres;<br/> Output: Colored tags for those genres**
+Generates HTML tags with colors corresponding to different movie genres for display purposes.
+* Input: List of genres.
+* Output: String containing HTML tags with appropriate colors for each genre.
 
 ### beautify_feedback_data(data)
-**Utility function to beautify the feedback json containing predicted movies for sending in email**<br/>
-**Input: Data obtained from frontend in json format;<br/> Output: Beautified data dictionary containing movies grouped by watchlist category**
+Formats feedback data into categories (Liked, Disliked, Yet to Watch) for sending in emails or display purposes.
+* Input: Feedback data dictionary (movie titles mapped to status).
+* Output: Categorized dictionary with lists of liked/disliked/yet-to-watch movies.
 
 ### create_movie_genres(movie_genre_df)
-**Utility function for creating a dictionary for movie-genres mapping**<br/>
-**Input: Data frame of movies.csv;<br/> Output: Dictionary of movies-genres mapping**
+Creates a dictionary mapping each movie title to its respective genres from a DataFrame containing movie information.
 
 ### send_email_to_user(recipient_email, categorized_data)
-**Utility function to send movie recommendations to user over email**<br/>
-**Input : email of recipient_email and output of [beautify_feedback_data](https://github.com/brwali/PopcornPicks/blob/master/docs/backend.md#beautify_feedback_datadata);<br/> Output: Sends email for valid email, otherwise raises exception in the server logs**<br/>
+Sends an email containing categorized movie recommendations or feedback to a specified recipient email address using SMTP protocol.
 
-### create_account(db, email, username, password)
-**Utility function for creating an account**<br/>
-**Input : database handle, email, username, password;<br/> Output: Enters user data into database**<br/>
-
-### add_friend(db, username, user_id)
-**Utility function for adding a friend to an existing account**<br/>
-**Input: database handle, username of the friend to be added to the logged in account, user_id of the user account logged in**<br/>
-**Result: Enters the ids of the logged in user and friend into the Friends table in the database**<br/>
-
-### login_to_account(db, username, password)
-**Utility function for logging into an user account**<br/>
-**Input: database handle, id of the user account, movie title, score out of ten, and a written review**<br/>
-**Result: adds a row to the Ratings table in the database detailing this movie review**<br/>
-
-### submit_review(db, user, movie, score, review)
-**Utility function for submitting a movie review**<br/>
-**Input: database handle, username of the user account, password of the user account**<br/>
-**Output: returns the id of the logged in user if successful otherwise reports an error to the log**<br/>
-
-### get_wall_posts(db)
-**Utility function for getting wall posts from the db**<br/>
-**Input: database handle**<br/>
-**Output: returns the recent movies and their data**<br/>
-
-### get_recent_movies(db, user)
-**Utility function for getting recent movies of logged-in user**<br/>
-**Input : database handle, user_id**<br/> 
-**Output: Movies names from most five most recent results of ratings from the logged-in user**<br/>
-
-### get_username(db, user)
-**Utility function for getting the username of a user based on the inputted id**<br/>
-**Input: database handle, user_id of the user logged in**<br/>
-**Output: returns the username stored in the database for that corresponding id**<br/>
-
-### get_recent_friend_movies(db, user)
-**Utility function for getting recent movies of a specific user**<br/>
-**Input : database handle, user_id**<br/> 
-**Output: Movies names from most five most recent results of ratings from the specified user**<br/>
-
-### get_friends(db, user)
-**Utility function for getting all friends of a logged in user**<br/>
-**Input: database handle, user_id of the user logged in**<br/>
-**Output: returns a list of all the friends of the user stored in the database**<br/>
-
-## [search.py](https://github.com/brwali/PopcornPicks/blob/master/src/recommenderapp/search.py)
-**Class that handles the search feature of the landing page.**
+# search.py
 
 ### starts_with(word)
-**Function to check movie prefix**<br/>
-**Input : word/initial character(s);<br/> Output : List of movies having that prefix**<br/>
+Searches for movies whose titles start with a given prefix (case-insensitive).
+* Input: Search word/prefix.
+* Output: List of matching movie titles starting with that prefix.
 
 ### anywhere(word, visited_words)
-**Function to check visited words**<br/>
-**Input : Word and visited words;<br/> Output : Words that have not been visited**<br/>
+Searches for movies whose titles contain a given word but have not been visited yet (case-insensitive).
+* Input: Search word and list of already visited words/titles.
+* Output: List of matching movie titles that contain the word but haven't been visited yet.
 
 ### results(word)
-**Function to serve the result render**
-**Input : A word/initial character(s);<br/> Output : All titles starting with the given prompt.**<br/>
+Combines results from both starts_with and anywhere methods to return all matching titles for a given word/prefix (case-insensitive).
 
 ### results_top_ten(word)
-**Function to get top 10 results**
-**Input : A word/initial character(s);<br/> Output : Top 10 titles starting with the given prompt (taken from [results](https://github.com/brwali/PopcornPicks/blob/master/docs/backend.md#resultsword))**<br/>
-
-## Item_based.py
-**Recommends movies to a user based on their past preferences and the preferences of users with similar tastes. Item-Item Collaborative Filtering (CF) is used to recommend similar movies based on user input. For example, if Joseph enjoyed Seven and Shutter Island, PopcornPicks might suggest The Prestige and Inception.**
-
-### recommend_for_new_user(user_rating)
-**Generates a list of recommended movie titles for a new user based on their selections via item-item based CF.**
-
+Returns only top 10 results from results() method based on search word/prefix (case-insensitive).
