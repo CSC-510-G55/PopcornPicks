@@ -21,6 +21,6 @@ RUN pip install -r requirements.txt
 
 RUN apt-get update && apt-get install -y npm && npm install -g serve
 
-EXPOSE 3000 5001
+EXPOSE 3000 5000
 
 CMD ["sh", "-c", "cd react-frontend/build && serve -s . -l 3000 --single & python -m src.recommenderapp.app"]
