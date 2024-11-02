@@ -20,10 +20,7 @@ const Landing = () => {
 
       if (response.status === 200) {
         console.log('Signed out successfully');
-        // Navigate to the home page after a short delay
-        setTimeout(() => {
           navigate('/');
-        }, 500);
       }
     } catch (error) {
       console.error('Sign out error:', error);
@@ -72,7 +69,7 @@ const Landing = () => {
           <div className="d-flex justify-content-center flex-wrap">
             <button 
               className="btn btn-primary m-2"
-              onClick={() => handleNavigation('/search-page')}
+              onClick={() => handleNavigation('/search_page')}
             >
               Get Started!
             </button>
@@ -84,7 +81,7 @@ const Landing = () => {
             </button>
             <button 
               className="btn btn-primary m-2"
-              onClick={() => handleNavigation('/review')}
+              onClick={() => handleNavigation('/reviews')}
             >
               Review a Movie!
             </button>

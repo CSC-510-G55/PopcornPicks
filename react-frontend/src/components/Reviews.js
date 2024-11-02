@@ -78,6 +78,7 @@ const ReviewPage = () => {
 
   const backToLandingPage = () => {
     // Implement navigation logic here
+    navigate('/landing')
     console.log('Navigating back to landing page');
   };
 

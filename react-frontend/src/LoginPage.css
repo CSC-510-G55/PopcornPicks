@@ -31,13 +31,11 @@ body {
   
   #createAccountForm h1 {
     font-size: 2.5em;
-    margin-bottom: 30px;
     color: #333;
   }
   
   #createAccountForm h3 {
     font-size: 1.2em;
-    margin-top: 20px;
     margin-bottom: 10px;
     text-align: left;
     padding-left: 25%;

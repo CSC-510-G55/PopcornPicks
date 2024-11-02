@@ -231,7 +231,7 @@ const SearchPage = () => {
         {/* Additional buttons or feedback sections can be added here */}
         
         {/* "Return home" button */}
-        <button onClick={() => navigate('/')} className="btn btn-primary mx-auto" style={{
+        <button onClick={() => navigate('/landing')} className="btn btn-primary mx-auto" style={{
           display:'block',
           marginTop:'20px'
         }}>Return home</button>

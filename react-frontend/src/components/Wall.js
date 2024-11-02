@@ -59,10 +59,7 @@ const Wall = () => {
   };
 
   const backToLandingPage = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      window.location.href = "/landing";
-    }, 2000);
+    navigate('/landing');
   };
 
   const renderStars = (score) => {
@@ -96,7 +93,7 @@ const Wall = () => {
         </div>
       </nav>
 
-      <div className="container" style={{marginTop: '700px'}}>
+      <div className="container" style={{marginTop: '900px'}}>
         <div className="heading1">
           <h2><center>Popcorn Picks Wall</center></h2>
           <p><center>View other user ratings on movies!</center></p>
