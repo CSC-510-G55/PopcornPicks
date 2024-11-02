@@ -14,7 +14,7 @@ const SearchPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [feedbackData, setFeedbackData] = useState({});
   const [notifyMeDisabled, setNotifyMeDisabled] = useState(true);
-  const [view, setView] = useState(false);
+  const [view, setView] = useState(true);
 
   const navigate = useNavigate();
 
@@ -23,7 +23,7 @@ const SearchPage = () => {
     // window.location.href = 'https://disreputable-seance-wxrx9qjxv67hvjxv-3000.app.github.dev/search_page';
   }, []);
   const handleView = () => {
-    setView = false
+    setView(false)
   };
   const getRecentMovies = async () => {
     try {
@@ -117,6 +117,7 @@ const SearchPage = () => {
     }
 
     setIsLoading(true);
+    handleView();
     setRecommendedMovies([]);
 
     try {
@@ -148,6 +149,7 @@ const SearchPage = () => {
   };
 
   return (
+    
     <div>
       <nav style={{ backgroundColor: '#343a40', color: 'white', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 20px' }}>
@@ -155,13 +157,13 @@ const SearchPage = () => {
           <button onClick={handleSignOut} style={{ backgroundColor: 'transparent', color: 'white', border: 'none', cursor: 'pointer' }}>Sign Out</button>
         </div>
       </nav>
-
+      { view && (
       <div style={{ marginTop: '60px', padding: '20px' }}>
         <div style={{ textAlign: 'center' }}>
           <h2 style={{ marginBottom: '5px' , color: 'white'}}>🎬 Pick a Movie! 🎬</h2>
           <h6 style={{ marginBottom: '25px', color: 'white' }}>✨Tip: Select Up to 5 movies to get a tailored watchlist✨</h6>
         </div>
-        
+
         <div style={{ display: 'flex', marginTop: '25px' }}>
           <div style={{ flex: '1', marginRight: '20px' }}>
             <h3 style={{color: 'white'}}>Selected Movie(s):</h3>
@@ -222,7 +224,9 @@ const SearchPage = () => {
             </ul>
           </div>
         </div>
-
+      </div>
+      )}
+      <div>
         <div style={{ marginTop: '60px' }}>
       <h2 style={{color: 'white'}}>Recommended Movies:</h2>
       <ul style={{ listStyleType: 'none', paddingLeft: '0' }}>
@@ -251,7 +255,7 @@ const SearchPage = () => {
           ))}
         </ul>
     </div>
-
+      
         {isLoading && (
           <div id="loaderLogin">
           <center>
@@ -277,6 +281,7 @@ const SearchPage = () => {
 
       </div>
     </div>
+      
   );
 };
 
