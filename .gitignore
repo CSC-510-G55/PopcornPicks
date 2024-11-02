@@ -2,6 +2,7 @@ coverage
 .coveralls.yml
 react-frontend/node_modules
 *.tar
+set_env.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
