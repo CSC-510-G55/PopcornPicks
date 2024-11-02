@@ -12,6 +12,7 @@ const SearchPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [feedbackData, setFeedbackData] = useState({});
   const [notifyMeDisabled, setNotifyMeDisabled] = useState(true);
+  const [view, setView] = useState(false);
 
   const navigate = useNavigate();
 
@@ -19,7 +20,9 @@ const SearchPage = () => {
     getRecentMovies();
     // window.location.href = 'https://disreputable-seance-wxrx9qjxv67hvjxv-3000.app.github.dev/search_page';
   }, []);
-
+  const handleView = () => {
+    setView = false
+  };
   const getRecentMovies = async () => {
     try {
       const response = await axios.get('/getRecentMovies');
@@ -68,7 +71,10 @@ const SearchPage = () => {
       }
     })
       .then(response => {
-        navigate('/search_page');
+        if (response.status === 200) {
+          navigate('/success');
+        }
+        
       })
       .catch(error => {
         console.error("Feedback error:", error);
@@ -143,7 +149,7 @@ const SearchPage = () => {
     <div>
       <nav style={{ backgroundColor: '#343a40', color: 'white', position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 20px' }}>
-          <a href="#" style={{ color: 'white', textDecoration: 'none', fontSize: '1.25rem' }}>PopcornPicks🍿</a>
+          <a href="/landing" style={{ color: 'white', textDecoration: 'none', fontSize: '1.25rem' }}>PopcornPicks🍿</a>
           <button onClick={handleSignOut} style={{ backgroundColor: 'transparent', color: 'white', border: 'none', cursor: 'pointer' }}>Sign Out</button>
         </div>
       </nav>
@@ -153,7 +159,7 @@ const SearchPage = () => {
           <h2 style={{ marginBottom: '5px' , color: 'white'}}>🎬 Pick a Movie! 🎬</h2>
           <h6 style={{ marginBottom: '25px', color: 'white' }}>✨Tip: Select Up to 5 movies to get a tailored watchlist✨</h6>
         </div>
-
+        
         <div style={{ display: 'flex', marginTop: '25px' }}>
           <div style={{ flex: '1', marginRight: '20px' }}>
             <h3 style={{color: 'white'}}>Selected Movie(s):</h3>
@@ -175,7 +181,7 @@ const SearchPage = () => {
                 />
                 <ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
                   {selectedMovies.map((movie, index) => (
-                    <li key={index} style={{ padding: '10px', borderBottom: '1px solid #ced4da' }}>
+                    <li key={index} style={{ padding: '10px', borderBottom: '1px solid #ced4da', color: 'white' }}>
                       {movie}
                       <button onClick={() => setSelectedMovies(selectedMovies.filter(m => m !== movie))} style={{
                         float: 'right',
