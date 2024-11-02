@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import '../LoginPage.css'; // You'll need to create this CSS file for styling
 // import '../stylesheet.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 const LoginPage = () => {
   const [isCreatingAccount, setIsCreatingAccount] = useState(false);
   const [username, setUsername] = useState('');
@@ -23,7 +25,7 @@ const LoginPage = () => {
     setIsLoading(true);
     setShowLoginError(false);
     try {
-      const response = await axios.post('/log', {
+      const response = await axios.post(`${API_BASE_URL}/log`, {
         username,
         password
       }, {
@@ -57,7 +59,7 @@ const LoginPage = () => {
     setShowInvalidUsernameError(false);
     
     try {
-      const response = await axios.post('/', {
+      const response = await axios.post(`${API_BASE_URL}/`, {
         username: newUsername,
         password: newPassword,
         email

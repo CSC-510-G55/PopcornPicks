@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Autocomplete from 'react-autocomplete';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 const SearchPage = () => {
   const [selectedMovies, setSelectedMovies] = useState([]);
   const [recentMovies, setRecentMovies] = useState([]);
@@ -22,7 +24,7 @@ const SearchPage = () => {
 
   const getRecentMovies = async () => {
     try {
-      const response = await axios.get('/getRecentMovies');
+      const response = await axios.get(`${API_BASE_URL}/getRecentMovies`);
       setRecentMovies(response.data.map(movie => movie.title));
     } catch (error) {
       console.error('Error fetching recent movies:', error);
@@ -62,7 +64,7 @@ const SearchPage = () => {
     localStorage.setItem("fbData", JSON.stringify(data));
     setNotifyMeDisabled(false);
 
-    axios.post('/feedback', data, {
+    axios.post(`${API_BASE_URL}/feedback`, data, {
       headers: {
         'Content-Type': 'application/json;charset=UTF-8'
       }
@@ -82,7 +84,7 @@ const SearchPage = () => {
       try {
         const formData = new FormData();
         formData.append('q', value);
-        const response = await axios.post('/search', formData);
+        const response = await axios.post(`${API_BASE_URL}/search`, formData);
         setSearchResults(response.data);
       } catch (error) {
         console.error('Search error:', error);
@@ -112,7 +114,7 @@ const SearchPage = () => {
     setRecommendedMovies([]);
 
     try {
-      const response = await axios.post('/predict', { movie_list: selectedMovies }, {
+      const response = await axios.post(`${API_BASE_URL}/predict`, { movie_list: selectedMovies }, {
         headers: { 'Content-Type': 'application/json;charset=UTF-8' }
       });
 
@@ -132,7 +134,7 @@ const SearchPage = () => {
 
   const handleSignOut = async () => {
     try {
-      await axios.post('/out', { user: 'None' });
+      await axios.post(`${API_BASE_URL}/out`, { user: 'None' });
       navigate('/');
     } catch (error) {
       console.error('Sign out error:', error);
