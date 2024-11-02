@@ -97,7 +97,7 @@ const LoginPage = () => {
       {!isCreatingAccount ? (
         <div className="heading1">
           <h1 style={{ marginBottom: '5px' }}>
-            <center>🎬 PopcornPicks🍿: Log In</center>
+            <center style={{ color: 'white' }}>🎬 PopcornPicks🍿: Log In</center>
           </h1>
           <div className="wrapper">
             <center>

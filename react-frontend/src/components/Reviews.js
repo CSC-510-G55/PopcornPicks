@@ -97,7 +97,7 @@ const ReviewPage = () => {
       title: {
         fontSize: '48px',
         fontWeight: 'bold',
-        color: 'white',
+        color: 'black',
         margin: '20px 0',
       },
       container: {
@@ -157,7 +157,7 @@ const ReviewPage = () => {
     <div style={styles.body}>
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark topNavBar fixed-top" id="landingTopNav">
         <div className="container-fluid">
-          <a className="navbar-brand" href="#">PopcornPicks🍿</a>
+          <a className="navbar-brand" href="/landing" >PopcornPicks🍿</a>
           <button 
             className="btn btn-outline-light"
             onClick={handleSignOut}
