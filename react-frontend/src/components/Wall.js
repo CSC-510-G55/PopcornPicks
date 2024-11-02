@@ -1,13 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
+import { useNavigate } from 'react-router-dom';
 const Wall = () => {
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadPosts();
   }, []);
+
+  const handleSignOut = async () => {
+    const data = {
+      user: 'None'
+    };
+
+    try {
+      const response = await axios.post('/out', data, {
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      });
+
+      if (response.status === 200) {
+        console.log('Signed out successfully');
+        // Navigate to the home page after a short delay
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('Sign out error:', error);
+    }
+  };
 
   const loadPosts = async () => {
     try {
@@ -34,15 +59,14 @@ const Wall = () => {
   };
 
   const backToLandingPage = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-      window.location.href = "/landing";
-    }, 2000);
+    navigate('/landing');
   };
 
   const renderStars = (score) => {
     const fullStars = Math.floor(score);
     const hasHalfStar = score % 1 > 0;
+  
+    
 
     return (
       <>
@@ -65,11 +89,11 @@ const Wall = () => {
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark topNavBar fixed-top">
         <div className="container-fluid">
           <a className="navbar-brand" href="#">PopcornPicks🍿</a>
-          <button type="button" id="signOut" onClick={() => {/* Implement sign out logic */}} style={{backgroundColor: 'transparent', color: 'white', width: '5%'}}>Sign Out</button>
+          <button type="button" id="signOut" onClick={handleSignOut} style={{backgroundColor: 'transparent', color: 'white', width: '5%'}}>Sign Out</button>
         </div>
       </nav>
 
-      <div className="container" style={{marginTop: '700px'}}>
+      <div className="container" style={{marginTop: '900px'}}>
         <div className="heading1">
           <h2><center>Popcorn Picks Wall</center></h2>
           <p><center>View other user ratings on movies!</center></p>
