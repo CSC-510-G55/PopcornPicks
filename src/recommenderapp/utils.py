@@ -495,14 +495,13 @@ def fetch_streaming_link(imdb_id):
     """
 
     url = f"https://api.watchmode.com/v1/title/{imdb_id}/sources/"
-    api_key = "fh04Ehayqo4Rdn7RJ0vaGttCD8QYbmWRgZsB4DYy"
+    api_key = "4w5mn3iTbMuof1ovJD7cjp8e6LJUR877BNGnlnuA"
 
     headers = {"Authorization": f"Bearer {api_key}"}
 
     params = {"apiKey": api_key, "regions": "US"}
 
     response = requests.get(url, headers=headers, params=params, timeout=4)
-
     sources = {
         item["name"]: {"platform": item["name"], "url": item["web_url"]}
         for item in response.json()

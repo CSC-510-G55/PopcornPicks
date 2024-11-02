@@ -170,7 +170,7 @@ Please refer to the [CONTRIBUTING.md](https://github.com/se24ncsu/PopcornPicks/b
   <tr>
     <td><a href="https://github.com/se24ncsu/PopcornPicks">Project 2</a></td>
     <td align="center"><a href="https://github.com/Shrimadh/"><img src="https://avatars.githubusercontent.com/u/64469917?s=400&u=c88c30f494e1e8d5b6251213a2d7cbb2f83910d3&v=4" width="75px;" alt=""/><br /><sub><b>Srimadh V Rao</b></sub></a></td>
-    <td align="center"><a href="https://github.com/akuldevali/"><img src="https://avatars.githubusercontent.com/u/99231385?v=4" width="75px;" alt=""/><br /><sub><b>Akul G Devali</b></sub></a><br /></td>
+    <td align="center"><a href="https://github.com/akuldevali/"><img src="https://avatars.githubusercontent.com/u/64837282?v=4" width="75px;" alt=""/><br /><sub><b>Akul G Devali</b></sub></a><br /></td>
     <td align="center"><a href="https://github.com/codemanav/"><img src="https://avatars.githubusercontent.com/u/54708784?v=4" width="75px;" alt=""/><br /><sub><b>Manav D Shah</b></sub></a><br /></td>
   </tr>
 </table>
