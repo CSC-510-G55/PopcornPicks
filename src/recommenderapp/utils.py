@@ -203,6 +203,7 @@ def send_email_to_user(recipient_email, categorized_data):
         logging.error("SMTP error while sending email: %s", str(e))
         raise
 
+
 def create_account(db, email, username, password):
     """Utility function for creating an account"""
     try:
@@ -229,6 +230,7 @@ def add_friend(db, user, username):
         {"_id": ObjectId(user[1])}, {"$addToSet": {"friends": username}}
     )
     return True
+
 
 def login_to_account(db, username, password):
     """
@@ -383,7 +385,6 @@ def get_recent_movies(db, user_id, movies_df):
     )
     recent_movies_list = merged_df[["title", "score"]].to_dict(orient="records")
     return json.dumps(recent_movies_list)
-
 
 
 def get_username(db, user):
