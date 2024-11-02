@@ -50,7 +50,10 @@ const SearchPage = () => {
     }
     setSearchTerm('');
   };
-
+  const handleRatingChange = (index, value) => {
+    // Handle rating change logic here
+    console.log(`Movie ${index} rated: ${value}`);
+  };
   const handlePredict = async () => {
     if (selectedMovies.length === 0) {
       alert("Select at least 1 movie!!");
@@ -163,27 +166,56 @@ const SearchPage = () => {
           </div>
         </div>
 
-        <div style={{ marginTop:'60px'}}>
-          <h2>Recommended Movies:</h2>
-          <ul style={{ listStyleType:'none',paddingLeft:'0'}}>
-            {recommendedMovies.map((movie,index)=>(
-              <li key={index} style={{
-                padding:'10px',
-                borderBottom:'1px solid #ced4da'
-              }}>
-                {movie.title}
+        <div style={{ marginTop: '60px' }}>
+      <h2>Recommended Movies:</h2>
+      <ul style={{ listStyleType: 'none', paddingLeft: '0' }}>
+        {recommendedMovies.map((movie, index) => (
+          <li key={index} style={{
+            padding: '10px',
+            borderBottom: '1px solid #ced4da'
+          }}>
+            {movie.title}
+            {' '}
+            (<a href={`https://www.imdb.com/title/${movie.imdbId}`} target="_blank" rel="noopener noreferrer">IMDb🔗</a>)
+            {movie.webUrl && (
+              <>
                 {' '}
-                (<a href={`https://www.imdb.com/title/${movie.imdbId}`} target="_blank" rel="noopener noreferrer">IMDb🔗</a>)
-                {movie.webUrl && (
-                  <>
-                    {' '}
-                    (<a href={movie.webUrl} target="_blank" rel="noopener noreferrer">Stream Here!🍿</a>)
-                  </>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
+                (<a href={movie.webUrl} target="_blank" rel="noopener noreferrer">Stream Here!🍿</a>)
+              </>
+            )}
+            <div className="rating-options">
+              <label>
+                <input
+                  type="radio"
+                  name={`rating-${index}`}
+                  value="3"
+                  onChange={() => handleRatingChange(index, 3)}
+                />
+                😍 Like
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name={`rating-${index}`}
+                  value="2"
+                  onChange={() => handleRatingChange(index, 2)}
+                />
+                😐 Yet to Watch
+              </label>
+              <label>
+                <input
+                  type="radio"
+                  name={`rating-${index}`}
+                  value="1"
+                  onChange={() => handleRatingChange(index, 1)}
+                />
+                😤 Dislike
+              </label>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
 
         {isLoading && (
           <div className="spinner-border" role="status" style={{
