@@ -4,6 +4,7 @@ This script will create a .env file with environment variables.
 
 env_variables = {
     "MONGO_URI": "mongodb+srv://svrao3:popcorn1234@popcorn.xujnm.mongodb.net",
+    "APP_PASSWORD": "tnjydyefhlpsmdao"
 }
 
 with open(".env", "w", encoding="utf-8") as env_file:

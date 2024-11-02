@@ -13,6 +13,7 @@ import datetime
 import logging
 import smtplib
 import bcrypt
+from dotenv import load_dotenv
 from smtplib import SMTPException
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -27,6 +28,7 @@ app_dir = os.path.dirname(os.path.abspath(__file__))
 code_dir = os.path.dirname(app_dir)
 project_dir = os.path.dirname(code_dir)
 
+load_dotenv()
 
 def load_movies():
     """Load movies data from CSV."""
@@ -120,8 +122,8 @@ def send_email_to_user(recipient_email, categorized_data):
     # Email configuration
     smtp_server = "smtp.gmail.com"
     smtp_port = 587
-    sender_email = "shrimadh332001@gmail.com"  # Get from environment variable
-    sender_password = "tnjydyefhlpsmdao"  # Get from environment variable
+    sender_email = "shrimadh332001@gmail.com"
+    sender_password = os.getenv('APP_PASSWORD')
 
     # Verify that environment variables are set
     if not sender_email or not sender_password:
@@ -506,4 +508,6 @@ def fetch_streaming_link(imdb_id):
     }
     res = sorted(sources.values(), key=lambda x: x["platform"])
 
-    return res[0]["url"]  # Returns the first URL
+    if res:
+        return res[0]["url"]  # Returns the first URL
+    return None
