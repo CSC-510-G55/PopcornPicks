@@ -110,19 +110,19 @@ If you're unable to access the application, check the following:
      ```
 
 2. **Flask Backend Server**
-   - Default port: 5000
+   - Default port: 5001
    - Verify Flask configuration:
      ```python
      if __name__ == '__main__':
-         app.run(host='0.0.0.0', port=5000)
+         app.run(host='0.0.0.0', port=5001)
      ```
    - Check port availability:
      ```bash
      # Windows
-     netstat -ano | findstr :5000
+     netstat -ano | findstr :5001
      
      # Linux/Mac
-     lsof -i :5000
+     lsof -i :5001
      ```
 
 3. **CORS Configuration**
@@ -139,12 +139,12 @@ If you're unable to access the application, check the following:
    - Verify proxy configuration in package.json:
      ```json
      {
-       "proxy": "http://localhost:5000"
+       "proxy": "http://localhost:5001"
      }
      ```
    - Ensure environment variables are set correctly:
      ```
-     REACT_APP_API_URL=http://localhost:5000
+     REACT_APP_API_URL=http://localhost:5001
      ```
 
 ### Network Issues
