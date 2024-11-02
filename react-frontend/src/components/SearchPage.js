@@ -150,13 +150,13 @@ const SearchPage = () => {
 
       <div style={{ marginTop: '60px', padding: '20px' }}>
         <div style={{ textAlign: 'center' }}>
-          <h2 style={{ marginBottom: '5px' }}>🎬 Pick a Movie! 🎬</h2>
-          <h6 style={{ marginBottom: '25px' }}>✨Tip: Select Up to 5 movies to get a tailored watchlist✨</h6>
+          <h2 style={{ marginBottom: '5px' , color: 'white'}}>🎬 Pick a Movie! 🎬</h2>
+          <h6 style={{ marginBottom: '25px', color: 'white' }}>✨Tip: Select Up to 5 movies to get a tailored watchlist✨</h6>
         </div>
 
         <div style={{ display: 'flex', marginTop: '25px' }}>
           <div style={{ flex: '1', marginRight: '20px' }}>
-            <h3>Selected Movie(s):</h3>
+            <h3 style={{color: 'white'}}>Selected Movie(s):</h3>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <div style={{ width: '75%' }}>
                 <Autocomplete
@@ -202,12 +202,13 @@ const SearchPage = () => {
           </div>
 
           <div style={{ flex:'1' }}>
-            <h3>Your Recents:</h3>
+            <h3 style={{ color: 'white'}}>Your Recents:</h3>
             <ul style={{ listStyleType:'none', paddingLeft:'0'}}>
               {recentMovies.map((movie,index)=>(
                 <li key={index} style={{
                   padding:'10px',
-                  borderBottom:'1px solid #ced4da'
+                  borderBottom:'1px solid #ced4da',
+                  color: 'white'
                 }}>{movie}</li>
               ))}
             </ul>
@@ -215,7 +216,7 @@ const SearchPage = () => {
         </div>
 
         <div style={{ marginTop: '60px' }}>
-      <h2>Recommended Movies:</h2>
+      <h2 style={{color: 'white'}}>Recommended Movies:</h2>
       <ul style={{ listStyleType: 'none', paddingLeft: '0' }}>
           {recommendedMovies.map((movie, index) => (
             <li key={index} style={{ padding: '10px', borderBottom: '1px solid #ced4da' }}>
@@ -244,14 +245,14 @@ const SearchPage = () => {
     </div>
 
         {isLoading && (
-          <div className="spinner-border" role="status" style={{
-            position:'fixed',
-            top:'50%',
-            left:'50%',
-            transform:'translate(-50%, -50%)'
-          }}>
-            <span className="sr-only">Loading...</span>
+          <div id="loaderLogin">
+          <center>
+            <h3>Loading</h3>
+          </center>
+          <div className="spinner-border" role="status">
+            <span className="sr-only"></span>
           </div>
+        </div>
         )}
 
         {/* Additional buttons or feedback sections can be added here */}
