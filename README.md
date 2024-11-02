@@ -58,8 +58,9 @@ Checkout for project documentation [here](https://github.com/se24ncsu/PopcornPic
 
 ## Project Presentation Videos
 ### Project Overview
-https://github.com/se24ncsu/PopcornPicks/blob/main/asset/animated_video.mp4
-
+[https://github.com/se24ncsu/PopcornPicks/blob/main/asset/animated_video.mp4
+](https://github.com/user-attachments/assets/ed0c3f79-b31f-4876-ba03-b2e640cf8333
+)
 ### New Features 2 minute demo
 [![why contribute video](https://img.youtube.com/vi/M13zDRgjNGE/0.jpg)](https://www.youtube.com/watch?v=M13zDRgjNGE)
 
@@ -238,3 +239,6 @@ Let's make movie nights extraordinary together!
 
 ## License
 This project is under the MIT License.
+
+
+
