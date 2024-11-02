@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 const SearchPageRedirect = () => {
   useEffect(() => {
     window.location.href = 'http://localhost:5000/search_page';

@@ -3,6 +3,8 @@ import axios from 'axios';
 import Autocomplete from 'react-autocomplete';
 import { useNavigate } from 'react-router-dom';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 const ReviewPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState([]);
@@ -17,7 +19,7 @@ const ReviewPage = () => {
       try {
         const formData = new FormData();
         formData.append('q', value);
-        const response = await axios.post('/search', formData);
+        const response = await axios.post(`${API_BASE_URL}/search`, formData);
         setSearchResults(response.data);
       } catch (error) {
         console.error('Search error:', error);
@@ -37,7 +39,7 @@ const ReviewPage = () => {
     };
 
     try {
-      const response = await axios.post('/out', data, {
+      const response = await axios.post(`${API_BASE_URL}/out`, data, {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8'
         }
@@ -65,7 +67,7 @@ const ReviewPage = () => {
     };
 
     try {
-      await axios.post('/review', data);
+      await axios.post(`${API_BASE_URL}/review`, data);
       alert(`Review submitted for ${selectedMovie}. Rating: ${rating}/10`);
       setSelectedMovie('');
       setRating(0);

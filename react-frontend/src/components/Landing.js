@@ -3,6 +3,8 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import '../LandingPage.css'; // You'll need to create this CSS file
 
+const API_BASE_URL = process.env.REACT_APP_API_URL;
+
 const Landing = () => {
   const navigate = useNavigate();
 
@@ -12,7 +14,7 @@ const Landing = () => {
     };
 
     try {
-      const response = await axios.post('/out', data, {
+      const response = await axios.post(`${API_BASE_URL}/out`, data, {
         headers: {
           'Content-Type': 'application/json;charset=UTF-8'
         }
