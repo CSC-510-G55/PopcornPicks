@@ -12,11 +12,11 @@ from pymongo import MongoClient
 
 load_dotenv()
 
-MONGO_URI = os.getenv("MONGO_URI")
-MONGO_OPTIONS = "/?retryWrites=true&w=majority&appName=PopCorn"
-MONGO_URI += MONGO_OPTIONS
+mongo_uri = os.getenv("MONGO_URI")
 
-client = MongoClient(MONGO_URI)
+print(f"Connecting to MongoDB at {mongo_uri}", flush=True)
+
+client = MongoClient(mongo_uri)
 
 client.admin.command("ping")
 print("Pinged your deployment. You successfully connected to MongoDB!", flush=True)

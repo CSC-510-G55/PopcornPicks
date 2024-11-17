@@ -16,7 +16,7 @@
 # Project Structure
 
 ## Source Code
--`react-frontend`
+-`frontend`
   - `src/`
     - `components`
       - `Landing.js`
@@ -26,7 +26,7 @@
       - `SearchPage.js`
       - `Wall.js`
     - `App.js`
-- `src/`
+- `backend/`
   - `prediction_scripts/`
     - `item_based.py`
   - `recommenderapp/`

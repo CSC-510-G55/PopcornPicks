@@ -39,7 +39,7 @@ npm --version
 ## Step 5: Frontend Setup
 Navigate to the React frontend directory and install dependencies:
 ```bash
-cd react-frontend
+cd frontend
 npm install
 ```
 
@@ -52,7 +52,7 @@ python -m src.recommenderapp.app
 ## Step 7: Start the Frontend Server
 In a new terminal, navigate to the React frontend directory:
 ```bash
-cd react-frontend
+cd frontend
 npm start
 ```
 
