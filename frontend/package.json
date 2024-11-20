@@ -43,7 +43,9 @@
     ]
   },
   "devDependencies": {
+    "@types/node": "^22.9.1",
     "@types/react": "^18.3.12",
+    "@types/react-autocomplete": "^1.8.11",
     "prettier": "^3.3.3"
   }
 }
