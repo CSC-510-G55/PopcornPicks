@@ -10,8 +10,8 @@ COPY ./requirements.txt /app/
 
 RUN pip install -r requirements.txt
 
-COPY ./recommenderapp /app/src/recommenderapp
+COPY ./recommenderapp /app/backend/recommenderapp
 
 EXPOSE 5001
 
-CMD ["python", "-m", "src.recommenderapp.app"]
+CMD ["python", "-m", "backend.recommenderapp.app"]
