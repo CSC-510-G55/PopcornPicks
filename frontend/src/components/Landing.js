@@ -33,6 +33,15 @@ const Landing = () => {
     navigate(path);
   };
 
+  const paths = [
+    { url: "/search_page", label: "Get Started!" },
+    { url: "/wall", label: "Go to Wall!" },
+    { url: "/reviews", label: "Review a Movie!" },
+    { url: "/dashboard", label: "Dashboard" },
+    { url: "/profile", label: "Profile" },
+    { url: "/lists", label: "Lists" },
+  ];
+
   return (
     <div className="landing-page">
       <nav
@@ -72,36 +81,15 @@ const Landing = () => {
             Enjoy movies at your own pace, on your terms.
           </p>
           <div className="d-flex justify-content-center flex-wrap">
-            <button
-              className="btn btn-primary m-2"
-              onClick={() => handleNavigation("/search_page")}
-            >
-              Get Started!
-            </button>
-            <button
-              className="btn btn-primary m-2"
-              onClick={() => handleNavigation("/wall")}
-            >
-              Go to Wall!
-            </button>
-            <button
-              className="btn btn-primary m-2"
-              onClick={() => handleNavigation("/reviews")}
-            >
-              Review a Movie!
-            </button>
-            <button
-              className="btn btn-primary m-2"
-              onClick={() => handleNavigation("/dashboard")}
-            >
-              Dashboard
-            </button>
-            <button
-              className="btn btn-primary m-2"
-              onClick={() => handleNavigation("/profile")}
-            >
-              Profile
-            </button>
+            {paths.map((path, index) => (
+              <button
+                key={index}
+                className="btn btn-primary m-2"
+                onClick={() => handleNavigation(path.url)}
+              >
+                {path.label}
+              </button>
+            ))}
           </div>
           <div className="highlighted-section text-center">
             <p>

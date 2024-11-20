@@ -7,6 +7,8 @@ import Baring from "./components/Baring";
 import SearchPage from "./components/SearchPage";
 import ReviewPage from "./components/Reviews";
 import SuccessPage from "./components/Success";
+import Lists from "./components/Lists.tsx";
+import ListDetail from "./components/ListDetail.tsx";
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/landing" element={<Landing />} />
         <Route path="/dashboard" element={<Baring />} />
+        <Route path="/lists" element={<Lists />} />
+        <Route path="/lists/:slug" element={<ListDetail />} />
         <Route path="/search_page" element={<SearchPage />} />
         <Route path="/reviews" element={<ReviewPage />} />
         <Route path="/success" element={<SuccessPage />} />
