@@ -17,6 +17,7 @@ from pymongo.errors import (
     OperationFailure,
     DuplicateKeyError,
 )
+from backend.recommenderapp.utils import generate_random_string
 
 from backend.recommenderapp.search import Search
 
@@ -232,6 +233,68 @@ def recent_movies():
     Gets the recent movies of the active user
     """
     return get_recent_movies(db, user[1], movies_df)
+
+
+@app.route("/init", methods=["PUT"])
+def init():
+    """
+    Initializes the database with the movies
+    """
+    movies = movies_df.to_dict(orient="records")
+
+    for movie in movies:
+        movie["name"] = movie["title"]
+        db.movies.update_one(
+            {"movieId": movie["movieId"]},
+            {"$setOnInsert": movie},  # Only insert the record if it doesn't exist
+            upsert=True,
+        )
+
+    return "Movies inserted successfully"
+
+
+@app.route("/lists", methods=["POST"])
+def create_list():
+    """
+    Handles the creation of a new list
+    """
+    data = json.loads(request.data)
+
+    list_name = data["name"] + "--" + generate_random_string(10)
+    movie_names = data["movies"]
+    user_id = ObjectId(user[1])
+
+    movies = db.movies.find({"title": {"$in": movie_names}}).distinct("_id")
+
+    print([d for d in list(db.movies.find())][:1])
+
+    print("ffdsdfsdfsdf")
+
+    print(movie_names)
+
+    db.lists.insert_one({"name": list_name, "movies": list(movies), "user_id": user_id})
+
+    return json.dumps({"slug": list_name})
+
+
+@app.route("/lists/<slug>", methods=["GET"])
+def get_list(slug):
+    """
+    Gets the list with the given slug
+    """
+    list_data = db.lists.find_one({"name": slug}, {"_id": False, "user_id": False})
+
+    movie_ids = list_data["movies"]
+    print(movie_ids)
+    movies = list(
+        db.movies.find({"_id": {"$in": movie_ids}}, {"_id": False, "user_id": False})
+    )  # Exclude '_id' field
+
+    list_data["movies"] = movies
+
+    print(list_data)
+
+    return json.dumps(list_data)
 
 
 @app.route("/getRecentFriendMovies", methods=["POST"])

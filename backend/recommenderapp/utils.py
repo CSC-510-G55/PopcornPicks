@@ -23,6 +23,8 @@ from bson.objectid import ObjectId
 import pandas as pd
 import os
 import requests
+import string
+import secrets
 
 app_dir = os.path.dirname(os.path.abspath(__file__))
 code_dir = os.path.dirname(app_dir)
@@ -34,6 +36,11 @@ load_dotenv()
 def load_movies():
     """Load movies data from CSV."""
     return pd.read_csv(os.path.join("data", "movies.csv"))
+
+
+def generate_random_string(length: int) -> str:
+    characters = string.ascii_lowercase + string.digits
+    return "".join(secrets.choice(characters) for _ in range(length))
 
 
 def create_colored_tags(genres):
