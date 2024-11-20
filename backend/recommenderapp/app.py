@@ -18,10 +18,10 @@ from pymongo.errors import (
     DuplicateKeyError,
 )
 
-from src.recommenderapp.search import Search
+from backend.recommenderapp.search import Search
 
-from src.recommenderapp.client import client
-from src.recommenderapp.utils import (
+from backend.recommenderapp.client import client
+from backend.recommenderapp.utils import (
     beautify_feedback_data,
     send_email_to_user,
     create_account,
@@ -37,7 +37,7 @@ from src.recommenderapp.utils import (
     fetch_streaming_link,
 )
 
-from src.recommenderapp.item_based import (
+from backend.recommenderapp.item_based import (
     recommend_for_new_user,
 )
 

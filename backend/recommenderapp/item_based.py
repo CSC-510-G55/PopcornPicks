@@ -8,7 +8,7 @@ This code is licensed under MIT license (see LICENSE for details)
 import os
 import pandas as pd
 from surprise import Dataset, Reader, SVD
-from src.recommenderapp.utils import get_user_ratings
+from backend.recommenderapp.utils import get_user_ratings
 
 app_dir = os.path.dirname(os.path.abspath(__file__))
 code_dir = os.path.dirname(app_dir)
