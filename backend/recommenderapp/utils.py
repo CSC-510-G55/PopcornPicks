@@ -502,7 +502,7 @@ def fetch_streaming_link(imdb_id):
     """
 
     url = f"https://api.watchmode.com/v1/title/{imdb_id}/sources/"
-    api_key = "4w5mn3iTbMuof1ovJD7cjp8e6LJUR877BNGnlnuA"
+    api_key = os.getenv("WATCHMODE_API_KEY")
 
     headers = {"Authorization": f"Bearer {api_key}"}
 
