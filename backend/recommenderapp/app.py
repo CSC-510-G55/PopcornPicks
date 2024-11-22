@@ -9,6 +9,8 @@ This code is licensed under MIT license (see LICENSE for details)
 # pylint: disable=wrong-import-order
 # pylint: disable=import-error
 import json
+import os
+import httpx
 from flask import Flask, jsonify, render_template, request
 import pandas as pd
 from flask_cors import CORS
@@ -135,6 +137,27 @@ def predict():
         "web_url": web_url,
     }
     return resp
+
+
+@app.route("/movies/<imdb_id>", methods=["GET"])
+async def get_movie(imdb_id):
+    """
+    Asynchronous Flask route to fetch movie data from the OMDB API.
+
+    Args:
+        imdb_id (str): The IMDb ID of the movie.
+
+    Returns:
+        JSON response with movie details.
+    """
+    url = "https://www.omdbapi.com/"
+    params = {"i": imdb_id, "apikey": os.getenv("OMDB_API_KEY")}
+
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, params=params)
+        data = response.json()
+
+    return jsonify(data)
 
 
 @app.route("/search", methods=["POST"])

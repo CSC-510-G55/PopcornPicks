@@ -47,12 +47,7 @@ const Wall = () => {
 
 	const fetchMovieData = async (imdbID) => {
 		try {
-			const response = await axios.get('https://www.omdbapi.com/', {
-				params: {
-					i: imdbID,
-					apikey: '77da67f1'
-				}
-			});
+			const response = await axios.get(`${API_BASE_URL}/movies/${imdbID}`);
 
 			return response.data;
 		} catch (error) {
