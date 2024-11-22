@@ -362,7 +362,7 @@ def get_user_ratings(db):
                         "user_id": "$user_id",
                         "name": "$movie_info.name",
                         "imdb_id": "$movie_info.imdb_id",
-                        "movie_id": "$movie_id",
+                        "movie_id": "$movie_info.movieId",
                         "review": "$review",
                         "score": "$score",
                         "time": "$time",
