@@ -9,6 +9,8 @@ import ReviewPage from "./components/Reviews";
 import SuccessPage from "./components/Success";
 import Lists from "./components/Lists.tsx";
 import ListDetail from "./components/ListDetail.tsx";
+import Quiz from "./components/Quiz.js";
+import Leaderboard from "./components/Leaderboard.js";
 import Seasonal from "./components/Seasonal";
 
 function App() {
@@ -26,6 +28,8 @@ function App() {
         <Route path="/search_page" element={<SearchPage />} />
         <Route path="/reviews" element={<ReviewPage />} />
         <Route path="/success" element={<SuccessPage />} />
+        <Route path="/quiz" element={<Quiz />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
       </Routes>
     </Router>
   );

@@ -1,0 +1,22 @@
+.question{
+    text-align: left;
+}
+
+.answer-option{
+    color: lightslategrey;
+    text-align: left;
+}
+
+.answers-container{
+    text-align: left;
+}
+
+.score{
+    text-align: center;
+
+}
+
+.btn{
+    justify-content: center;
+    align-items: center;
+}

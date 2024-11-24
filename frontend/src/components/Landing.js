@@ -84,6 +84,14 @@ const Landing = () => {
 							</button>
 						))}
 					</div>
+					<div className='d-flex justify-content-center flex-wrap'>
+						<button className='btn btn-primary m-2' onClick={() => handleNavigation('/quiz')}>
+							Take a Quiz!
+						</button>
+						<button className='btn btn-primary m-2' onClick={() => handleNavigation('/leaderboard')}>
+							Quiz Leaderboard
+						</button>
+					</div>
 					<div className='highlighted-section text-center'>
 						<p>
 							Made with ❤️ by{' '}
