@@ -14,6 +14,8 @@ services:
       dockerfile: Dockerfile
       args:
         MONGO_URI: ${MONGO_URI}
+        WATCHMODE_API_KEY: ${WATCHMODE_API_KEY}
+        OMDB_API_KEY: ${OMDB_API_KEY}
     networks:
       - app-network
     volumes:
@@ -22,7 +24,7 @@ services:
   db:
     image: mongo:5.0
     ports:
-      - "27018:27017"
+      - '27018:27017'
     environment:
       - MONGO_INITDB_DATABASE=mydb
     volumes:
