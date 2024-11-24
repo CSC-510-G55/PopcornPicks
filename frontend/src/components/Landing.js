@@ -39,7 +39,7 @@ const Landing = () => {
 		{ url: '/reviews', label: 'Review a Movie!' },
 		{ url: '/dashboard', label: 'Dashboard' },
 		{ url: '/profile', label: 'Profile' },
-		{ url: '/lists', label: 'Lists' }
+		{ url: '/lists', label: 'Lists' },
 	];
 
 	return (
@@ -82,6 +82,14 @@ const Landing = () => {
 								{path.label}
 							</button>
 						))}
+					</div>
+					<div className='d-flex justify-content-center flex-wrap'>
+						<button className='btn btn-primary m-2' onClick={() => handleNavigation('/quiz')}>
+							Take a Quiz!
+						</button>
+						<button className='btn btn-primary m-2' onClick={() => handleNavigation('/leaderboard')}>
+							Quiz Leaderboard
+						</button>
 					</div>
 					<div className='highlighted-section text-center'>
 						<p>
