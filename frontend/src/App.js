@@ -11,6 +11,7 @@ import Lists from "./components/Lists.tsx";
 import ListDetail from "./components/ListDetail.tsx";
 import Quiz from "./components/Quiz.js";
 import Leaderboard from "./components/Leaderboard.js";
+import Seasonal from "./components/Seasonal";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/dashboard" element={<Baring />} />
         <Route path="/lists" element={<Lists />} />
         <Route path="/lists/:slug" element={<ListDetail />} />
+        <Route path="/seasonal" element={<Seasonal />} />
         <Route path="/search_page" element={<SearchPage />} />
         <Route path="/reviews" element={<ReviewPage />} />
         <Route path="/success" element={<SuccessPage />} />

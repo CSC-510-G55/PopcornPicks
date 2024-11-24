@@ -362,7 +362,7 @@ def get_user_ratings(db):
                         "user_id": "$user_id",
                         "name": "$movie_info.name",
                         "imdb_id": "$movie_info.imdb_id",
-                        "movie_id": "$movie_id",
+                        "movie_id": "$movie_info.movieId",
                         "review": "$review",
                         "score": "$score",
                         "time": "$time",
@@ -502,7 +502,7 @@ def fetch_streaming_link(imdb_id):
     """
 
     url = f"https://api.watchmode.com/v1/title/{imdb_id}/sources/"
-    api_key = "4w5mn3iTbMuof1ovJD7cjp8e6LJUR877BNGnlnuA"
+    api_key = os.getenv("WATCHMODE_API_KEY")
 
     headers = {"Authorization": f"Bearer {api_key}"}
 
