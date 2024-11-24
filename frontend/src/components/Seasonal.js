@@ -50,12 +50,34 @@ const isChristmas = (date) => {
 // Helper function to calculate the range 10 days before the holiday
 const isWithinHolidayRange = (holidayDate, currentDate) => {
   const startDate = new Date(holidayDate);
-  startDate.setDate(holidayDate.getDate() - 10); // 10 days before the holiday
-  
+  startDate.setDate(holidayDate.getDate() - 10); // 10 days before the holiday 
   const endDate = new Date(holidayDate); // The day of the holiday
   
   // Check if the current date is within the range of start and end dates
   return currentDate >= startDate && currentDate <= endDate;
+};
+
+// Function to find the nearest upcoming holiday
+const getUpcomingHoliday = (currentDate) => {
+  const holidays = [
+    { name: 'New Year\'s Day', date: isNewYearsDay(currentDate), link: 'https://www.imdb.com/list/ls522631204/' },
+    { name: 'Independence Day', date: isIndependenceDay(currentDate), link: 'https://www.imdb.com/list/ls528659350/' },
+    { name: 'Thanksgiving', date: isThanksgiving(currentDate), link: 'https://www.imdb.com/list/ls000835734/' },
+    { name: 'Christmas', date: isChristmas(currentDate), link: 'https://www.imdb.com/list/ls000096828/' },
+    { name: 'Labor Day', date: isLaborDay(currentDate), link: 'https://www.imdb.com/list/ls002014923/' },
+    { name: 'Memorial Day', date: isMemorialDay(currentDate), link: 'https://www.imdb.com/list/ls561621160/' }
+  ];
+
+  // Sort holidays by the date to find the upcoming ones
+  holidays.sort((a, b) => a.date - b.date);
+
+  // Find the first holiday in the future (i.e., after the current date)
+  for (let holiday of holidays) {
+    if (holiday.date > currentDate) {
+      return holiday;
+    }
+  }
+  return null; // No upcoming holiday found
 };
 
 const Seasonal = () => {
@@ -68,11 +90,12 @@ const Seasonal = () => {
   const laborDay = isLaborDay(currentDate);
   const memorialDay = isMemorialDay(currentDate);
   const christmasDay = isChristmas(currentDate);
-  
+
   // Holiday theme settings
   let holidayTheme = '';
   let holidayMessage = '';
   let holidayGreeting = '';
+  let upcomingHolidayMessage = '';
 
   // Set holiday theme based on current holiday
   if (isWithinHolidayRange(newYearsDay, currentDate)) {
@@ -101,50 +124,52 @@ const Seasonal = () => {
     holidayGreeting = 'Honor the day with great movies!';
   }
 
+  // Check if any holiday is coming in the next 10 days
+  const upcomingHoliday = getUpcomingHoliday(currentDate);
+
+  if (!holidayTheme && upcomingHoliday) {
+    upcomingHolidayMessage = `The next upcoming holiday is ${upcomingHoliday.name}. Stay tuned for movie suggestions!`;
+  }
+
   return (
     <div className={`container holiday-page ${holidayTheme}`}>
-      <div className="holiday-header text-center">
-        <h1>{holidayMessage}</h1>
-        <p>{holidayGreeting}</p>
+      <div className="holiday-header text-center upcoming-holiday-message">
+        <h1>{holidayMessage || upcomingHolidayMessage}</h1>
+        <p>{holidayGreeting || 'The best movies will be available soon for the next holiday!'}</p>
       </div>
       
       <div className="holiday-buttons text-center">
-        {/* New Year's Day Button */}
+        {/* Holiday Buttons */}
         {isWithinHolidayRange(newYearsDay, currentDate) && (
           <button className="btn btn-primary" onClick={() => window.open("https://www.imdb.com/list/ls522631204/", "_blank")}>
             Get the Best New Year's Movies
           </button>
         )}
 
-        {/* Independence Day Button */}
         {isWithinHolidayRange(independenceDay, currentDate) && (
           <button className="btn btn-danger" onClick={() => window.open("https://www.imdb.com/list/ls528659350/", "_blank")}>
             Get the Best Independence Day Movies
           </button>
         )}
 
-        {/* Thanksgiving Button */}
         {isWithinHolidayRange(thanksgivingDay, currentDate) && (
           <button className="btn btn-warning" onClick={() => window.open("https://www.imdb.com/list/ls000835734/", "_blank")}>
             Get the Best Thanksgiving Movies
           </button>
         )}
 
-        {/* Christmas Button */}
         {isWithinHolidayRange(christmasDay, currentDate) && (
           <button className="btn btn-success" onClick={() => window.open("https://www.imdb.com/list/ls000096828/", "_blank")}>
             Get the Best Christmas Movies
           </button>
         )}
 
-        {/* Labor Day Button */}
         {isWithinHolidayRange(laborDay, currentDate) && (
           <button className="btn btn-info" onClick={() => window.open("https://www.imdb.com/list/ls002014923/", "_blank")}>
             Get the Best Labor Day Movies
           </button>
         )}
 
-        {/* Memorial Day Button */}
         {isWithinHolidayRange(memorialDay, currentDate) && (
           <button className="btn btn-dark" onClick={() => window.open("https://www.imdb.com/list/ls561621160/", "_blank")}>
             Get the Best Memorial Day Movies

@@ -50,4 +50,8 @@
     color: white;
     background-size: cover;
   }
-  
+
+    .upcoming-holiday-message {
+    background-color: #C19A6B;
+    color: #333;
+  }
