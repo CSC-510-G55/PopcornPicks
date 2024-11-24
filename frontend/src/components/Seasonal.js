@@ -53,12 +53,6 @@ const isWithinHolidayRange = (holidayDate, currentDate) => {
   startDate.setDate(holidayDate.getDate() - 6); // 6 days before the holiday 
   const endDate = new Date(holidayDate); // The day of the holiday
 
-   // Debugging the date range calculation
-   console.log(`Holiday Date: ${holidayDate.toLocaleDateString()}`);
-   console.log(`Start Date (10 days before): ${startDate.toLocaleDateString()}`);
-   console.log(`End Date (Holiday Date): ${endDate.toLocaleDateString()}`);
-   console.log(`End Date (Current Date): ${currentDate.toLocaleDateString()}`);
-  console.log(currentDate >= startDate && currentDate <= endDate);
   // Check if the current date is within the range of start and end dates
   return currentDate >= startDate && currentDate <= endDate;
 };
