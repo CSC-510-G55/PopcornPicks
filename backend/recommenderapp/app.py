@@ -11,6 +11,7 @@ This code is licensed under MIT license (see LICENSE for details)
 import json
 from flask import Flask, jsonify, render_template, request
 import pandas as pd
+import random
 from flask_cors import CORS
 from bson.objectid import ObjectId
 from pymongo.errors import (
@@ -49,7 +50,7 @@ db = client.PopcornPicksDB
 
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
 user = {1: None}
-user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
+user[1] = "673e820d3f9e32b77366db00"  # Hardcoded user id for testing purposes
 
 movies_df = pd.read_csv("data/movies.csv")
 
@@ -343,6 +344,94 @@ def send_mail():
     user_email = data["email"]
     send_email_to_user(user_email, beautify_feedback_data(data))
     return data
+
+@app.route("/quiz")
+def get_quiz():
+    """
+    Picks 5 Quiz Questions and sends it to backend
+    """
+    try:
+        print("hello")
+        questions_cursor = db.quiz.find({}, {"_id": 1, "question": 1, "answers": 1})
+        questions_list = list(questions_cursor)
+
+        for question in questions_list:
+            question["_id"] = str(question["_id"])
+
+        random.shuffle(questions_list)
+        selected_questions = questions_list[:5]
+        return jsonify(selected_questions), 200
+    
+    except Exception as e:
+        print("Error fetching quiz questions:", str(e))
+        return jsonify({"error": "Unable to fetch quiz questions"}), 500
+
+
+@app.route("/quiz", methods=["POST"])
+def quiz_result():
+    """
+    Calculate and send the result to the user
+    """
+    try:
+        user_answers = request.json.get("answers", [])
+        
+        if not user_answers:
+            return jsonify({"error": "No answers provided"}), 400
+
+        question_ids = [ObjectId(answer["question_id"]) for answer in user_answers]
+        questions_cursor = db.quiz.find({"_id": {"$in": question_ids}}, {"_id": 1, "correct_answer": 1})
+        questions = {str(q["_id"]): q["correct_answer"] for q in questions_cursor}
+
+        score = 0
+        for user_answer in user_answers:
+            question_id = user_answer["question_id"]
+            selected_answer = user_answer["answer"]
+
+            if question_id in questions and selected_answer == questions[question_id]:
+                score += 1
+
+        user_id = ObjectId(user[1])
+        user_name = db.users.find_one({"_id":user_id}, {"_id": 0, "username": 1})
+        user_score_data = db.leaderboard.find_one({"user_id": user_id})
+
+        if user_score_data:
+            new_score = user_score_data.get("score", 0) + score
+            db.leaderboard.update_one(
+                {"user_id": user_id},
+                {"$set": {"score": new_score, "username": user_name["username"]}},
+                upsert=True
+            )
+        else:
+            db.leaderboard.insert_one({
+                "user_id": user_id,
+                "username": user_name["username"],
+                "score": score
+            })
+        
+
+        return jsonify({"score": score, "total": len(question_ids)}), 200
+
+    except Exception as e:
+        print("Error calculating quiz results:", str(e))
+        return jsonify({"error": "Unable to calculate quiz results"}), 500
+
+@app.route("/leaderboard")
+def get_leaderboard():
+    """
+    Picks Top 10 persons in leaderboard
+    """
+    try:
+        leaderboard_cursor = db.leaderboard.find({}, {"username": 1, "score": 1, "_id": 0}).sort("score", -1).limit(10)
+        leaderboard = [
+            {"username": str(entry["username"]), "score": entry["score"]}
+            for entry in leaderboard_cursor
+        ]
+
+        return jsonify(leaderboard), 200
+
+    except Exception as e:
+        print("Error fetching leaderboard:", str(e))
+        return jsonify({"error": "Unable to fetch leaderboard"}), 500
 
 
 @app.route("/success")
