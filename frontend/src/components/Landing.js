@@ -39,7 +39,8 @@ const Landing = () => {
 		{ url: '/reviews', label: 'Review a Movie!' },
 		{ url: '/dashboard', label: 'Dashboard' },
 		{ url: '/profile', label: 'Profile' },
-		{ url: '/lists', label: 'Lists' }
+		{ url: '/lists', label: 'Lists' },
+		{ url: '/seasonal', label: 'Seasonal' }
 	];
 
 	return (
