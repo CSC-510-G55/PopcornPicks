@@ -32,7 +32,7 @@ const isLaborDay = (date) => {
 // Helper function to check if the date is New Year's Day (January 1)
 const isNewYearsDay = (date) => {
   const year = date.getFullYear();
-  return new Date(year, 0, 1); // January 1st
+  return new Date(year + 1 , 0, 1); // January 1st
 };
 
 // Helper function to check if the date is Independence Day (July 4)
@@ -47,12 +47,12 @@ const isChristmas = (date) => {
   return new Date(year, 11, 25); // December 25th
 };
 
-// Helper function to calculate the range 10 days before the holiday
+// Helper function to calculate the range 6 days before the holiday
 const isWithinHolidayRange = (holidayDate, currentDate) => {
   const startDate = new Date(holidayDate);
-  startDate.setDate(holidayDate.getDate() - 10); // 10 days before the holiday 
+  startDate.setDate(holidayDate.getDate() - 6); // 6 days before the holiday 
   const endDate = new Date(holidayDate); // The day of the holiday
-  
+
   // Check if the current date is within the range of start and end dates
   return currentDate >= startDate && currentDate <= endDate;
 };
