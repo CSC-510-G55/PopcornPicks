@@ -93,7 +93,7 @@ def calculate_hybrid_score(enriched_movies, user_rating_count):
     )
 
 
-def recommend_for_new_user(user_rating, user_id, db):
+def recommend_for_new_user(user_rating, user_id, db, rating_type):
     """Generate recommendations for a new user."""
     if not user_rating:
         return [], None, None
@@ -107,6 +107,9 @@ def recommend_for_new_user(user_rating, user_id, db):
         recommendations, columns=["movieId", "predicted_rating"]
     )
     enriched_movies = pd.merge(recommendations_df, movies, on="movieId")
+
+    if rating_type:
+        enriched_movies = enriched_movies[enriched_movies["rating"] == rating_type]
 
     selected_movies = movies[
         movies["title"].isin([movie["title"] for movie in user_rating])
