@@ -122,11 +122,13 @@ def predict():
     Predicts movie recommendations based on user ratings.
     """
     data = json.loads(request.data)
-    data1 = data["movie_list"]
+    movies = data["movie_list"]
 
-    user_rating = [{"title": movie, "rating": 10.0} for movie in data1]
+    user_rating = [{"title": movie, "rating": 10.0} for movie in movies]
 
-    recommendations, genres, imdb_id = recommend_for_new_user(user_rating, user[1], db)
+    recommendations, genres, imdb_id = recommend_for_new_user(
+        user_rating, user[1], db, data["rating_type"]
+    )
     web_url = []
     for element in imdb_id:
         web_url.append(fetch_streaming_link(element))
@@ -368,6 +370,7 @@ def send_mail():
     send_email_to_user(user_email, beautify_feedback_data(data))
     return data
 
+
 @app.route("/quiz")
 def get_quiz():
     """
@@ -384,7 +387,7 @@ def get_quiz():
         random.shuffle(questions_list)
         selected_questions = questions_list[:5]
         return jsonify(selected_questions), 200
-    
+
     except Exception as e:
         print("Error fetching quiz questions:", str(e))
         return jsonify({"error": "Unable to fetch quiz questions"}), 500
@@ -397,12 +400,14 @@ def quiz_result():
     """
     try:
         user_answers = request.json.get("answers", [])
-        
+
         if not user_answers:
             return jsonify({"error": "No answers provided"}), 400
 
         question_ids = [ObjectId(answer["question_id"]) for answer in user_answers]
-        questions_cursor = db.quiz.find({"_id": {"$in": question_ids}}, {"_id": 1, "correct_answer": 1})
+        questions_cursor = db.quiz.find(
+            {"_id": {"$in": question_ids}}, {"_id": 1, "correct_answer": 1}
+        )
         questions = {str(q["_id"]): q["correct_answer"] for q in questions_cursor}
 
         score = 0
@@ -414,7 +419,7 @@ def quiz_result():
                 score += 1
 
         user_id = ObjectId(user[1])
-        user_name = db.users.find_one({"_id":user_id}, {"_id": 0, "username": 1})
+        user_name = db.users.find_one({"_id": user_id}, {"_id": 0, "username": 1})
         user_score_data = db.leaderboard.find_one({"user_id": user_id})
 
         if user_score_data:
@@ -422,15 +427,12 @@ def quiz_result():
             db.leaderboard.update_one(
                 {"user_id": user_id},
                 {"$set": {"score": new_score, "username": user_name["username"]}},
-                upsert=True
+                upsert=True,
             )
         else:
-            db.leaderboard.insert_one({
-                "user_id": user_id,
-                "username": user_name["username"],
-                "score": score
-            })
-        
+            db.leaderboard.insert_one(
+                {"user_id": user_id, "username": user_name["username"], "score": score}
+            )
 
         return jsonify({"score": score, "total": len(question_ids)}), 200
 
@@ -438,13 +440,18 @@ def quiz_result():
         print("Error calculating quiz results:", str(e))
         return jsonify({"error": "Unable to calculate quiz results"}), 500
 
+
 @app.route("/leaderboard")
 def get_leaderboard():
     """
     Picks Top 10 persons in leaderboard
     """
     try:
-        leaderboard_cursor = db.leaderboard.find({}, {"username": 1, "score": 1, "_id": 0}).sort("score", -1).limit(10)
+        leaderboard_cursor = (
+            db.leaderboard.find({}, {"username": 1, "score": 1, "_id": 0})
+            .sort("score", -1)
+            .limit(10)
+        )
         leaderboard = [
             {"username": str(entry["username"]), "score": entry["score"]}
             for entry in leaderboard_cursor

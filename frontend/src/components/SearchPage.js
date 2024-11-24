@@ -12,11 +12,43 @@ const SearchPage = () => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [searchResults, setSearchResults] = useState([]);
 	const [isLoading, setIsLoading] = useState(false);
+	const [rating, setRating] = useState(undefined);
 	const [feedbackData, setFeedbackData] = useState({});
 	const [notifyMeDisabled, setNotifyMeDisabled] = useState(true);
 	const [view, setView] = useState(true);
 
 	const navigate = useNavigate();
+
+	const RATING_OPTIONS = [
+		'13+',
+		'16+',
+		'18+',
+		'AO',
+		'Approved',
+		'Banned',
+		'E',
+		'G',
+		'GP',
+		'M',
+		'M/PG',
+		'NC-17',
+		'Not Rated',
+		'Open',
+		'PD',
+		'PG',
+		'PG-13',
+		'Passed',
+		'R',
+		'TV-13',
+		'TV-14',
+		'TV-G',
+		'TV-MA',
+		'TV-PG',
+		'TV-Y',
+		'TV-Y7',
+		'TV-Y7-FV',
+		'X'
+	];
 
 	useEffect(() => {
 		getRecentMovies();
@@ -123,7 +155,7 @@ const SearchPage = () => {
 		try {
 			const response = await axios.post(
 				`${API_BASE_URL}/predict`,
-				{ movie_list: selectedMovies },
+				{ movie_list: selectedMovies, rating_type: rating ?? null },
 				{
 					headers: { 'Content-Type': 'application/json;charset=UTF-8' }
 				}
@@ -209,11 +241,11 @@ const SearchPage = () => {
 					<div style={{ display: 'flex', marginTop: '25px' }}>
 						<div style={{ flex: '1', marginRight: '20px' }}>
 							<h3 style={{ color: 'white' }}>Selected Movie(s):</h3>
-							<div style={{ display: 'flex', justifyContent: 'space-between' }}>
-								<div style={{ width: '75%' }}>
+							<div style={{ display: 'flex', justifyContent: 'space-between', flexDirection: 'column' }}>
+								<div>
 									<Autocomplete
 										getItemValue={(item) => item}
-										items={searchResults}
+										items={RATING_OPTIONS}
 										renderItem={(item, isHighlighted) => (
 											<div
 												key={item}
@@ -224,9 +256,8 @@ const SearchPage = () => {
 												{item}
 											</div>
 										)}
-										value={searchTerm}
-										onChange={handleSearch}
-										onSelect={handleSelect}
+										value={rating}
+										onSelect={(value) => setRating(value)}
 										inputProps={{
 											style: {
 												width: '100%',
@@ -235,50 +266,81 @@ const SearchPage = () => {
 												border: '1px solid #ced4da',
 												marginBottom: '20px'
 											},
-											placeholder: 'Search for a Movie'
+											placeholder: 'Choose a Rating'
 										}}
 									/>
-									<ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
-										{selectedMovies.map((movie, index) => (
-											<li
-												key={index}
-												style={{
-													padding: '10px',
-													borderBottom: '1px solid #ced4da',
-													color: 'white'
-												}}
-											>
-												{movie}
-												<button
-													onClick={() => setSelectedMovies(selectedMovies.filter((m) => m !== movie))}
+								</div>
+								<div style={{ display: 'flex', justifyContent: 'space-between' }}>
+									<div style={{ width: '75%' }}>
+										<Autocomplete
+											getItemValue={(item) => item}
+											items={searchResults}
+											renderItem={(item, isHighlighted) => (
+												<div
+													key={item}
 													style={{
-														float: 'right',
-														backgroundColor: '#f8d7da',
-														borderRadius: '50%',
-														borderColor: '#f5c6cb',
-														cursor: 'pointer'
+														backgroundColor: isHighlighted ? '#ddd' : '#fff'
 													}}
 												>
-													X
-												</button>
-											</li>
-										))}
-									</ul>
-								</div>
-								<div style={{ width: '20%' }}>
-									<button
-										onClick={handlePredict}
-										style={{
-											backgroundColor: '#007bff',
-											color: 'white',
-											border: 'none',
-											padding: '10px',
-											borderRadius: '5px',
-											cursor: 'pointer'
-										}}
-									>
-										Predict
-									</button>
+													{item}
+												</div>
+											)}
+											value={searchTerm}
+											onChange={handleSearch}
+											onSelect={handleSelect}
+											inputProps={{
+												style: {
+													width: '100%',
+													padding: '10px',
+													borderRadius: '40px',
+													border: '1px solid #ced4da',
+													marginBottom: '20px'
+												},
+												placeholder: 'Search for a Movie'
+											}}
+										/>
+										<ul style={{ listStyleType: 'none', paddingLeft: 0 }}>
+											{selectedMovies.map((movie, index) => (
+												<li
+													key={index}
+													style={{
+														padding: '10px',
+														borderBottom: '1px solid #ced4da',
+														color: 'white'
+													}}
+												>
+													{movie}
+													<button
+														onClick={() => setSelectedMovies(selectedMovies.filter((m) => m !== movie))}
+														style={{
+															float: 'right',
+															backgroundColor: '#f8d7da',
+															borderRadius: '50%',
+															borderColor: '#f5c6cb',
+															cursor: 'pointer'
+														}}
+													>
+														X
+													</button>
+												</li>
+											))}
+										</ul>
+									</div>
+									<div style={{ width: '20%' }}>
+										<button
+											onClick={handlePredict}
+											style={{
+												backgroundColor: '#007bff',
+												color: 'white',
+												border: 'none',
+												padding: '10px',
+												borderRadius: '5px',
+												cursor: 'pointer'
+											}}
+										>
+											Predict
+										</button>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -304,7 +366,7 @@ const SearchPage = () => {
 				</div>
 			)}
 			<div>
-				<div style={{ marginTop: '60px' }}>
+				<div style={{ maxHeight: 'calc(100vh - 200px)', marginTop: '200px', overflow: 'auto' }}>
 					<h2 style={{ color: 'white' }}>Recommended Movies:</h2>
 					<ul style={{ listStyleType: 'none', paddingLeft: '0' }}>
 						{recommendedMovies.map((movie, index) => (
