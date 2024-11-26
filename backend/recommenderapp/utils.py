@@ -130,7 +130,7 @@ def send_email_to_user(recipient_email, categorized_data):
     # Email configuration
     smtp_server = "smtp.gmail.com"
     smtp_port = 587
-    sender_email = "shrimadh332001@gmail.com"
+    sender_email = "popcornpicks.ofc@gmail.com"
     sender_password = os.getenv("APP_PASSWORD")
 
     # Verify that environment variables are set
@@ -403,25 +403,6 @@ def get_username(db, user):
     """
     user_data = db.users.find_one({"_id": ObjectId(user[1])})
     return user_data["username"] if user_data else ""
-
-
-def get_recent_friend_movies(db, user_id, movies_df):
-    """
-    Utility function for getting recent movies from user's friends.
-    """
-    movies = list(db.ratings.find({"user_id": user_id}).sort("_id", -1))
-    if not movies:
-        return json.dumps([])
-    movie_data = [
-        {"movie_id": movie["movie_id"], "score": movie["score"]} for movie in movies
-    ]
-    ratings_df = pd.DataFrame(movie_data)
-    merged_df = pd.merge(
-        ratings_df, movies_df, how="left", left_on="movie_id", right_on="movieId"
-    )
-    recent_movies_list = merged_df[["title", "score"]].to_dict(orient="records")
-    return json.dumps(recent_movies_list)
-
 
 def get_friends(db, user_id):
     """
