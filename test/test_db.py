@@ -30,7 +30,7 @@ class TestDB(unittest.TestCase):
         os.environ["MONGO_URI"] = WRONG_URI
 
         try:
-            from src.recommenderapp.client import client
+            from backend.recommenderapp.client import client
         except Exception as mongo_e:
             self.assertIn("bad database name", str(mongo_e).lower())
 
