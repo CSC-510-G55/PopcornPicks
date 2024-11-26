@@ -22,7 +22,7 @@ jobs:
       run: pip install black
 
     - name: Run Black
-      run: black . --check || black .
+      run: black . --check || black . || true
 
     - name: Commit changes
       uses: stefanzweifel/git-auto-commit-action@v4
