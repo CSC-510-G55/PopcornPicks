@@ -23,9 +23,3 @@ jobs:
 
     - name: Run Black
       run: black . --check || black . || true
-
-    - name: Commit changes
-      uses: stefanzweifel/git-auto-commit-action@v4
-      with:
-        commit_message: "Apply Black formatting"
-        file_pattern: "**/*.py"
