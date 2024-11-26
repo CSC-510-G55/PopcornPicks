@@ -18,8 +18,8 @@ import pandas as pd
 from bson import ObjectId
 from bson.errors import InvalidId
 
-from src.recommenderapp.client import client
-from src.recommenderapp.utils import (
+from backend.recommenderapp.client import client
+from backend.recommenderapp.utils import (
     create_colored_tags,
     beautify_feedback_data,
     create_movie_genres,

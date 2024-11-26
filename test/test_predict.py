@@ -9,8 +9,8 @@ This code is licensed under MIT license (see LICENSE for details)
 import unittest
 import warnings
 
-from src.recommenderapp.client import client
-from src.recommenderapp.item_based import recommend_for_new_user
+from backend.recommenderapp.client import client
+from backend.recommenderapp.item_based import recommend_for_new_user
 
 warnings.filterwarnings("ignore")
 

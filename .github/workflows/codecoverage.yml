@@ -1,6 +1,10 @@
 name: Code Coverage
 
-on: [push]
+on:
+  push:
+    branches: [project3]
+  pull_request:
+    branches: [project3]
 
 jobs:
   upload-coverage:
@@ -16,12 +20,12 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.13  # Replace '3.x' with your desired Python version
+          python-version: 3.9  # Replace '3.x' with your desired Python version
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pytest pytest-cov pytest-mock coverage
+          pip install pytest pytest-cov pytest-mock coverage setuptools
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install -r ./backend/requirements.txt
           sudo apt-get update
@@ -38,6 +42,7 @@ jobs:
           python -c "import os;from pymongo import MongoClient; client = MongoClient(os.getenv('MONGO_URI')); client.testDB.movies.drop(); client.close()"
 
       - name: Upload coverage reports to Codecov
+        if: always()
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
