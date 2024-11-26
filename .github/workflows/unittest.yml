@@ -1,6 +1,10 @@
 name: Tests
 
-on: [push]
+on:
+  push:
+    branches: [project3]
+  pull_request:
+    branches: [project3]
 
 jobs:
   unittest:
