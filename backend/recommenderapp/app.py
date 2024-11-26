@@ -36,7 +36,6 @@ from backend.recommenderapp.utils import (
     add_friend,
     get_friends,
     get_recent_movies,
-    get_recent_friend_movies,
     get_genre_count,
     fetch_streaming_link,
 )
@@ -327,8 +326,8 @@ def recent_friend_movies():
     Gets the recent movies of a certain friend
     """
     data = json.loads(request.data)
-    user_id = ObjectId(data["friend_id"]["_id"])
-    return get_recent_friend_movies(db, user_id, movies_df)
+    user_id = data["friend_id"]["_id"]
+    return get_recent_movies(db, user_id, movies_df)
 
 
 @app.route("/getUserName", methods=["GET"])
