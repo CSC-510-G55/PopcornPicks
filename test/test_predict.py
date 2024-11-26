@@ -16,7 +16,7 @@ warnings.filterwarnings("ignore")
 
 
 user = {1: None}
-user[1] = "671b289a193d2a9361ebf39a"  # Hardcoded user id for testing purposes
+user[1] = "673e820d3f9e32b77366db00"  # Hardcoded user id for testing purposes
 USER_ID = user[1]
 
 db = client.PopcornPicksDB
@@ -30,13 +30,13 @@ class Tests(unittest.TestCase):
     def test_empty_input(self):
         """Test with empty input."""
         ts = []
-        recommendations, _, _ = recommend_for_new_user(ts, USER_ID, db)
+        recommendations, _, _ = recommend_for_new_user(ts, USER_ID, db, 'X')
         self.assertEqual(recommendations, [])
 
     def test_no_matching_movie(self):
         """Test with no matching movie."""
         ts = [{"title": "Unknown Movie (2025)", "rating": 10.0}]
-        recommendations, _, _ = recommend_for_new_user(ts, USER_ID, db)
+        recommendations, _, _ = recommend_for_new_user(ts, USER_ID, db, 'X')
         self.assertEqual(recommendations, [])
 
     def test_duplicate_movies(self):
@@ -45,13 +45,13 @@ class Tests(unittest.TestCase):
             {"title": "Toy Story (1995)", "rating": 10.0},
             {"title": "Toy Story (1995)", "rating": 10.0},
         ]
-        recommendations, _, _ = recommend_for_new_user(ts, USER_ID, db)
+        recommendations, _, _ = recommend_for_new_user(ts, USER_ID, db, 'X')
         self.assertTrue(len(recommendations) > 0)
 
     def test_genre_similarity_calculation(self):
         """Test genre similarity calculation."""
         ts = [{"title": "Toy Story (1995)", "rating": 10.0}]
-        recommendations, genres, _ = recommend_for_new_user(ts, USER_ID, db)
+        recommendations, genres, _ = recommend_for_new_user(ts, USER_ID, db, 'X')
         self.assertTrue(len(recommendations) > 0)
         genres_set = set(genre for sublist in genres for genre in sublist.split("|"))
         self.assertTrue("Animation" in genres_set)
@@ -59,13 +59,13 @@ class Tests(unittest.TestCase):
     def test_runtime_similarity_calculation(self):
         """Test runtime similarity calculation."""
         ts = [{"title": "Toy Story (1995)", "rating": 10.0}]
-        recommendations, _, _ = recommend_for_new_user(ts, USER_ID, db)
+        recommendations, _, _ = recommend_for_new_user(ts, USER_ID, db, 'X')
         self.assertTrue(len(recommendations) > 0)
 
     def test_large_history_input(self):
         """Test with large history input."""
         ts = [{"title": f"Movie {i}", "rating": 10.0} for i in range(500)]
-        recommendations, _, _ = recommend_for_new_user(ts, USER_ID, db)
+        recommendations, _, _ = recommend_for_new_user(ts, USER_ID, db, 'X')
         self.assertTrue(len(recommendations) <= 10)
 
     def test_genre_diversity_in_recommendations(self):
@@ -75,7 +75,7 @@ class Tests(unittest.TestCase):
             {"title": "Les Miserables (1995)", "rating": 7.0},
             {"title": "Jurassic Park (1993)", "rating": 9.0},
         ]
-        _, genres, _ = recommend_for_new_user(ts, USER_ID, db)
+        _, genres, _ = recommend_for_new_user(ts, USER_ID, db, 'X')
         unique_genres = set(g for genre in genres for g in genre.split("|"))
         self.assertTrue(
             {"Action", "History", "Science Fiction"}.issubset(unique_genres)

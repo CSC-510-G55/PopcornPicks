@@ -126,7 +126,7 @@ def test_get_friends(mock_db_and_user):
             response = client.get("/getFriends")
             
             # Assert that get_friends was called with the correct parameters
-            mock_get_friends.assert_called_with(mock_db_and_user, "671b289a193d2a9361ebf39a")  # Hardcoded user ID
+            mock_get_friends.assert_called_with(mock_db_and_user, "673e820d3f9e32b77366db00")  # Hardcoded user ID
 
             # Assert that the response is correct
             assert response.status_code == 200
@@ -145,7 +145,7 @@ def test_get_friends_no_friends(mock_db_and_user):
             response = client.get("/getFriends")
             
             # Assert that get_friends was called with the correct parameters
-            mock_get_friends.assert_called_with(mock_db_and_user, "671b289a193d2a9361ebf39a")
+            mock_get_friends.assert_called_with(mock_db_and_user, "673e820d3f9e32b77366db00")
             
             # Assert that the response is an empty list
             assert response.status_code == 200
