@@ -7,13 +7,14 @@
 | astroid         | LGPL-2.1     | https://github.com/pylint-dev/astroid          |
 | autopep8        | MIT          | https://github.com/hhatto/autopep8             |
 | bcrypt          | Apache-2.0   | https://github.com/pyca/bcrypt                 |
-| prettier        | MIT          | https://github.com/prettier/prettier           |
+| black           | MIT          | https://github.com/psf/black                   |
 | blinker         | MIT          | https://github.com/pallets/blinker             |
 | Flask           | BSD-3-Clause | https://github.com/pallets/flask               |
 | Flask-Cors      | MIT          | https://github.com/corydolphin/flask-cors      |
 | Flask-PyMongo   | BSD          | https://github.com/dcrosta/flask-pymongo       |
 | numpy           | BSD-3-Clause | https://github.com/numpy/numpy                 |
 | pandas          | BSD-3-Clause | https://github.com/pandas-dev/pandas           |
+| prettier        | MIT          | https://github.com/prettier/prettier           |
 | pylint          | GPL-2.0      | https://github.com/pylint-dev/pylint           |
 | pymongo         | Apache-2.0   | https://github.com/mongodb/mongo-python-driver |
 | pytest          | MIT          | https://github.com/pytest-dev/pytest           |

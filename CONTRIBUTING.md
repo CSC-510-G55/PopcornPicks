@@ -112,7 +112,9 @@ Any suggested enhancements like adding new features or improving existing functi
 
 ## Style checkers standards:
 
-- Use 'prettier' for proper coding standards
+- Use the `pylance` package for Python (VS code), and use `black` for auto-styling and auto-formatting the python code.
+- Use 'pylint' for proper coding standards
+- Use 'prettier' for proper coding standards for javascript and css code
 
 ## Code of Conduct:
 
@@ -134,7 +136,7 @@ Any suggested enhancements like adding new features or improving existing functi
 - Any code that is not tested should be committed to the test codes in the code folder. After they are successfully tested, the main code can be updated.
 - Variable names should be self-explanatory
 - Add comments in the code so that a new contributor can understand the functionality of the modules easily
-- `prettier` is used as linter
+- `black` and `prettier` are used as linters
 - 'Pylint' used for proper coding standards
 
 ## Governal Policies

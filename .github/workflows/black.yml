@@ -1,0 +1,27 @@
+name: Black
+
+ on:
+   push:
+     branches: [project3]
+   pull_request:
+     branches: [project3]
+
+
+ jobs:
+   black:
+     runs-on: ubuntu-latest
+
+     steps:
+     - name: Checkout code
+       uses: actions/checkout@v3
+
+     - name: Set up Python
+       uses: actions/setup-python@v4
+       with:
+         python-version: 3.12  # Adjust as needed
+
+     - name: Install Black
+       run: pip install black
+
+     - name: Run Black
+        run: black --check backend/recommenderapp/*.py
