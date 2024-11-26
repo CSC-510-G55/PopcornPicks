@@ -3,7 +3,6 @@ asgiref==3.8.1
 astroid==3.0.3
 autopep8==2.0.4
 bcrypt==4.0.1
-black==23.7.0
 blinker==1.8.2
 certifi==2024.8.30
 charset-normalizer==3.4.0
