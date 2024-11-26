@@ -1,10 +1,10 @@
 name: Black
 
- on:
-   push:
-     branches: [project3]
-   pull_request:
-     branches: [project3]
+on:
+  push:
+    branches: [project3]
+  pull_request:
+    branches: [project3]
 
 
  jobs:
