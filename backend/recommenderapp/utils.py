@@ -404,6 +404,7 @@ def get_username(db, user):
     user_data = db.users.find_one({"_id": ObjectId(user[1])})
     return user_data["username"] if user_data else ""
 
+
 def get_friends(db, user_id):
     """
     Utility function to get a user's friends list with their user IDs and usernames.
