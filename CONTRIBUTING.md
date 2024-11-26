@@ -20,10 +20,13 @@
   - `src/`
     - `components`
       - `Landing.js`
+      - `Leaderboard.js`
       - `LoginPage.js`
       - `Profile.js`
+      - `Quiz.js`
       - `Reviews.js`
       - `SearchPage.js`
+      - `Seasonal.js`
       - `Wall.js`
     - `App.js`
 - `backend/`

@@ -1,15 +1,15 @@
 Cite as
 
-Srimadh V Rao, Akul G Devali, Manav D Shah. (2024, November 1). se24ncsu/PopcornPicks (Version v6).
-Zenodo. https://zenodo.org/doi/10.5281/zenodo.10210915
+Balaji Sankar, Bhushan Patil, Cyril Melvin Vincent. (2024, November 26). CSC-510-G55/PopcornPicks (Version v3.0.0).
+Zenodo. https://zenodo.org/doi/10.5281/zenodo.14220693
 
 ```
 @software{nfoster1492/ClassMateBot-1,
-  title     = {brwali/PopcornPicks (Version v2)},
-  DOI       = {10.5281/zenodo.10210915}, 
-  author    = {Brandon Walia, Nicholas Foster, Robert Kenney, Nathan Kohen}, 
+  title     = {CSC-510-G55/PopcornPicks (Version v3)},
+  DOI       = {10.5281/zenodo.14220693}, 
+  author    = {Balaji Sankar, Bhushan Patil, Cyril Melvin Vincent}, 
   publisher = {Zenodo}, 
-  year      = {2023}, 
+  year      = {2024}, 
   month     = {November}
 }
 ```

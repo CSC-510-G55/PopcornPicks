@@ -11,7 +11,7 @@ It contains information about the project, including its name, version, authors,
 description, and other relevant details, to facilitate distribution and installation.
 
 For more information about the PopcornPicks project, visit:
-https://github.com/brwali/PopcornPicks
+https://github.com/CSC-510-G55/PopcornPicks
 """
 
 import setuptools
@@ -20,14 +20,14 @@ with open("README.md", "r", encoding="utf8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="git-brwali",  # Replace with your own username
+    name="CSC-510-G55",  # Replace with your own username
     version="1.0.0",
-    author="Robert, Brandon, Nicholas, Nathan",
+    author="Balaji, Bhushan, Cyril",
     author_email="popcornpicksse24@gmail.com@gmail.com",
     description="A movie recommendation engine",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/brwali/PopcornPicks",
+    url="https://github.com/CSC-510-G55/PopcornPicks",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
