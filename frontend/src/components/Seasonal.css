@@ -1,57 +1,63 @@
 /* General Holiday Page */
 .holiday-page {
-    padding: 20px;
-    font-family: 'Arial', sans-serif;
-  }
-  
-  .holiday-header h1 {
-    font-size: 3rem;
-    margin-bottom: 20px;
-  }
-  
-  .holiday-buttons button {
-    margin: 10px;
-    font-size: 1.25rem;
-  }
-  
-  /* Holiday Themes */
-  .new-years-theme {
-    background: url('https://musicandbands.co.uk/sites/default/files/2019-10/new-years-eve-featured.jpg') no-repeat center center;
-    color: white;
-    background-size: cover;
-  }
-  
-  .independence-day-theme {
-    background: url('https://as2.ftcdn.net/v2/jpg/05/98/47/87/1000_F_598478743_chJMqOtY8Bfy6zKCEYHiWYm3rabrhHsG.jpg') no-repeat center center;
-    color: white;
-    background-size: cover;
-  }
-  
-  .thanksgiving-theme {
-    background: url('https://www.creativefabrica.com/wp-content/uploads/2022/11/11/Thanksgiving-Background-With-Fall-Colors-46019262-1.png') no-repeat center center;
-    color: white;
-    background-size: cover;
-  }
-  
-  .christmas-theme {
-    background: url('https://www.myjewishlearning.com/wp-content/uploads/2005/12/pareve-christmas-1024x577.jpg') no-repeat center center;
-    color: white;
-    background-size: cover;
-  }
-  
-  .labor-day-theme {
-    background: url('https://www.abc27.com/wp-content/uploads/sites/55/2023/09/GettyImages-1631919402-1.jpg') no-repeat center center;
-    color: white;
-    background-size: cover;
-  }
-  
-  .memorial-day-theme {
-    background: url('https://www.asomf.org/wp-content/uploads/2021/05/5ecbb9f8ee9fafe91ffb2343_memorialday-768x403.jpeg') no-repeat center center;
-    color: white;
-    background-size: cover;
-  }
+	padding: 20px;
+	font-family: 'Arial', sans-serif;
+}
 
-    .upcoming-holiday-message {
-    background-color: #C19A6B;
-    color: #333;
-  }
+.holiday-header h1 {
+	font-size: 3rem;
+	margin-bottom: 20px;
+}
+
+.holiday-buttons button {
+	margin: 10px;
+	font-size: 1.25rem;
+}
+
+/* Holiday Themes */
+.new-years-theme {
+	background: url('https://musicandbands.co.uk/sites/default/files/2019-10/new-years-eve-featured.jpg') no-repeat center
+		center;
+	color: white;
+	background-size: cover;
+}
+
+.independence-day-theme {
+	background: url('https://as2.ftcdn.net/v2/jpg/05/98/47/87/1000_F_598478743_chJMqOtY8Bfy6zKCEYHiWYm3rabrhHsG.jpg')
+		no-repeat center center;
+	color: white;
+	background-size: cover;
+}
+
+.thanksgiving-theme {
+	background: url('https://www.creativefabrica.com/wp-content/uploads/2022/11/11/Thanksgiving-Background-With-Fall-Colors-46019262-1.png')
+		no-repeat center center;
+	color: white;
+	background-size: cover;
+}
+
+.christmas-theme {
+	background: url('https://www.myjewishlearning.com/wp-content/uploads/2005/12/pareve-christmas-1024x577.jpg') no-repeat
+		center center;
+	color: white;
+	background-size: cover;
+}
+
+.labor-day-theme {
+	background: url('https://www.abc27.com/wp-content/uploads/sites/55/2023/09/GettyImages-1631919402-1.jpg') no-repeat
+		center center;
+	color: white;
+	background-size: cover;
+}
+
+.memorial-day-theme {
+	background: url('https://www.asomf.org/wp-content/uploads/2021/05/5ecbb9f8ee9fafe91ffb2343_memorialday-768x403.jpeg')
+		no-repeat center center;
+	color: white;
+	background-size: cover;
+}
+
+.upcoming-holiday-message {
+	background-color: #c19a6b;
+	color: #333;
+}
