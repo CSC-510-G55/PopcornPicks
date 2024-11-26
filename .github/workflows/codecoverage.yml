@@ -38,6 +38,7 @@ jobs:
           python -c "import os;from pymongo import MongoClient; client = MongoClient(os.getenv('MONGO_URI')); client.testDB.movies.drop(); client.close()"
 
       - name: Upload coverage reports to Codecov
+        if: always()
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
