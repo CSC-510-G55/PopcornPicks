@@ -1,9 +1,11 @@
 name: Black Formatting
 
 on:
-  push:  # Trigger on any branch push
-    branches:
-      - '**'  # Matches all branches
+  push:
+    branches: [project3]
+  pull_request:
+    branches: [project3]
+
 
 jobs:
   black:
