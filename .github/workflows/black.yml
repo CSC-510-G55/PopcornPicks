@@ -7,7 +7,7 @@ on:
     branches: [project3]
 
 jobs:
-  black:
+  format:
     runs-on: ubuntu-latest
 
     steps:
