@@ -1,13 +1,19 @@
 name: Pylint
 
-on: [push]
+on:
+  push:
+    branches: [project3]
+  pull_request:
+    branches: [project3]
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
+
     strategy:
       matrix:
         python-version: ["3.11"]
+
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
@@ -17,7 +23,15 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install pylint
+      
     - name: Analysing the code with pylint
       run: |
-        pylint $(git ls-files '*.py')
+        pylint $(git ls-files '*.py') > pylint_output.txt || true
+        score=$(grep "Your code has been rated at" pylint_output.txt | sed -E 's/^.*rated at ([0-9.]+).*$/\1/')
+        echo "score=$score" >> $GITHUB_OUTPUT
+        echo "::notice::Pylint score: $score/10"
+
+    - name: Save Pylint score to file
+      run: |
+        echo "Pylint Score: ${{ steps.pylint.outputs.score }}" > pylint_score.txt
