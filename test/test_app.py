@@ -14,7 +14,6 @@ def mock_mongo_collections():
     with patch("backend.recommenderapp.app.db.users") as mock_users, patch(
         "backend.recommenderapp.app.db.movies"
     ) as mock_movies, patch("backend.recommenderapp.app.db.ratings") as mock_ratings:
-
         # Mocking the `create_index` method for all collections
         mock_users.create_index = MagicMock()
         mock_movies.create_index = MagicMock()

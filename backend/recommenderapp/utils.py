@@ -303,7 +303,7 @@ def add_list_to_db(db, user, list_name, movie_list):
             csv_path = os.path.join("data/movies.csv")
             df = pd.read_csv(csv_path)
             movie_row = df[df["title"] == movie_name]
-            
+
             movie_row = movie_row.to_dict(orient="records")[0]
             movie_row["name"] = movie_row["title"]
 
