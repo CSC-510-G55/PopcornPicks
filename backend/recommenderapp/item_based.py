@@ -96,7 +96,7 @@ def calculate_hybrid_score(enriched_movies, user_rating_count):
 def recommend_for_new_user(user_rating, user_id, db, rating_type=None):
     """Generate recommendations for a new user."""
     if not user_rating:
-        return [], None, None
+        return [], None, None, None
     movies = load_movies()
     ratings = prepare_ratings(db)
     surprise_df = prepare_surprise_df(ratings)
@@ -116,7 +116,7 @@ def recommend_for_new_user(user_rating, user_id, db, rating_type=None):
     ]
 
     if selected_movies.empty:
-        return [], None, None
+        return [], None, None, None
 
     calculate_genre_similarity(selected_movies, enriched_movies)
     calculate_runtime_similarity(selected_movies, enriched_movies)
@@ -129,4 +129,5 @@ def recommend_for_new_user(user_rating, user_id, db, rating_type=None):
         list(top_movies["title"]),
         list(top_movies["genres"]),
         list(top_movies["imdb_id"]),
+        list(top_movies["rating"]),
     )
