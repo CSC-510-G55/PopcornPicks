@@ -297,7 +297,7 @@ def add_list_to_db(db, user, list_name, movie_list):
     movies = []
 
     for movie_name in movie_list:
-        movie_doc = db.movies.find_one({"name": movie_name})
+        movie_doc = db.movies.find_one({"title": movie_name})
 
         if not movie_doc:
             csv_path = os.path.join("data/movies.csv")
