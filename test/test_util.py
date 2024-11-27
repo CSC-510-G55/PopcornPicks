@@ -35,6 +35,8 @@ from backend.recommenderapp.utils import (
     get_user_history,
     fetch_streaming_link,
     get_genre_count,
+    add_list_to_db,
+    get_list_from_db,
 )
 
 
@@ -280,6 +282,61 @@ class TestRecommenderApp(unittest.TestCase):
 
         recent_movies = get_recent_movies(self.db, user_id, self.movies_df)
         self.assertGreater(len(recent_movies), 0)
+
+    def test_list_creation(self):
+        """Test creating and retrieving movie lists."""
+        user_id = login_to_account(
+            self.db, username="testUserLogin", password="password123"
+        )
+        toy_story_collection = [
+            "Toy Story (1995)",
+            "Toy Story 2 (1999)",
+            "Toy Story 3 (2010)",
+        ]
+
+        slug = add_list_to_db(
+            self.db,
+            user=[None, user_id],
+            list_name="Toy Story Collection",
+            movie_list=toy_story_collection,
+        )
+
+        retrieved_list = get_list_from_db(self.db, slug)
+
+        self.assertEqual(
+            [
+                (movie["title"] if "title" in movie else movie["name"])
+                for movie in retrieved_list["movies"]
+            ],
+            toy_story_collection,
+        )
+
+    def test_uniqueness_of_list_slug(self):
+        """Test uniqueness of list slug."""
+        user_id = login_to_account(
+            self.db, username="testUserLogin", password="password123"
+        )
+        toy_story_collection = [
+            "Toy Story (1995)",
+            "Toy Story 2 (1999)",
+            "Toy Story 3 (2010)",
+        ]
+
+        slug1 = add_list_to_db(
+            self.db,
+            user=[None, user_id],
+            list_name="Toy Story Collection",
+            movie_list=toy_story_collection,
+        )
+
+        slug2 = add_list_to_db(
+            self.db,
+            user=[None, user_id],
+            list_name="Toy Story Collection",
+            movie_list=toy_story_collection,
+        )
+
+        self.assertNotEqual(slug1, slug2)
 
     @patch("requests.get")
     def test_fetch_streaming_link(self, mock_get):

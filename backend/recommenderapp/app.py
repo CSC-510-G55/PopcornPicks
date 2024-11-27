@@ -38,6 +38,8 @@ from backend.recommenderapp.utils import (
     get_recent_movies,
     get_genre_count,
     fetch_streaming_link,
+    add_list_to_db,
+    get_list_from_db,
 )
 
 from backend.recommenderapp.item_based import (
@@ -125,7 +127,7 @@ def predict():
 
     user_rating = [{"title": movie, "rating": 10.0} for movie in movies]
 
-    recommendations, genres, imdb_id = recommend_for_new_user(
+    recommendations, genres, imdb_id, _ = recommend_for_new_user(
         user_rating, user[1], db, data["rating_type"]
     )
     web_url = []
@@ -284,23 +286,9 @@ def create_list():
     Handles the creation of a new list
     """
     data = json.loads(request.data)
+    slug = add_list_to_db(db, user, data["name"], data["movies"])
 
-    list_name = data["name"] + "--" + generate_random_string(10)
-    movie_names = data["movies"]
-    user_id = ObjectId(user[1])
-
-    movies = db.movies.find({"title": {"$in": movie_names}}).distinct("_id")
-
-    db.lists.insert_one(
-        {
-            "name": data["name"],
-            "slug": list_name,
-            "movies": list(movies),
-            "user_id": user_id,
-        }
-    )
-
-    return json.dumps({"slug": list_name})
+    return json.dumps({"slug": slug})
 
 
 @app.route("/lists/<slug>", methods=["GET"])
@@ -308,14 +296,7 @@ def get_list(slug):
     """
     Gets the list with the given slug
     """
-    list_data = db.lists.find_one({"slug": slug}, {"_id": False, "user_id": False})
-    movie_ids = list_data["movies"]
-
-    movies = list(
-        db.movies.find({"_id": {"$in": movie_ids}}, {"_id": False, "user_id": False})
-    )  # Exclude '_id' field
-
-    list_data["movies"] = movies
+    list_data = get_list_from_db(db, slug)
 
     return json.dumps(list_data)
 

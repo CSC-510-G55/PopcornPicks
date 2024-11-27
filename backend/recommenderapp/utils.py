@@ -286,6 +286,65 @@ def submit_review(db, user, movie, score, review):
     db.ratings.insert_one(review_doc)
 
 
+def add_list_to_db(db, user, list_name, movie_list):
+    """
+    Utility function for adding a list to the database
+    """
+
+    slug = list_name + "--" + generate_random_string(10)
+    user_id = ObjectId(user[1])
+
+    movies = []
+
+    for movie_name in movie_list:
+        movie_doc = db.movies.find_one({"title": movie_name})
+
+        if not movie_doc:
+            csv_path = os.path.join("data/movies.csv")
+            df = pd.read_csv(csv_path)
+            movie_row = df[df["title"] == movie_name]
+
+            movie_row = movie_row.to_dict(orient="records")[0]
+            movie_row["name"] = movie_row["title"]
+
+            db.movies.update_one(
+                {"movieId": movie_row["movieId"]},
+                {
+                    "$setOnInsert": movie_row
+                },  # Only insert the record if it doesn't exist
+                upsert=True,
+            )
+
+        movies.append(db.movies.find_one({"name": movie_name})["_id"])
+
+    db.lists.insert_one(
+        {
+            "name": list_name,
+            "slug": slug,
+            "movies": list(movies),
+            "user_id": user_id,
+        }
+    )
+
+    return slug
+
+
+def get_list_from_db(db, slug):
+    """
+    Utility function for getting a list from the database
+    """
+    list_data = db.lists.find_one({"slug": slug}, {"_id": False, "user_id": False})
+    movie_ids = list_data["movies"]
+
+    movies = list(
+        db.movies.find({"_id": {"$in": movie_ids}}, {"_id": False, "user_id": False})
+    )  # Exclude '_id' field
+
+    list_data["movies"] = movies
+
+    return list_data
+
+
 def get_wall_posts(db):
     """
     Utility function to get wall posts from the MongoDB database,
