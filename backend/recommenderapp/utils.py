@@ -286,6 +286,44 @@ def submit_review(db, user, movie, score, review):
     db.ratings.insert_one(review_doc)
 
 
+def add_list_to_db(db, user, list_name, movie_list):
+    """
+    Utility function for adding a list to the database
+    """
+
+    slug = list_name + "--" + generate_random_string(10)
+    user_id = ObjectId(user[1])
+
+    movies = db.movies.find({"title": {"$in": movie_list}}).distinct("_id")
+
+    db.lists.insert_one(
+        {
+            "name": list_name,
+            "slug": slug,
+            "movies": list(movies),
+            "user_id": user_id,
+        }
+    )
+
+    return slug
+
+
+def get_list_from_db(db, slug):
+    """
+    Utility function for getting a list from the database
+    """
+    list_data = db.lists.find_one({"slug": slug}, {"_id": False, "user_id": False})
+    movie_ids = list_data["movies"]
+
+    movies = list(
+        db.movies.find({"_id": {"$in": movie_ids}}, {"_id": False, "user_id": False})
+    )  # Exclude '_id' field
+
+    list_data["movies"] = movies
+
+    return list_data
+
+
 def get_wall_posts(db):
     """
     Utility function to get wall posts from the MongoDB database,
