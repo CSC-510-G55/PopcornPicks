@@ -28,7 +28,7 @@
 | The file CODE-OF-CONDUCT.md lists rules of behavior for this repo; e.g. see example | 3 | https://github.com/CSC-510-G55/PopcornPicks/blob/project3/CODE_OF_CONDUCT.md |
 | The file CONTRIBUTING.md lists coding standards and lots of tips on how to extend the system without screwing things up; e.g. see example | 3 | https://github.com/CSC-510-G55/PopcornPicks/blob/project3/CONTRIBUTING.md |
 | The file README.md contains all the following | 3 | https://github.com/CSC-510-G55/PopcornPicks/blob/project3/readme.md |
-| Video | 3 | https://drive.google.com/file/d/1ex5-YLe7Nk8qPSVuC0A4Oy5Kil-VJqz9/view |
+| Video | 3 | https://drive.google.com/file/d/1_Ucj2hUpYx73PhojnefEAXbMKWmEwo63/view?usp=sharing |
 | DOI badge: exists. To get a Digitial Object Indentifier, regiser the project at Zenodo. DOI badges look like this: Zenodo doi badge | 3 | https://zenodo.org/records/14220693 |
 | Badges showing your style checkers | 3 | https://github.com/CSC-510-G55/PopcornPicks/actions/workflows/prettier.yml |
 | Badges showing your code formatters. | 3 | https://github.com/CSC-510-G55/PopcornPicks/actions/workflows/pylint.yml |
