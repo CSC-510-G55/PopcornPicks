@@ -294,7 +294,28 @@ def add_list_to_db(db, user, list_name, movie_list):
     slug = list_name + "--" + generate_random_string(10)
     user_id = ObjectId(user[1])
 
-    movies = db.movies.find({"title": {"$in": movie_list}}).distinct("_id")
+    movies = []
+
+    for movie_name in movie_list:
+        movie_doc = db.movies.find_one({"name": movie_name})
+
+        if not movie_doc:
+            csv_path = os.path.join("data/movies.csv")
+            df = pd.read_csv(csv_path)
+            movie_row = df[df["title"] == movie_name]
+            
+            movie_row = movie_row.to_dict(orient="records")[0]
+            movie_row["name"] = movie_row["title"]
+
+            db.movies.update_one(
+                {"movieId": movie_row["movieId"]},
+                {
+                    "$setOnInsert": movie_row
+                },  # Only insert the record if it doesn't exist
+                upsert=True,
+            )
+
+        movies.append(db.movies.find_one({"name": movie_name})["_id"])
 
     db.lists.insert_one(
         {
